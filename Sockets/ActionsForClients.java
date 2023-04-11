@@ -14,7 +14,7 @@ ObjectOutputStream out;
             e.printStackTrace();
         }
     }
- 
+
     public void run() {
         try {
                 Test t = (Test) in.readObject();
