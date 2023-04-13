@@ -3,17 +3,20 @@ import java.net.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.management.remote.SubjectDelegationPermission;
+
 public class ClientAction extends Thread {
     ObjectInputStream in;
     ObjectOutputStream out;
     private final ParserGPX parser = new ParserGPX();
     private final int num_of_wpt = 16;
-    
-    public ClientAction(Socket connection) {
+    private RoundRobin rob;
+
+    public ClientAction(Socket connection, RoundRobin rob) {
         try {
             out = new ObjectOutputStream(connection.getOutputStream());
             in = new ObjectInputStream(connection.getInputStream());
- 
+            this.rob = rob;
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -26,42 +29,37 @@ public class ClientAction extends Thread {
             File file = (File) in.readObject();
 
             ArrayList<Waypoint> wpt_list = parser.parse(file);
-            
-            // Create chunks 
-            //ArrayList<Chunk> chunks = create_chunk(wpt_list);
-            ArrayList<Chunk> chunks = create_chunk(wpt_list);
-            out.writeObject(chunks);
-            out.flush();
+            // Create chunks
+            create_chunk(wpt_list);
+
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
     }
 
-    private ArrayList<Chunk> create_chunk(ArrayList<Waypoint> wpt_list) {
-        //ArrayList<Chunk> chunks = new ArrayList<>();
-        // List that contains lists of waypoints / (chunks)
-        // List<Waypoint> -> Chunk
-        ArrayList<Chunk> chunks = new ArrayList<Chunk>();
-        int size = wpt_list.size();
-        // Split the wpt_list in wpt_list.size() // num_of_wpt chunks and store them in
-        // chunks (return variable) 
-        for (int i = 0; i < size; i += num_of_wpt) {
-            int endIndex = Math.min(i + num_of_wpt, size);
-            List<Waypoint> list =  wpt_list.subList(i, endIndex);
-            Chunk sublist = new Chunk();
-            for (int k = 0; k< list.size(); k++) 
+    private void create_chunk(ArrayList<Waypoint> wpt_list) {
+
+        // TODO: when we create a chunk, we must keep a connection between the 
+        // the sequential chunks. Keep th last waypoint of the previous chunk
+        // as the first waypoint to the next.
+        int num_chunk = 0;
+        while (wpt_list.size() != 0)
+        {
+            int endIndex = Math.min(num_of_wpt, wpt_list.size());
+            List<Waypoint> list =  wpt_list.subList(0, endIndex);
+            Chunk sublist = new Chunk(num_chunk, wpt_list.get(0).getUser());
+
+            int k = 0;
+            for (k = 0; k < endIndex; k++) 
             {
-                sublist.add((Waypoint) list.get(k));
+                sublist.add((Waypoint) list.remove(0));
             }
-            if (sublist.size() == 1)
+            if (list.size() == 1 && k == num_of_wpt)
             {
-                chunks.get(chunks.size() - 1).add(sublist.get(0));
+                sublist.add((Waypoint) list.remove(0));
             }
-            chunks.add(sublist);
+            rob.add_chunk(sublist, wpt_list);
+            num_chunk++;
         }
-    
-        return chunks;
-
     }
-
 }

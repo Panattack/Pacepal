@@ -4,15 +4,13 @@ import java.util.ArrayList;
 public class Chunk implements Serializable{
     /* Chunk must implement Serializable in order to pass it in stream */
     private ArrayList<Waypoint> ls_wpt;    
-    public int id;
+    private int id;
+    private String user;
     
-    public Chunk(int id)
+    public Chunk(int id, String user)
     {
         this.id = id;
-        ls_wpt = new ArrayList<Waypoint>();
-    }
-
-    public Chunk(){
+        this.user = user;
         ls_wpt = new ArrayList<Waypoint>();
     }
 
@@ -29,4 +27,7 @@ public class Chunk implements Serializable{
         return ls_wpt.get(i);
     }
 
+    public String toString() {
+        return "Chunk Number: " + this.id + " user id : " + this.user;
+    }
 }

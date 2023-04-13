@@ -17,6 +17,16 @@ public class Waypoint implements Serializable {
         this.time = time;
     }
 
+    public String getUser()
+    {
+        return user;
+    }
+
+    public void setUser(String user)
+    {
+        this.user = user;
+    }
+    
     public double getLon() {
         return lon;
     }

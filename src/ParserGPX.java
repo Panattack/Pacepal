@@ -43,7 +43,7 @@ public class ParserGPX {
                     Waypoint wpt = new Waypoint(user, lon, lat, ele, time);
     
                     wpt_list.add(wpt);
-                    // System.out.println("User_id: " + user + " " + " Wpt_id: " + i);
+                    //System.out.println("User_id: " + user + " " + " Wpt_id: " + i);
                 }
             }
         }

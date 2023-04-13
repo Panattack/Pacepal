@@ -47,19 +47,17 @@ public class Client extends Thread{
             out = new ObjectOutputStream(requestSocket.getOutputStream());
             in = new ObjectInputStream(requestSocket.getInputStream());
 
+            //Sending GPX file
             out.writeObject(gpx);
             out.flush();
 
-            //ArrayList<Chunk> file = (ArrayList<Chunk>) in.readObject();
+            //Receiving results from Reduce 
 
         } catch (UnknownHostException unknownHost) {
             System.err.println("You are trying to connect to an unknown host!");
         } catch (IOException ioException) {
             ioException.printStackTrace();
-        // } catch (ClassNotFoundException e) {
-        //     throw new RuntimeException(e);
-        }
-        finally {
+        } finally {
             try {
                 System.out.println("end of client");
                 in.close(); out.close();
