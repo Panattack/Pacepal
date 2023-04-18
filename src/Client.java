@@ -1,7 +1,6 @@
 import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.Properties;
 
 public class Client extends Thread{
@@ -51,7 +50,9 @@ public class Client extends Thread{
             out.writeObject(gpx);
             out.flush();
 
-            //Receiving results from Reduce 
+            //TODO: Receiving results from Reduce 
+
+            
 
         } catch (UnknownHostException unknownHost) {
             System.err.println("You are trying to connect to an unknown host!");

@@ -1,39 +1,32 @@
 import java.io.*;
 import java.net.*;
 
-public class WorkerAction extends Thread {
+public class WorkerAction extends Thread{
     ObjectInputStream in;
     ObjectOutputStream out;
-    Socket connection;
-    RoundRobin rob;
-    Chunk chunk;
 
-    public WorkerAction(Socket connection, RoundRobin rob) {
+    public WorkerAction(Socket connection) {
         try {
-            out = new ObjectOutputStream(connection.getOutputStream());
-            in = new ObjectInputStream(connection.getInputStream());
-            this.rob = rob;
-            this.connection = connection;
+            this.in = new ObjectInputStream(connection.getInputStream());
         } catch (IOException e) {
+            // TODO Auto-generated catch block
             e.printStackTrace();
-        }    
-    }
-
-    public void setChunk(Chunk chunk) {
-        // System.out.println(chunk);
-        this.chunk = chunk;
+        }
     }
 
     @Override
-    public void run()
-    {
+    public void run() {
         try {
-            out.writeObject(this.chunk);
-            out.flush();
-
-            // Take the results from reduce
-
+            while (true) {
+                Chunk c = (Chunk) this.in.readObject();
+                System.out.println(c);
+            }
+            
+        } catch (ClassNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         } catch (IOException e) {
+            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }

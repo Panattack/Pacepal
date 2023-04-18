@@ -7,7 +7,6 @@ public class RobinQueue<T>{
     private int index;
 
     public RobinQueue (int maxSize) {
-        super();
         this.maxSize = maxSize;
         this.index = 0;
         this.queue = new LinkedList<>();
@@ -25,13 +24,13 @@ public class RobinQueue<T>{
         return false;
     }
 
-    public T remove() {
-        if (!this.is_Empty()) {
-            return this.queue.removeFirst();
-        }
-        System.out.println("empty");
-        return null;
-    }
+    // public T remove() {
+    //     if (!this.is_Empty()) {
+    //         return this.queue.removeFirst();
+    //     }
+    //     System.out.println("empty");
+    //     return null;
+    // }
 
     public T get() {
         if (maxSize == this.index) {

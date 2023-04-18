@@ -3,8 +3,6 @@ import java.net.*;
 
 public class WorkerConnectionHandler extends Thread{
     
-    ObjectInputStream in;
-    ObjectOutputStream out;
     ServerSocket workerSocket;
 
     public WorkerConnectionHandler (ServerSocket workerSocket) {
@@ -16,9 +14,17 @@ public class WorkerConnectionHandler extends Thread{
         try {
             while (true) {
                 Socket communicationSocket = workerSocket.accept();
-                WorkerAction workerThread = new WorkerAction(communicationSocket, Master.rob);
+                // System.out.println(communicationSocket.getPort());
+                // WorkerAction workerThread = new WorkerAction(communicationSocket);
+                // workerThread.start();
+                // Client Action Thread : out.writeObject
+                Master.workerHandlers.add(new ObjectOutputStream(communicationSocket.getOutputStream()));
+
+                // WorkerAction / Reduce
+                Thread workerThread = new WorkerAction(communicationSocket);
                 workerThread.start();
-                Master.workerHandlers.add(workerThread);
+
+                // Master.mapperHandlers.add(new ObjectInputStream(communicationSocket.getInputStream()));
                 // System.out.println("worker");
             }
         } catch (IOException io) {

@@ -1,17 +1,17 @@
 import java.io.*;
 import java.net.*;
-import java.util.ArrayList;
+import java.util.*;
 
 public class Master
 {
     private int num_of_workers;// DEFINE IN Config file
     private int num_of_wpt;// DEFINE IN Config file
     private String gpx;
-    private ArrayList<Waypoint> wpt_list = new ArrayList<>();
+    public static int client_id = 0;
     private int worker_port = 1234;
     private int user_port = 4321;
-    static public RobinQueue<WorkerAction> workerHandlers;
-    public static RoundRobin rob;
+    static public RobinQueue<ObjectOutputStream> workerHandlers;
+    static public ArrayList<ObjectInputStream> mapperHandlers;
 
     /* Define the socket that receives requests from workers */
     ServerSocket workerSocket;
@@ -21,21 +21,21 @@ public class Master
 
     WorkerConnectionHandler worker;
 
-    ClienConnectionHandler client;
+    ClientConnectionHandler client;
 
     public Master(int num_workers) {
         Master.workerHandlers = new RobinQueue<>(num_workers);
-        this.rob = new RoundRobin(workerHandlers);
+        // this.rob = new RoundRobin(workerHandlers);
     }
 
     void openServer() {
         try {
             clientSocket = new ServerSocket(user_port, 4);
-            this.client = new ClienConnectionHandler(clientSocket);
+            this.client = new ClientConnectionHandler(clientSocket);
             workerSocket = new ServerSocket(worker_port, 4);
             this.worker = new WorkerConnectionHandler(workerSocket);
 
-            rob.start();
+            // rob.start();
             worker.start();
             client.start();
 
@@ -66,7 +66,7 @@ public class Master
             //         }
             //     }
             // });
-            // worker.start();      
+            // worker.start();
 
         } catch (IOException ioException) {
             ioException.printStackTrace();

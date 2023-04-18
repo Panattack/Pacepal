@@ -1,12 +1,12 @@
 import java.io.*;
 import java.net.*;
 
-public class ClienConnectionHandler extends Thread{
+public class ClientConnectionHandler extends Thread{
     ObjectInputStream in;
     ObjectOutputStream out;
     ServerSocket clientSocket;
 
-    public ClienConnectionHandler(ServerSocket clientSocket) {
+    public ClientConnectionHandler(ServerSocket clientSocket) {
         this.clientSocket = clientSocket;
     }
 
@@ -18,7 +18,7 @@ public class ClienConnectionHandler extends Thread{
             while (true) {
                 Socket providerSocket = clientSocket.accept();
                 // System.out.println("client");
-                Thread clienThread = new ClientAction(providerSocket, Master.rob);
+                Thread clienThread = new ClientAction(providerSocket, Master.client_id++);
                 clienThread.start();
             }
 
