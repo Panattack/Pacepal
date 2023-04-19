@@ -11,7 +11,10 @@ public class Master
     private int worker_port = 1234;
     private int user_port = 4321;
     static public RobinQueue<ObjectOutputStream> workerHandlers;
+    // static public HashMap<Integer, ObjectOutputStream> clienthandlers;
     static public ArrayList<ObjectInputStream> mapperHandlers;
+    static public Reducer reducer;
+    public static HashMap<String, User> userList;
 
     /* Define the socket that receives requests from workers */
     ServerSocket workerSocket;
@@ -25,7 +28,7 @@ public class Master
 
     public Master(int num_workers) {
         Master.workerHandlers = new RobinQueue<>(num_workers);
-        // this.rob = new RoundRobin(workerHandlers);
+        userList = new HashMap<>();
     }
 
     void openServer() {
@@ -34,11 +37,11 @@ public class Master
             this.client = new ClientConnectionHandler(clientSocket);
             workerSocket = new ServerSocket(worker_port, 4);
             this.worker = new WorkerConnectionHandler(workerSocket);
-
+            reducer = new Reducer();
             // rob.start();
             worker.start();
             client.start();
-
+            reducer.start();
             // Thread client = new Thread(() -> {
             //     while (true) {
             //         try {

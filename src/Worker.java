@@ -11,25 +11,31 @@ public class Worker extends Thread{
     
     public Worker(int work_id){
         this.id = work_id;
+        String host = "localhost";
+        /* Create socket for contacting the server on port 4321*/
+        try {
+            requestSocket = new Socket(host, 1234);
+            // System.out.println(chunk + " local port : " + requestSocket.getLocalPort());
+
+            in = new ObjectInputStream(requestSocket.getInputStream());
+            out = new ObjectOutputStream(requestSocket.getOutputStream());
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
     
     public void run() {
         try {
-            String host = "localhost";
-            /* Create socket for contacting the server on port 4321*/
             
-            requestSocket = new Socket(host, 1234);
             System.out.println(requestSocket.getLocalPort() + " " + this.id);
-            out = new ObjectOutputStream(requestSocket.getOutputStream());
-            in = new ObjectInputStream(requestSocket.getInputStream());
 
             while (true) {
                 Chunk chunk = (Chunk) in.readObject();
                 // System.out.println(chunk);
-                Thread t = new Map(requestSocket, chunk);
+                Thread t = new Map(chunk, this.out);
                 t.start();
             }
-            // System.out.println(chunk + " local port : " + requestSocket.getLocalPort());
             // System.out.println(chunk + " worker id : " + this.id);
 
             // Make a thread to handle all the requests

@@ -5,20 +5,11 @@ import java.util.ArrayList;
 public class Map extends Thread {
     // ObjectInputStream in;
     ObjectOutputStream out;
-    Socket connection;
-    // ArrayList<Chunk> bufferChunk;
     Chunk chunk;
 
-    public Map(Socket connection, Chunk chunk) {
-    
-        try {
-            this.out = new ObjectOutputStream(connection.getOutputStream());
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+    public Map(Chunk chunk, ObjectOutputStream out) {
         // in = new ObjectInputStream(connection.getInputStream());
-        this.connection = connection;
+        this.out = out;
         this.chunk = chunk;
     }
 
@@ -28,11 +19,13 @@ public class Map extends Thread {
 
         // Make the intermediate results
         this.chunk.calcStatistics();
-        Chunk c = this.chunk;
-        // Send them to the reducer
+        
         try {
-            this.out.writeObject(c);
-            this.out.flush();
+            // Send them to the reducer
+            synchronized (out) {
+                out.writeObject(chunk);
+                out.flush();
+            }
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

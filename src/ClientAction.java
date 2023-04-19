@@ -1,11 +1,13 @@
 import java.io.*;
 import java.net.*;
+import java.nio.file.attribute.UserPrincipalLookupService;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ClientAction extends Thread {
     ObjectInputStream in;
     ObjectOutputStream out;
+
     private final ParserGPX parser = new ParserGPX();
     private final int num_of_wpt = 16;
     
@@ -29,13 +31,19 @@ public class ClientAction extends Thread {
             File file = (File) in.readObject();
 
             ArrayList<Waypoint> wpt_list = parser.parse(file);
+            create_user(wpt_list.get(0).getUser());
+
             // Create chunks
             create_chunk(wpt_list);
 
-            // send chunk with roundrobin to worker
-
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void create_user(String user) {
+        if (Master.userList.get(user) != null) {
+            Master.userList.put(user, new User(user));
         }
     }
 
@@ -45,6 +53,7 @@ public class ClientAction extends Thread {
         // the sequential chunks. Keep the last waypoint of the previous chunk
         // as the first waypoint to the next.
         int num_chunk = 0;
+        ArrayList<Chunk> chunks = new ArrayList<>();
         while (wpt_list.size() != 0)
         {
             int endIndex = Math.min(num_of_wpt - 1, wpt_list.size());
@@ -63,12 +72,15 @@ public class ClientAction extends Thread {
                 // if in the next chunk is there only one wpt, remove it and add it in the previous chunk
                 wpt_list.remove(0);
             }
-            // System.out.println(sublist);
-            // rob.add_chunk(sublist, wpt_list);
+            chunks.add(sublist);
+            num_chunk++;
+        }
+        Reducer.createEntry(clientId, num_chunk);
+        for (Chunk c : chunks) {
             synchronized (Master.workerHandlers) {
                 try {
                     ObjectOutputStream out = Master.workerHandlers.get();
-                    out.writeObject(sublist);
+                    out.writeObject(c);
                     out.flush();
                     // System.out.println(socket.getPort());
                     // System.out.println(sublist);
@@ -77,7 +89,6 @@ public class ClientAction extends Thread {
                     e.printStackTrace();
                 }
             }
-            num_chunk++;
         }
     }
 }

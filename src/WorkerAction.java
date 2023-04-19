@@ -18,8 +18,8 @@ public class WorkerAction extends Thread{
     public void run() {
         try {
             while (true) {
-                Chunk c = (Chunk) this.in.readObject();
-                System.out.println(c);
+                // Send it to the reducer
+                Reducer.addResults((Chunk) this.in.readObject());
             }
             
         } catch (ClassNotFoundException e) {

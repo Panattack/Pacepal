@@ -25,6 +25,16 @@ public class Chunk implements Serializable{
         ls_wpt = new ArrayList<Waypoint>();
     }
 
+    public Chunk(Chunk other) {
+        this.ls_wpt = other.ls_wpt;
+        this.number = other.number;
+        this.user = other.user;
+        this.id = other.id;
+    }
+    public String getUser() {
+        return this.user;
+    }
+
     public int getId() {
         return this.id;
     }
@@ -63,7 +73,7 @@ public class Chunk implements Serializable{
     }
 
     private double distance(Waypoint wpt1, Waypoint wpt2) {
-
+        
         final int R = 6371; // radius of the Earth in kilometers
         double latDistance = Math.toRadians(wpt2.getLat() - wpt2.getLat());
         double lonDistance = Math.toRadians(wpt2.getLon() - wpt2.getLon());
