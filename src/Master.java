@@ -10,11 +10,13 @@ public class Master
     public static int client_id = 0;
     private int worker_port = 1234;
     private int user_port = 4321;
-    static public RobinQueue<ObjectOutputStream> workerHandlers;
+    static public RobinQueue<ObjectOutputStream> workerHandlers; //related to the socket that every worker has made
     // static public HashMap<Integer, ObjectOutputStream> clienthandlers;
-    static public ArrayList<ObjectInputStream> mapperHandlers;
+    //static public ArrayList<ObjectInputStream> mapperHandlers; //
     static public Reducer reducer;
-    public static HashMap<String, User> userList;
+    public static HashMap<String, User> userList; //onoma, user
+
+    public static HashMap<Integer, ObjectOutputStream> clientHandlers; // 
 
     /* Define the socket that receives requests from workers */
     ServerSocket workerSocket;
@@ -29,6 +31,7 @@ public class Master
     public Master(int num_workers) {
         Master.workerHandlers = new RobinQueue<>(num_workers);
         userList = new HashMap<>();
+        Master.clientHandlers = new HashMap<>();
     }
 
     void openServer() {
@@ -38,7 +41,6 @@ public class Master
             workerSocket = new ServerSocket(worker_port, 4);
             this.worker = new WorkerConnectionHandler(workerSocket);
             reducer = new Reducer();
-            // rob.start();
             worker.start();
             client.start();
             reducer.start();

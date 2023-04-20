@@ -76,7 +76,8 @@ public class ClientAction extends Thread {
             num_chunk++;
         }
         Reducer.createEntry(clientId, num_chunk);
-        for (Chunk c : chunks) {
+        for (Chunk c : chunks) { 
+            //send chunk in RR sequence with random gpx order
             synchronized (Master.workerHandlers) {
                 try {
                     ObjectOutputStream out = Master.workerHandlers.get();

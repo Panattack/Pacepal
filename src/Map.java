@@ -22,7 +22,8 @@ public class Map extends Thread {
         
         try {
             // Send them to the reducer
-            synchronized (out) {
+            synchronized (out) { 
+                //one worker has many mappers and one output stream
                 out.writeObject(chunk);
                 out.flush();
             }

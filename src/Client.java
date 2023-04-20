@@ -5,7 +5,7 @@ import java.util.Properties;
 
 public class Client extends Thread{
 
-    private static String path = "pacepal/gpxs/gpxs/";
+    private static String path = "gpxs/gpxs/";
     private File gpx;
 
     public Client(String file)
@@ -51,6 +51,9 @@ public class Client extends Thread{
             out.flush();
 
             //TODO: Receiving results from Reduce 
+            
+            Results results = (Results) in.readObject();
+            System.out.println(results);
 
             
 
@@ -58,6 +61,9 @@ public class Client extends Thread{
             System.err.println("You are trying to connect to an unknown host!");
         } catch (IOException ioException) {
             ioException.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         } finally {
             try {
                 System.out.println("end of client");
