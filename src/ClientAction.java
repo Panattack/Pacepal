@@ -16,7 +16,6 @@ public class ClientAction extends Thread {
 
     public ClientAction(Socket connection, int id) {
         try {
-            out = new ObjectOutputStream(connection.getOutputStream());
             in = new ObjectInputStream(connection.getInputStream());
             this.clientId = id;
         } catch (IOException e) {

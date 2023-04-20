@@ -43,7 +43,6 @@ public class Worker extends Thread{
 
             // Wait for a chunk from thread --> workerAction
             // Chunk c = (Chunk) in.readObject();
-
             
             // Worker job - Map function
             

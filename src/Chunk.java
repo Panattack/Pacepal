@@ -73,16 +73,14 @@ public class Chunk implements Serializable{
     }
 
     private double distance(Waypoint wpt1, Waypoint wpt2) {
-        
-        final int R = 6371; // radius of the Earth in kilometers
-        double latDistance = Math.toRadians(wpt2.getLat() - wpt2.getLat());
-        double lonDistance = Math.toRadians(wpt2.getLon() - wpt2.getLon());
-        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
-                + Math.cos(Math.toRadians(wpt1.getLat())) * Math.cos(Math.toRadians(wpt2.getLat()))
-                * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
+        double EARTH_RADIUS_KM = 6371.0;
+        double dLat = Math.toRadians(wpt2.getLat() - wpt1.getLat());
+        double dLon = Math.toRadians(wpt2.getLon() - wpt1.getLon());
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                   Math.cos(Math.toRadians(wpt1.getLat())) * Math.cos(Math.toRadians(wpt2.getLat())) *
+                   Math.sin(dLon / 2) * Math.sin(dLon / 2);
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        double distance = R * c;
-
+        double distance = EARTH_RADIUS_KM * c;
         return distance;
     }
 
@@ -98,6 +96,7 @@ public class Chunk implements Serializable{
             Waypoint curr = this.ls_wpt.get(i);
             
             double distance = this.distance(prev, curr);
+            // System.out.println(distance);
             double elevationGain = Math.max(0, curr.getEle() - prev.getEle()); // ignore elevation loss
             long timeInSeconds = ChronoUnit.SECONDS.between(prev.getTime(), curr.getTime());
 

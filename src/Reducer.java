@@ -8,15 +8,14 @@ import java.util.ArrayList;
 public class Reducer extends Thread {
     public static HashMap<Integer, Pair<ArrayList<Chunk>, Integer>> intermediate_results =  new HashMap<>();
     
-    // ClientAction
     public static synchronized void createEntry(int id, int size) {
         intermediate_results.put(id, new Pair<>(new ArrayList<Chunk>(), size));
     }
 
-    // WorkerAction
     public static void addResults(Chunk intermResult) {
-        //Print();
         int size;
+
+        // Synchronize for the threads that send intermediate results in the same gpx file
         synchronized (intermediate_results.get(intermResult.getId()))
         {
             intermediate_results.get(intermResult.getId()).getKey().add(intermResult);
@@ -26,12 +25,6 @@ public class Reducer extends Thread {
                 calcResults(intermediate_results.get(intermResult.getId()).getKey(), intermResult.getId(), intermResult.getUser());
             }    
         }
-
-        
-        Print();
-        // Pair p = intermediate_results.get(intermResult.getId());
-        // ArrayList<Chunk> k = (ArrayList<Chunk>) p.getKey();
-        // k.add(intermResult);
     }
 
     public static void Print() {
@@ -51,6 +44,7 @@ public class Reducer extends Thread {
         double num_chunks = 0.0;
 
         for (Chunk c : intermediate_results.get(id).getKey()) {
+            // System.out.println(c.getTotalDistance());
             distanceResult = distanceResult + c.getTotalDistance();
             timeResult = timeResult + c.getTotalTime();
             elevationResult = elevationResult + c.getTotalElevation();
@@ -60,23 +54,17 @@ public class Reducer extends Thread {
 
         avgSpeedResult = avgSpeedResult / num_chunks;
 
-        // calc the user statistics
-       // Master.userList.get(intermResult.getUser()).updateStatistics(distanceResult, timeResult, elevationResult);
-
-        // send the results to the clients
-
         Results results = new Results(distanceResult, avgSpeedResult, elevationResult, timeResult, id, user);
-        
-        synchronized (Master.clientHandlers.get(id))
-        {
-            ObjectOutputStream out = Master.clientHandlers.get(id);
-            try {
-                out.writeObject(results);
-                out.flush();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+        System.out.println(results);
+
+        ObjectOutputStream out = Master.clientHandlers.get(id);
+    
+        try {
+            out.writeObject(results);
+            out.flush();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
     }
 

@@ -5,7 +5,7 @@ import java.util.Properties;
 
 public class Client extends Thread{
 
-    private static String path = "gpxs/gpxs/";
+    private static String path = "pacepal/gpxs/gpxs/";
     private File gpx;
 
     public Client(String file)
@@ -15,6 +15,10 @@ public class Client extends Thread{
     public static void main(String[] args) {
         new Client(path + "/route1.gpx").start();
         new Client(path + "/route2.gpx").start();
+        new Client(path + "/route3.gpx").start();
+        new Client(path + "/route4.gpx").start();
+        new Client(path + "/route5.gpx").start();
+        new Client(path + "/route6.gpx").start();
         //code
         // Properties prop = new Properties();
         // String fileName = "pacepal/src/config.conf";
@@ -52,18 +56,23 @@ public class Client extends Thread{
 
             //TODO: Receiving results from Reduce 
             
-            Results results = (Results) in.readObject();
-            System.out.println(results);
-
-            
+            Results results;
+			try {
+				results = (Results) in.readObject();
+                System.out.println(results);
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}            
 
         } catch (UnknownHostException unknownHost) {
             System.err.println("You are trying to connect to an unknown host!");
         } catch (IOException ioException) {
             ioException.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        // } catch (ClassNotFoundException e) {
+        //     // TODO Auto-generated catch block
+        //     e.printStackTrace();
+        // }
         } finally {
             try {
                 System.out.println("end of client");
