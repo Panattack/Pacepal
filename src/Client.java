@@ -42,20 +42,20 @@ public class Client extends Thread{
         try
         {
             // Send the file name to the server
-            this.out.write(fileName.getBytes());
-
-            FileInputStream fileInputStream = new FileInputStream(this.gpx);
-            // System.out.println("Sending file \"" + fileName + "\"...");
-
-            byte[] buffer = new byte[1000];
-            int len;
-            while ((len = fileInputStream.read(buffer)) != -1) {
-                // Send the data to the server
-                out.write(buffer, 0, len);
-            }
+            File file = new File(fileName);
+            out.writeObject(file.getName());
+            out.flush();
+            byte[] buffer = new byte[(int) file.length()];
+            BufferedInputStream reader = new BufferedInputStream(new FileInputStream(file));
+            reader.read(buffer, 0, buffer.length);
+            reader.close();
+            out.writeInt(buffer.length);
+            out.flush();
+            out.write(buffer, 0, buffer.length);
+            out.flush();
 
             // Close the file input stream
-            fileInputStream.close();
+            // fileInputStream.close();
         }  catch (Exception e) {
             e.printStackTrace();
         }

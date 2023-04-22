@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ClientConnectionHandler extends Thread{
-    private File clientFile;
+    private InputStream clientFile;
     private final ParserGPX parser = new ParserGPX();
     private final int num_of_wpt = 16;
     private int fileId;
     private int userId;
 
-    public ClientConnectionHandler(File file, int fileId, int userId) {
+    public ClientConnectionHandler(InputStream file, int fileId, int userId) {
         this.clientFile = file;
         this.fileId = fileId;
         this.userId = userId;

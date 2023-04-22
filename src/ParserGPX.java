@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 public class ParserGPX {
 
-    public ArrayList<Waypoint> parse(File file)
+    public ArrayList<Waypoint> parse(InputStream file)
     {
         ArrayList<Waypoint> wpt_list = new ArrayList<>();
         try {
