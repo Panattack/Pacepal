@@ -26,7 +26,7 @@ public class ClientConnectionHandler extends Thread{
         // Create key to pass it in the hashmap in the reducer & in the chunk in order to use it 
         // to access the hashmap
         Pair<Integer, Integer> key = new Pair<Integer, Integer>(this.userId, this.fileId);
-        System.out.println(key.hashCode());
+        
         while (wpt_list.size() != 0)
         {
             int endIndex = Math.min(num_of_wpt - 1, wpt_list.size());
