@@ -1,23 +1,23 @@
 public class User {
 
-    private String name;
+    private int id;
     private double totalDistance;
     private double totalElevation;
     private double totalTime;
 
-    public User(String name) {
-        this.name = name;
+    public User(int id) {
+        this.id = id;
         this.totalDistance = 0.0;
         this.totalElevation = 0.0;
         this.totalTime = 0.0;
     }
 
-    public String getName() {
-        return name;
+    public int getId() {
+        return this.id;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setName(int id) {
+        this.id = id;
     }
 
     public double getTotalDistance() {
@@ -49,5 +49,4 @@ public class User {
         this.totalTime = this.totalTime + time;
         this.totalElevation = this.totalElevation + elevation;
     }
-    
 }

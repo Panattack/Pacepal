@@ -11,10 +11,8 @@ public class Master
     private int worker_port = 1234;
     private int user_port = 4321;
     static public RobinQueue<ObjectOutputStream> workerHandlers; //related to the socket that every worker has made
-    // static public HashMap<Integer, ObjectOutputStream> clienthandlers;
-    //static public ArrayList<ObjectInputStream> mapperHandlers; //
     static public Reducer reducer;
-    public static HashMap<String, User> userList; //onoma, user
+    public static HashMap<Integer, User> userList; //id, user
 
     public static HashMap<Integer, ObjectOutputStream> clientHandlers; // 
 
@@ -24,9 +22,9 @@ public class Master
     /* Define the socket that receives requests from user */
     ServerSocket clientSocket;
 
-    WorkerConnectionHandler worker;
+    // WorkerConnectionHandler worker;
 
-    ClientConnectionHandler client;
+    // ClientConnectionHandler client;
 
     public Master(int num_workers) {
         Master.workerHandlers = new RobinQueue<>(num_workers);
@@ -37,41 +35,48 @@ public class Master
     void openServer() {
         try {
             clientSocket = new ServerSocket(user_port, 4);
-            this.client = new ClientConnectionHandler(clientSocket);
+            // this.client = new ClientConnectionHandler(clientSocket);
             workerSocket = new ServerSocket(worker_port, 4);
-            this.worker = new WorkerConnectionHandler(workerSocket);
+            // this.worker = new WorkerConnectionHandler(workerSocket);
             reducer = new Reducer();
-            worker.start();
-            client.start();
-            reducer.start();
-            // Thread client = new Thread(() -> {
-            //     while (true) {
-            //         try {
-            //             // Accept the connection
-            //             // Define the socket that is used to handle the connection
-            //             Socket connection = clientSocket.accept();
-            //             Thread clientHandler = new ClientAction(connection, rob);
-            //             clientHandler.start();
-            //         } catch (IOException e) {
-            //             e.printStackTrace();
-            //         }
-            //     }
-            // });
+            // worker.start();
             // client.start();
             
-            // Thread worker = new Thread(() -> {
-            //     while (true) {
-            //         try {
-            //             // Accept the connection
-            //             // Define the socket that is used to handle the connection
-            //             Socket connection = clientSocket.accept();
-            //             workerHandlers.add(new WorkerAction(connection, rob));
-            //         } catch (IOException e) {
-            //             e.printStackTrace();
-            //         }
-            //     }
-            // });
-            // worker.start();
+            Thread client = new Thread(() -> {
+                while (true) {
+                    try {
+                        // Accept the connection
+                        // Define the socket that is used to handle the connection
+                        Socket connection = clientSocket.accept();
+                        Master.clientHandlers.put(Master.client_id, new ObjectOutputStream(connection.getOutputStream()));
+                
+                        Thread clienThread = new ClientAction(connection, Master.client_id++);
+                        clienThread.start();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+            client.start();
+            
+            Thread worker = new Thread(() -> {
+                while (true) {
+                    try {
+                        // Accept the connection
+                        // Define the socket that is used to handle the connection
+                        Socket communicationSocket = workerSocket.accept();
+            
+                        Master.workerHandlers.add(new ObjectOutputStream(communicationSocket.getOutputStream()));
+
+                        // WorkerAction / Reduce
+                        Thread workerThread = new WorkerAction(communicationSocket);
+                        workerThread.start();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } 
+                }
+            });
+            worker.start();
 
         } catch (IOException ioException) {
             ioException.printStackTrace();

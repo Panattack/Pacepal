@@ -21,7 +21,6 @@ public class WorkerAction extends Thread{
                 // Send it to the reducer
                 Reducer.addResults((Chunk) this.in.readObject());
             }
-            
         } catch (ClassNotFoundException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

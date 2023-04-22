@@ -1,17 +1,10 @@
 import java.io.*;
 import java.net.*;
-import java.nio.file.attribute.UserPrincipalLookupService;
-import java.util.ArrayList;
-import java.util.List;
 
 public class ClientAction extends Thread {
     ObjectInputStream in;
     ObjectOutputStream out;
-
-    private final ParserGPX parser = new ParserGPX();
-    private final int num_of_wpt = 16;
-    
-    // private RoundRobin rob;
+    // User id
     private int clientId;
 
     public ClientAction(Socket connection, int id) {
@@ -23,71 +16,60 @@ public class ClientAction extends Thread {
         }
     }
 
+    private File receiveFile()
+    {
+        try {
+            // Get the file name from the client
+            byte[] fileNameBytes = new byte[1000];
+            int bytesRead;
+            bytesRead = this.in.read(fileNameBytes);
+            String fileName = new String(fileNameBytes, 0, bytesRead);
+            System.out.println("\n\n\n\n\n\n\n\n\n\n\n" + fileName + "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+            // Open a new file for writing
+            File receivedFile = new File(fileName);
+            FileOutputStream fileOutputStream = new FileOutputStream(receivedFile);
+
+            // System.out.println("Receiving file \"" + fileName + "\"...");
+            byte[] buffer = new byte[1000];
+            int len;
+            while ((len = this.in.read(buffer)) != -1) {
+                // Write the received data to the file
+                fileOutputStream.write(buffer, 0, len);
+            }
+
+            // System.out.println("File \"" + fileName + "\" has been received and saved.");
+
+            // Close the file output stream
+            fileOutputStream.close();
+            return receivedFile;
+
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     @Override 
     public void run()
     {
-        try {
-            File file = (File) in.readObject();
-
-            ArrayList<Waypoint> wpt_list = parser.parse(file);
-            create_user(wpt_list.get(0).getUser());
-
-            // Create chunks
-            create_chunk(wpt_list);
-
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
+        
+        // Create the user record
+        create_user(this.clientId);
+        int fileId = 0;
+        // Listen all the files that the user send and create threads in order to make the parsing and splitting of the files in parallel
+        while (true) {
+            File file = receiveFile();;
+            Thread t = new ClientConnectionHandler(file, fileId++, this.clientId);
+            t.start();
         }
     }
 
-    private void create_user(String user) {
+    private void create_user(int user) {
         if (Master.userList.get(user) != null) {
-            Master.userList.put(user, new User(user));
-        }
-    }
-
-    private void create_chunk(ArrayList<Waypoint> wpt_list) {
-
-        // TODO: when we create a chunk, we must keep a connection between the 
-        // the sequential chunks. Keep the last waypoint of the previous chunk
-        // as the first waypoint to the next.
-        int num_chunk = 0;
-        ArrayList<Chunk> chunks = new ArrayList<>();
-        while (wpt_list.size() != 0)
-        {
-            int endIndex = Math.min(num_of_wpt - 1, wpt_list.size());
-            List<Waypoint> list =  wpt_list.subList(0, endIndex);
-            Chunk sublist = new Chunk(this.clientId, num_chunk, wpt_list.get(0).getUser());
-
-            int k = 0;
-            for (k = 0; k < endIndex; k++) 
+            synchronized (Master.userList) 
             {
-                sublist.add((Waypoint) list.remove(0));
-            }
-            if (wpt_list.size() != 0) {
-                sublist.add(wpt_list.get(0));
-            }
-            if (list.size() == 1 && k == num_of_wpt) {
-                // if in the next chunk is there only one wpt, remove it and add it in the previous chunk
-                wpt_list.remove(0);
-            }
-            chunks.add(sublist);
-            num_chunk++;
-        }
-        Reducer.createEntry(clientId, num_chunk);
-        for (Chunk c : chunks) { 
-            //send chunk in RR sequence with random gpx order
-            synchronized (Master.workerHandlers) {
-                try {
-                    ObjectOutputStream out = Master.workerHandlers.get();
-                    out.writeObject(c);
-                    out.flush();
-                    // System.out.println(socket.getPort());
-                    // System.out.println(sublist);
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
+                Master.userList.put(user, new User(user));
             }
         }
     }

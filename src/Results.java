@@ -6,10 +6,10 @@ public class Results  implements Serializable {
     private String user_id;
 
 
-    private Double totalDistance ;
-    private Double avgSpeed;
-    private Double totalElevation;
-    private Double totalTime;
+    private double totalDistance ;
+    private double avgSpeed;
+    private double totalElevation;
+    private double totalTime;
 
     public Results (Double d, Double s, Double e, Double t, int gid, String uid)
     {
@@ -55,7 +55,6 @@ public class Results  implements Serializable {
         this.totalTime = totalTime;
     }
 
-
     public int getGpx_id() {
         return gpx_id;
     }
@@ -74,8 +73,7 @@ public class Results  implements Serializable {
    
     public String toString()
     {
-        return  "User_id: "+user_id+" Gpx: "+gpx_id+"\n"+"Total Dist: "+totalDistance+"\n"+"Avg Speed: "+avgSpeed+"\n"+"Total Elev: "+totalElevation+"\n"+"Total time: "+totalTime+"\n\n";
+        return  "User_id: "+user_id+" Gpx: "+gpx_id+"\n"+"Total Dist: "+totalDistance+"\n"+"Avg Speed: "+avgSpeed+"\n"+"Total Elev: "+totalElevation+"\n"+"Hours: "+ (int) totalTime /3600 + " Minutes: " + (int) (totalTime%3600) / 60 + " Seconds: " + (int) totalTime % 60 + "\n\n";
     }
-
 
 }

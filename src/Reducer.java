@@ -1,40 +1,56 @@
 import java.util.HashMap;
 import java.util.Map;
 import java.io.IOException;
-import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 
-public class Reducer extends Thread {
-    public static HashMap<Integer, Pair<ArrayList<Chunk>, Integer>> intermediate_results =  new HashMap<>();
+public class Reducer {
+    // Key : [User, File_Id]
+    // Value : [Chunk_List --> [...], size]
+    public static HashMap<Pair<Integer, Integer>, Pair<ArrayList<Chunk>, Integer>> intermediate_results =  new HashMap<>();
     
-    public static synchronized void createEntry(int id, int size) {
-        intermediate_results.put(id, new Pair<>(new ArrayList<Chunk>(), size));
+    public static synchronized void createEntry(Pair<Integer, Integer> key, int size) {
+        intermediate_results.put(key, new Pair<ArrayList<Chunk>, Integer>(new ArrayList<Chunk>(), size));
     }
 
     public static void addResults(Chunk intermResult) {
         int size;
-
-        // Synchronize for the threads that send intermediate results in the same gpx file
-        synchronized (intermediate_results.get(intermResult.getId()))
+        Pair<Integer, Integer> key = compareHashKeys(intermResult.getHashKey());
+        // Synchronize for the threads that send intermediate results in the same gpx file from the same user
+        synchronized (intermediate_results.get(key))
         {
-            intermediate_results.get(intermResult.getId()).getKey().add(intermResult);
-            size = intermediate_results.get(intermResult.getId()).getValue();
-            intermediate_results.get(intermResult.getId()).setValue(--size);
+            intermediate_results.get(key).getKey().add(intermResult);
+            size = intermediate_results.get(key).getValue();
+            intermediate_results.get(key).setValue(--size);
             if (size == 0) {
-                calcResults(intermediate_results.get(intermResult.getId()).getKey(), intermResult.getId(), intermResult.getUser());
-            }    
+                calcResults(intermediate_results.get(key).getKey(), key, intermResult.getUser());
+            }
         }
     }
 
-    public static void Print() {
-        for (Map.Entry<Integer, Pair<ArrayList<Chunk>, Integer>> entry : intermediate_results.entrySet()) {
-
-            System.out.println(" gpx file : " + entry.getKey() + " size array : " + entry.getValue().getValue());
+    private static Pair<Integer, Integer> compareHashKeys(Pair<Integer, Integer> o)
+    {
+        for (Map.Entry<Pair<Integer, Integer>, Pair<ArrayList<Chunk>, Integer>> entry : intermediate_results.entrySet()) {
+            //System.out.println(entry.getKey().hashCode());
+            //System.out.println(" User : " + entry.getKey().getKey() + " gpx : " + entry.getKey().getValue());
+            if (entry.getKey().equals(o)) {
+                return entry.getKey();
+            }
         }
+        return o;
     }
 
-    private static void calcResults(ArrayList<Chunk> chunks, int id, String user)
+    // public static void Print(Chunk c) {
+    //     for (Map.Entry<Pair<Integer, Integer>, Pair<ArrayList<Chunk>, Integer>> entry : intermediate_results.entrySet()) {
+    //         //System.out.println(entry.getKey().hashCode());
+    //         //System.out.println(" User : " + entry.getKey().getKey() + " gpx : " + entry.getKey().getValue());
+    //         if (entry.getKey().equals(c.getHashKey())) {
+    //             System.out.println(true);
+    //         }
+    //     }
+    // }
+
+    private static void calcResults(ArrayList<Chunk> chunks, Pair<Integer, Integer> id, String user)
     {
         // Final Results
         double distanceResult = 0.0;
@@ -42,22 +58,23 @@ public class Reducer extends Thread {
         double avgSpeedResult = 0.0;
         double elevationResult = 0.0;
         double num_chunks = 0.0;
+        double timeInSeconds = 0.0;
 
         for (Chunk c : intermediate_results.get(id).getKey()) {
             // System.out.println(c.getTotalDistance());
-            distanceResult = distanceResult + c.getTotalDistance();
-            timeResult = timeResult + c.getTotalTime();
-            elevationResult = elevationResult + c.getTotalElevation();
-            avgSpeedResult = avgSpeedResult + c.getAvgSpeed();
+            distanceResult += c.getTotalDistance();
+            timeResult += c.getTotalTime();
+            elevationResult += c.getTotalElevation();
+            avgSpeedResult += c.getAvgSpeed();
+            timeInSeconds += c.getTotalTimeInSeconds();
             num_chunks++;
         }
 
         avgSpeedResult = avgSpeedResult / num_chunks;
 
-        Results results = new Results(distanceResult, avgSpeedResult, elevationResult, timeResult, id, user);
-        System.out.println(results);
+        Results results = new Results(distanceResult, avgSpeedResult, elevationResult, timeInSeconds, id.getValue(), user);
 
-        ObjectOutputStream out = Master.clientHandlers.get(id);
+        ObjectOutputStream out = Master.clientHandlers.get(id.getKey());
     
         try {
             out.writeObject(results);
@@ -65,13 +82,6 @@ public class Reducer extends Thread {
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void run() {
-        while (true) {
-            
         }
     }
 }

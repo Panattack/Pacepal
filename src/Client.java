@@ -6,19 +6,24 @@ import java.util.Properties;
 public class Client extends Thread{
 
     private static String path = "pacepal/gpxs/gpxs/";
-    private File gpx;
+    static long start;
+    private String gpx;
+    ObjectOutputStream out = null ;
+    ObjectInputStream in = null ;
 
     public Client(String file)
     {
-        this.gpx = new File(file);
+        this.gpx = file;
     }
     public static void main(String[] args) {
-        new Client(path + "/route1.gpx").start();
-        new Client(path + "/route2.gpx").start();
-        new Client(path + "/route3.gpx").start();
-        new Client(path + "/route4.gpx").start();
-        new Client(path + "/route5.gpx").start();
-        new Client(path + "/route6.gpx").start();
+        // start = System.currentTimeMillis();
+        
+        new Client(path + "route1.gpx").start();
+        // new Client(path + "/route2.gpx").start();
+        // new Client(path + "/route3.gpx").start();
+        // new Client(path + "/route4.gpx").start();
+        // new Client(path + "/route5.gpx").start();
+        // new Client(path + "/route6.gpx").start();
         //code
         // Properties prop = new Properties();
         // String fileName = "pacepal/src/config.conf";
@@ -32,11 +37,33 @@ public class Client extends Thread{
         // }
     }
 
+    private void sendFile(String fileName) 
+    {
+        try
+        {
+            // Send the file name to the server
+            this.out.write(fileName.getBytes());
+
+            FileInputStream fileInputStream = new FileInputStream(this.gpx);
+            // System.out.println("Sending file \"" + fileName + "\"...");
+
+            byte[] buffer = new byte[1000];
+            int len;
+            while ((len = fileInputStream.read(buffer)) != -1) {
+                // Send the data to the server
+                out.write(buffer, 0, len);
+            }
+
+            // Close the file input stream
+            fileInputStream.close();
+        }  catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     public void run()
     {
-        ObjectOutputStream out = null ;
-        ObjectInputStream in = null ;
 
         Socket requestSocket = null;
 
@@ -50,16 +77,19 @@ public class Client extends Thread{
             out = new ObjectOutputStream(requestSocket.getOutputStream());
             in = new ObjectInputStream(requestSocket.getInputStream());
 
+            sendFile(this.gpx);
             //Sending GPX file
-            out.writeObject(gpx);
-            out.flush();
-
-            //TODO: Receiving results from Reduce 
+            // out.writeObject(gpx);
+            // out.flush();
             
             Results results;
 			try {
 				results = (Results) in.readObject();
                 System.out.println(results);
+                // long end = System.currentTimeMillis();
+                // long elapsedTime = end - start;
+                // System.out.println("Elapsed time: " + elapsedTime + " milliseconds");
+                // System.out.println(results);
 			} catch (ClassNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

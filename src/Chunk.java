@@ -1,4 +1,5 @@
 import java.io.Serializable;
+import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 
@@ -7,19 +8,24 @@ public class Chunk implements Serializable{
     private ArrayList<Waypoint> ls_wpt;    
     private int number;
     private String user;
-    private int id;
+    private int fileId;
+    private int userId;
+    private Pair<Integer, Integer> key;
 
     // Output of mapper 
-    // results:[totalDistance, totalTimeInHours, averageSpeed, totalElevation]
+    // results: [totalDistance, totalTimeInHours, averageSpeed, totalElevation]
     private double totalDistance;
     private double totalTimeInHours;
     private double averageSpeed;
     private double totalElevation;
-    
-    public Chunk(int id, int num, String user)
+    private double totalTimeInSeconds;
+
+    public Chunk(Pair<Integer, Integer> key, int num, String user)
     {
         // Keep the number and id of user
-        this.id = id;
+        this.key = key;
+        this.userId = this.key.getKey();
+        this.fileId = this.key.getValue();
         this.number = num;
         this.user = user;
         ls_wpt = new ArrayList<Waypoint>();
@@ -27,16 +33,34 @@ public class Chunk implements Serializable{
 
     public Chunk(Chunk other) {
         this.ls_wpt = other.ls_wpt;
-        this.number = other.number;
-        this.user = other.user;
-        this.id = other.id;
+        this.number = other.getNum();
+        this.user = other.getUser();
+        this.fileId = other.getFileId();
+        this.userId = other.getUserId();
     }
+
+    public Pair<Integer, Integer> getHashKey() {
+        return this.key;
+    }
+
+    public void setHashKey(Pair<Integer, Integer> key) {
+        this.key = key;
+    }
+
+    public int getUserId() {
+        return this.userId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
+
     public String getUser() {
         return this.user;
     }
 
-    public int getId() {
-        return this.id;
+    public int getFileId() {
+        return this.fileId;
     }
 
     public int getNum() {
@@ -58,6 +82,10 @@ public class Chunk implements Serializable{
 
     public double getTotalTime() {
         return this.totalTimeInHours;
+    }
+
+    public double getTotalTimeInSeconds() {
+        return this.totalTimeInSeconds;
     }
 
     public double getAvgSpeed() {
@@ -88,7 +116,7 @@ public class Chunk implements Serializable{
 
         this.totalDistance = 0;
         this.totalElevation = 0;
-        long totalTimeInSeconds = 0;
+        this.totalTimeInSeconds = 0;
         this.averageSpeed = 0;
 
         for (int i = 1; i < this.ls_wpt.size(); i++) {
@@ -98,21 +126,22 @@ public class Chunk implements Serializable{
             double distance = this.distance(prev, curr);
             // System.out.println(distance);
             double elevationGain = Math.max(0, curr.getEle() - prev.getEle()); // ignore elevation loss
-            long timeInSeconds = ChronoUnit.SECONDS.between(prev.getTime(), curr.getTime());
-
+            // long timeInSeconds = ChronoUnit.SECONDS.between(prev.getTime(), curr.getTime());
+            long timeInSeconds = (curr.getTime().toEpochSecond(ZoneOffset.UTC) - prev.getTime().toEpochSecond(ZoneOffset.UTC));
             this.totalDistance += distance;
             this.totalElevation += elevationGain;
-            totalTimeInSeconds += timeInSeconds;
+            this.totalTimeInSeconds += timeInSeconds;
         }
 
-        this.totalTimeInHours = totalTimeInSeconds / 3600.0;
+        this.totalTimeInHours = this.totalTimeInSeconds / 3600.0;
 
-        if (totalTimeInSeconds != 0) {
-            this.averageSpeed = this.totalDistance / totalTimeInHours;
+        if (this.totalTimeInSeconds != 0) {
+            this.averageSpeed = this.totalDistance / this.totalTimeInHours;
         }
     }
 
+
     public String toString() {
-        return "Chunk Number: " + this.number + ", user id : " + this.id + ", size : " + this.ls_wpt.size();
+        return "Chunk Number: " + this.number + ", user id : " + this.userId + ", size : " + this.ls_wpt.size() + ", file id : " + this.fileId + " . ";
     }
 }
