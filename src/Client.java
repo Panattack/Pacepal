@@ -77,6 +77,9 @@ public class Client extends Thread{
             out = new ObjectOutputStream(requestSocket.getOutputStream());
             in = new ObjectInputStream(requestSocket.getInputStream());
 
+            out.writeInt(1);
+            out.flush();
+
             sendFile(this.gpx);
             //Sending GPX file
             // out.writeObject(gpx);
@@ -90,6 +93,8 @@ public class Client extends Thread{
                 // long elapsedTime = end - start;
                 // System.out.println("Elapsed time: " + elapsedTime + " milliseconds");
                 // System.out.println(results);
+                in.close(); out.close();
+                requestSocket.close();
 			} catch (ClassNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -103,14 +108,15 @@ public class Client extends Thread{
         //     // TODO Auto-generated catch block
         //     e.printStackTrace();
         // }
-        } finally {
-            try {
-                System.out.println("end of client");
-                in.close(); out.close();
-                requestSocket.close();
-            } catch (IOException ioException) {
-                ioException.printStackTrace();
-            }
+        // } finally {
+        //     try {
+        //         System.out.println("end of client");
+        //         // in.close(); out.close();
+        //         // requestSocket.close();
+        //     } catch (IOException ioException) {
+        //         ioException.printStackTrace();
+        //     }
+        // }
         }
     }
 }

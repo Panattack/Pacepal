@@ -6,6 +6,7 @@ public class ClientAction extends Thread {
     ObjectOutputStream out;
     private InputStream is;
     private Socket socket;
+    private int num_files;
     // User id
     private int clientId;
 
@@ -30,32 +31,33 @@ public class ClientAction extends Thread {
     {
         try {
             // Check if the socket is connected
-            if (socket.isConnected()) {
-                System.out.println("Socket is connected.");
-            } else {
-                System.out.println("Socket is not connected.");
-            }
+            // if (socket.isConnected()) {
+            //     System.out.println("Socket is connected.");
+            // } else {
+            //     System.out.println("Socket is not connected.");
+            // }
 
-            // Check if the socket is closed
-            if (socket.isClosed()) {
-                System.out.println("Socket is closed.");
-            } else {
-                System.out.println("Socket is not closed.");
-            }
+            // // Check if the socket is closed
+            // if (socket.isClosed()) {
+            //     System.out.println("Socket is closed.");
+            // } else {
+            //     System.out.println("Socket is not closed.");
+            // }
             // Get the file name from the client
             String filename = (String) in.readObject();
         
             int fileSize = in.readInt();
-            //FileOutputStream fos = new FileOutputStream("./filesReceived/" + filename);
+            // FileOutputStream fos = new FileOutputStream("./filesReceived/" + filename);
             byte[] buffer = new byte[fileSize];
             byte[] fileBytes = new byte[0];
             int bytesRead;
 
             while (fileBytes.length < fileSize) {
                 bytesRead = in.read(buffer);
-                //fos.write(buffer, 0, bytesRead);
+                // fos.write(buffer, 0, bytesRead);
                 fileBytes = concatenateByteArrays(fileBytes, buffer, bytesRead);
             }
+            // fos.close();
             this.is = new ByteArrayInputStream(fileBytes);
         } catch (IOException | ClassNotFoundException e) {
             // TODO Auto-generated catch block
@@ -68,14 +70,27 @@ public class ClientAction extends Thread {
     {
         // Create the user record
         create_user(this.clientId);
+        setNumFiles();
         int fileId = 0;
         // Listen all the files that the user send and create threads in order to make the parsing and splitting of the files in parallel
-        
+        for (int i = 0; i < this.num_files; i++)
+        {
             receiveFile();
             InputStream file = this.is;
             Thread t = new ClientConnectionHandler(file, fileId++, this.clientId);
             t.start();
-            receiveFile();
+        }
+        
+    }
+
+    private void setNumFiles() 
+    {
+        try {
+            this.num_files = this.in.readInt();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
     private void create_user(int user) {
