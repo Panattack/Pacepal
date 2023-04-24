@@ -7,11 +7,11 @@ public class Master
     private int num_of_workers;// DEFINE IN Config file
     private int num_of_wpt;// DEFINE IN Config file
     private String gpx;
-    public static int client_id = 0;
     private int worker_port = 1234;
     private int user_port = 4321;
     static public RobinQueue<ObjectOutputStream> workerHandlers; //related to the socket that every worker has made
     static public Reducer reducer;
+    public static int inputFile = 0;
     public static HashMap<Integer, User> userList; //id, user
 
     public static HashMap<Integer, ObjectOutputStream> clientHandlers; // 
@@ -48,9 +48,9 @@ public class Master
                         // Accept the connection
                         // Define the socket that is used to handle the connection
                         Socket connection = clientSocket.accept();
-                        Master.clientHandlers.put(Master.client_id, new ObjectOutputStream(connection.getOutputStream()));
-                
-                        Thread clienThread = new ClientAction(connection, Master.client_id++);
+                        Master.clientHandlers.put(Master.inputFile, new ObjectOutputStream(connection.getOutputStream()));
+
+                        Thread clienThread = new ClientAction(connection);
                         clienThread.start();
                     } catch (IOException e) {
                         e.printStackTrace();

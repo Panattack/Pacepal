@@ -1,20 +1,23 @@
 import java.io.*;
 import java.net.*;
+import java.util.*;
 
 public class ClientAction extends Thread {
     ObjectInputStream in;
     ObjectOutputStream out;
     private InputStream is;
     private Socket socket;
-    private int num_files;
-    // User id
-    private int clientId;
+    private int userId;
+    private int fileId;
+    private final int num_of_wpt = 16;
+    private final ParserGPX parser = new ParserGPX();
 
-    public ClientAction(Socket connection, int id) {
+    // User id
+
+    public ClientAction(Socket connection) {
         try {
             this.socket = connection;
             in = new ObjectInputStream(connection.getInputStream());
-            this.clientId = id;
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -30,21 +33,8 @@ public class ClientAction extends Thread {
     private void receiveFile()
     {
         try {
-            // Check if the socket is connected
-            // if (socket.isConnected()) {
-            //     System.out.println("Socket is connected.");
-            // } else {
-            //     System.out.println("Socket is not connected.");
-            // }
-
-            // // Check if the socket is closed
-            // if (socket.isClosed()) {
-            //     System.out.println("Socket is closed.");
-            // } else {
-            //     System.out.println("Socket is not closed.");
-            // }
             // Get the file name from the client
-            String filename = (String) in.readObject();
+            // String filename = (String) in.readObject();
         
             int fileSize = in.readInt();
             // FileOutputStream fos = new FileOutputStream("./filesReceived/" + filename);
@@ -59,34 +49,69 @@ public class ClientAction extends Thread {
             }
             // fos.close();
             this.is = new ByteArrayInputStream(fileBytes);
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
 
-    @Override 
-    public void run()
-    {
-        // Create the user record
-        create_user(this.clientId);
-        setNumFiles();
-        int fileId = 0;
-        // Listen all the files that the user send and create threads in order to make the parsing and splitting of the files in parallel
-        for (int i = 0; i < this.num_files; i++)
-        {
-            receiveFile();
-            InputStream file = this.is;
-            Thread t = new ClientConnectionHandler(file, fileId++, this.clientId);
-            t.start();
-        }
+    private void create_chunk(ArrayList<Waypoint> wpt_list) {
+        // When we create a chunk, we must keep a connection between the
+        // the sequential chunks. Keep the last waypoint of the previous chunk
+        // as the first waypoint to the next.
+        int num_chunk = 0;
+        ArrayList<Chunk> chunks = new ArrayList<>();
+
+        // Create key to pass it in the hashmap in the reducer & in the chunk in order to use it 
+        // to access the hashmap
+        Pair<Integer, Integer> key = new Pair<Integer, Integer>(this.userId, this.fileId);
         
+        while (wpt_list.size() != 0)
+        {
+            int endIndex = Math.min(num_of_wpt - 1, wpt_list.size());
+            List<Waypoint> list =  wpt_list.subList(0, endIndex);
+            Chunk sublist = new Chunk(key, num_chunk, wpt_list.get(0).getUser());
+
+            int k = 0;
+            for (k = 0; k < endIndex; k++) 
+            {
+                sublist.add((Waypoint) list.remove(0));
+            }
+            if (wpt_list.size() != 0) 
+            {
+                sublist.add(wpt_list.get(0));
+            }
+            if (list.size() == 1 && k == num_of_wpt) {
+                // if in the next chunk is there only one wpt, remove it and add it in the previous chunk
+                wpt_list.remove(0);
+            }
+            chunks.add(sublist);
+            num_chunk++;
+        }
+
+        Reducer.createEntry(key, num_chunk);
+        for (Chunk c : chunks) { 
+            //send chunk in RR sequence with random gpx order
+            synchronized (Master.workerHandlers) {
+                try {
+                    ObjectOutputStream out = Master.workerHandlers.get();
+                    out.writeObject(c);
+                    out.flush();
+                    // System.out.println(socket.getPort());
+                    // System.out.println(sublist);
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
-    private void setNumFiles() 
+    private void setIds() 
     {
         try {
-            this.num_files = this.in.readInt();
+            this.userId = this.in.readInt();
+            this.fileId = this.in.readInt();
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -94,11 +119,26 @@ public class ClientAction extends Thread {
     }
 
     private void create_user(int user) {
-        if (Master.userList.get(user) != null) {
+        if (Master.userList.get(user) == null) {
             synchronized (Master.userList) 
             {
                 Master.userList.put(user, new User(user));
             }
         }
+    }
+
+    @Override 
+    public void run()
+    {
+        setIds();
+        // Create the user record
+        create_user(this.userId);
+        
+        receiveFile();
+
+        ArrayList<Waypoint> wpt_list = parser.parse(this.is);
+        create_chunk(wpt_list);
+        // Thread t = new ClientConnectionHandler(file, fileId++, this.clientId);
+        // t.start(); 
     }
 }

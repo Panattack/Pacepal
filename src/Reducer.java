@@ -23,6 +23,7 @@ public class Reducer {
             size = intermediate_results.get(key).getValue();
             intermediate_results.get(key).setValue(--size);
             if (size == 0) {
+                // TODO: Another thread must send it 
                 calcResults(intermediate_results.get(key).getKey(), key, intermResult.getUser());
             }
         }
@@ -77,6 +78,7 @@ public class Reducer {
         ObjectOutputStream out = Master.clientHandlers.get(id.getKey());
     
         try {
+            // TODO Synchronize the out for the same user
             out.writeObject(results);
             out.flush();
         } catch (IOException e) {

@@ -10,16 +10,24 @@ public class Client extends Thread{
     private String gpx;
     ObjectOutputStream out = null ;
     ObjectInputStream in = null ;
+    static private int userId = 0;
+    private int fileId;
 
-    public Client(String file)
+    public Client(String file, int fileIndex)
     {
         this.gpx = file;
+        this.fileId = fileIndex;
     }
+
     public static void main(String[] args) {
         // start = System.currentTimeMillis();
-        
-        new Client(path + "route1.gpx").start();
-        // new Client(path + "/route2.gpx").start();
+        int indexFile = 0;
+        new Client(path + "route1.gpx", indexFile++).start();
+        new Client(path + "/route4.gpx", indexFile).start();
+
+        // TODO : Give me the user statistics
+
+
         // new Client(path + "/route3.gpx").start();
         // new Client(path + "/route4.gpx").start();
         // new Client(path + "/route5.gpx").start();
@@ -43,8 +51,8 @@ public class Client extends Thread{
         {
             // Send the file name to the server
             File file = new File(fileName);
-            out.writeObject(file.getName());
-            out.flush();
+            // out.writeObject(file.getName());
+            // out.flush();
             byte[] buffer = new byte[(int) file.length()];
             BufferedInputStream reader = new BufferedInputStream(new FileInputStream(file));
             reader.read(buffer, 0, buffer.length);
@@ -77,7 +85,12 @@ public class Client extends Thread{
             out = new ObjectOutputStream(requestSocket.getOutputStream());
             in = new ObjectInputStream(requestSocket.getInputStream());
 
-            out.writeInt(1);
+            // Send user id
+            out.writeInt(Client.userId);
+            out.flush();
+
+            //Send file id
+            out.writeInt(this.fileId);
             out.flush();
 
             sendFile(this.gpx);
@@ -85,9 +98,9 @@ public class Client extends Thread{
             // out.writeObject(gpx);
             // out.flush();
             
-            Results results;
 			try {
-				results = (Results) in.readObject();
+                // Route statistics
+				Results results = (Results) in.readObject();
                 System.out.println(results);
                 // long end = System.currentTimeMillis();
                 // long elapsedTime = end - start;
