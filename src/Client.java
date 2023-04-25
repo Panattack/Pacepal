@@ -13,6 +13,7 @@ public class Client extends Thread{
     ObjectInputStream in = null ;
 
     // User id is static because threads must have a common id from the same user
+    // IS THE ONLY VARIABLE THAT WILL BE CHANGED FROM US
     static private int userId = 0;
     // File id is unique for every thread
     private int fileId;
@@ -26,19 +27,13 @@ public class Client extends Thread{
         this.fileId = fileIndex;
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException, InterruptedException {
         // start = System.currentTimeMillis();
         // int indexFile = 0;
         // new Client(path + "route1.gpx", indexFile++).start();
         // new Client(path + "/route4.gpx", indexFile).start();
 
-        // Check the operating system to determine the appropriate clear command
-        String os = System.getProperty("os.name").toLowerCase();
-        if (os.contains("windows")) {
-            clearCommand = "cmd /c cls";
-        } else if (os.contains("linux") || os.contains("mac")) {
-            clearCommand = "clear";
-        }
+        String clearScreen = "\033[H\033[2J";
         boolean flag = true;
 
         while (flag)
@@ -122,7 +117,6 @@ public class Client extends Thread{
     @Override
     public void run()
     {
-
         Socket requestSocket = null;
 
         try {

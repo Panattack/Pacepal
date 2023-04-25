@@ -9,6 +9,7 @@ public class Master
     private String gpx;
     private int worker_port = 1234;
     private int user_port = 4321;
+    private int reducer_port = 9876;
     static public RobinQueue<ObjectOutputStream> workerHandlers; //related to the socket that every worker has made
     static public Reducer reducer;
     // It's a global id from clients --> workers and vice versa
@@ -17,15 +18,14 @@ public class Master
 
     public static HashMap<Integer, ObjectOutputStream> clientHandlers; // 
 
-    /* Define the socket that receives requests from workers */
+    /* Define the socket that sends requests to workers */
     ServerSocket workerSocket;
 
-    /* Define the socket that receives requests from user */
+    /* Define the socket that receives results from reducer */
     ServerSocket clientSocket;
 
-    // WorkerConnectionHandler worker;
-
-    // ClientConnectionHandler client;
+    /* Define the socket that receives intermediate results from workers */
+    ServerSocket reducerSocket;
 
     public Master(int num_workers, int num_of_wpt) {
         this.num_of_wpt = num_of_wpt;
@@ -36,13 +36,10 @@ public class Master
 
     void openServer() {
         try {
+            // TODO 1. The backlog for workersocket and num_of_workers will be defined from a config file
             clientSocket = new ServerSocket(user_port, 4);
-            // this.client = new ClientConnectionHandler(clientSocket);
             workerSocket = new ServerSocket(worker_port, 4);
-            // this.worker = new WorkerConnectionHandler(workerSocket);
-            // reducer = new Reducer();
-            // worker.start();
-            // client.start();
+            reducerSocket = new ServerSocket(user_port, 4);
             
             Thread client = new Thread(() -> {
                 while (true) {
@@ -50,11 +47,28 @@ public class Master
                         // Accept the connection
                         // Define the socket that is used to handle the connection for a file from a client
                         // Can have multiple threads per client
-                        Socket connection = clientSocket.accept();
+                        Socket connectionSocket = clientSocket.accept();
                         // Master.clientHandlers.put(Master.inputFile, new ObjectOutputStream(connection.getOutputStream()));
 
-                        Thread clienThread = new ClientAction(connection, inputFile++, num_of_wpt);
+                        Thread clienThread = new ClientAction(connectionSocket, inputFile++, num_of_wpt);
                         clienThread.start();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+            client.start();
+
+            Thread reducer = new Thread(() -> {
+                while (true) {
+                    try {
+                        // Accept the connection
+                        // Define the socket that is used to handle the connection for an intermediate result from a worker
+                        // Can have multiple threads per client
+                        Socket requestSocket = reducerSocket.accept();
+                        // New class to receive and reduce intermediate results
+                        Thread reduceThread = new Thread();
+                        reduceThread.start();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }

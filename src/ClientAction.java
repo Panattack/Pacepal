@@ -77,7 +77,7 @@ public class ClientAction extends Thread {
             List<Waypoint> list =  wpt_list.subList(0, endIndex);
             // TODO check the Input file as an attribute to the Chunk class
             // Create key to pass it in the hashmap in the reducer & in the chunk in order to use it 
-        // to access the hashmap
+            // to access the hashmap
             Chunk sublist = new Chunk(this.inputFile, num_chunk, wpt_list.get(0).getUser(), this.userId, this.fileId);
 
             int k = 0;
@@ -120,7 +120,7 @@ public class ClientAction extends Thread {
 
     private void setIds() 
     {
-        // Listen from the client it's id and the glo
+        // Listen from the client it's id and the file id 
         try {
             this.userId = this.in.readInt();
             this.fileId = this.in.readInt();
@@ -131,9 +131,9 @@ public class ClientAction extends Thread {
     }
 
     private void create_user(int user) {
-        if (Master.userList.get(user) == null) {
-            synchronized (Master.userList)
-            {
+        synchronized (Master.userList)
+        {
+            if (Master.userList.get(user) == null) {
                 // TODO Maybe we will create a general class with sync methods
                 Master.userList.put(user, new User(user));
             }

@@ -6,7 +6,7 @@ import java.util.ArrayList;
 
 public class Reducer {
 
-    // Key : [User, File_Id]
+    // Key : Input File
     // Value : [Chunk_List --> [...], size]
     public static HashMap<Integer, Pair<ArrayList<Chunk>, Integer>> intermediate_results =  new HashMap<>();
     
