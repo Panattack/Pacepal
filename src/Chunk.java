@@ -10,7 +10,7 @@ public class Chunk implements Serializable{
     private String user;
     private int fileId;
     private int userId;
-    private Pair<Integer, Integer> key;
+    private int key;
 
     // Output of mapper 
     // results: [totalDistance, totalTimeInHours, averageSpeed, totalElevation]
@@ -20,12 +20,12 @@ public class Chunk implements Serializable{
     private double totalElevation;
     private double totalTimeInSeconds;
 
-    public Chunk(Pair<Integer, Integer> key, int num, String user)
+    public Chunk(int key, int num, String user, int userId, int fileId)
     {
         // Keep the number and id of user
         this.key = key;
-        this.userId = this.key.getKey();
-        this.fileId = this.key.getValue();
+        this.userId = userId;
+        this.fileId = fileId;
         this.number = num;
         this.user = user;
         ls_wpt = new ArrayList<Waypoint>();
@@ -39,11 +39,11 @@ public class Chunk implements Serializable{
         this.userId = other.getUserId();
     }
 
-    public Pair<Integer, Integer> getHashKey() {
+    public int getKey() {
         return this.key;
     }
 
-    public void setHashKey(Pair<Integer, Integer> key) {
+    public void setKey(int key) {
         this.key = key;
     }
 
@@ -57,6 +57,10 @@ public class Chunk implements Serializable{
 
     public String getUser() {
         return this.user;
+    }
+
+    public void setFileId(int fileId) {
+        this.fileId = fileId;
     }
 
     public int getFileId() {

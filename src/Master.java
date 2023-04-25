@@ -11,6 +11,7 @@ public class Master
     private int user_port = 4321;
     static public RobinQueue<ObjectOutputStream> workerHandlers; //related to the socket that every worker has made
     static public Reducer reducer;
+    // It's a global id from clients --> workers and vice versa
     public static int inputFile = 0;
     public static HashMap<Integer, User> userList; //id, user
 
@@ -26,7 +27,8 @@ public class Master
 
     // ClientConnectionHandler client;
 
-    public Master(int num_workers) {
+    public Master(int num_workers, int num_of_wpt) {
+        this.num_of_wpt = num_of_wpt;
         Master.workerHandlers = new RobinQueue<>(num_workers);
         userList = new HashMap<>();
         Master.clientHandlers = new HashMap<>();
@@ -38,7 +40,7 @@ public class Master
             // this.client = new ClientConnectionHandler(clientSocket);
             workerSocket = new ServerSocket(worker_port, 4);
             // this.worker = new WorkerConnectionHandler(workerSocket);
-            reducer = new Reducer();
+            // reducer = new Reducer();
             // worker.start();
             // client.start();
             
@@ -46,11 +48,12 @@ public class Master
                 while (true) {
                     try {
                         // Accept the connection
-                        // Define the socket that is used to handle the connection
+                        // Define the socket that is used to handle the connection for a file from a client
+                        // Can have multiple threads per client
                         Socket connection = clientSocket.accept();
-                        Master.clientHandlers.put(Master.inputFile, new ObjectOutputStream(connection.getOutputStream()));
+                        // Master.clientHandlers.put(Master.inputFile, new ObjectOutputStream(connection.getOutputStream()));
 
-                        Thread clienThread = new ClientAction(connection);
+                        Thread clienThread = new ClientAction(connection, inputFile++, num_of_wpt);
                         clienThread.start();
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -65,7 +68,7 @@ public class Master
                         // Accept the connection
                         // Define the socket that is used to handle the connection
                         Socket communicationSocket = workerSocket.accept();
-            
+
                         Master.workerHandlers.add(new ObjectOutputStream(communicationSocket.getOutputStream()));
 
                         // WorkerAction / Reduce
@@ -85,7 +88,7 @@ public class Master
 
     public static void main(String[] args) {
 
-        Master master = new Master(2);
+        Master master = new Master(2, 16);
         master.openServer();
 
     }

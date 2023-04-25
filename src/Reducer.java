@@ -5,17 +5,22 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 
 public class Reducer {
+
     // Key : [User, File_Id]
     // Value : [Chunk_List --> [...], size]
-    public static HashMap<Pair<Integer, Integer>, Pair<ArrayList<Chunk>, Integer>> intermediate_results =  new HashMap<>();
+    public static HashMap<Integer, Pair<ArrayList<Chunk>, Integer>> intermediate_results =  new HashMap<>();
     
-    public static synchronized void createEntry(Pair<Integer, Integer> key, int size) {
-        intermediate_results.put(key, new Pair<ArrayList<Chunk>, Integer>(new ArrayList<Chunk>(), size));
+    // TODO if there is a generic HashMap class with sync methods, this method will be removed
+    public static void createEntry(int key, int size) {
+        synchronized (intermediate_results)
+        {
+            intermediate_results.put(key, new Pair<ArrayList<Chunk>, Integer>(new ArrayList<Chunk>(), size));
+        }
     }
 
     public static void addResults(Chunk intermResult) {
         int size;
-        Pair<Integer, Integer> key = compareHashKeys(intermResult.getHashKey());
+        int key = intermResult.getKey();
         // Synchronize for the threads that send intermediate results in the same gpx file from the same user
         synchronized (intermediate_results.get(key))
         {
@@ -29,17 +34,17 @@ public class Reducer {
         }
     }
 
-    private static Pair<Integer, Integer> compareHashKeys(Pair<Integer, Integer> o)
-    {
-        for (Map.Entry<Pair<Integer, Integer>, Pair<ArrayList<Chunk>, Integer>> entry : intermediate_results.entrySet()) {
-            //System.out.println(entry.getKey().hashCode());
-            //System.out.println(" User : " + entry.getKey().getKey() + " gpx : " + entry.getKey().getValue());
-            if (entry.getKey().equals(o)) {
-                return entry.getKey();
-            }
-        }
-        return o;
-    }
+    // private static Pair<Integer, Integer> compareHashKeys(Pair<Integer, Integer> o)
+    // {
+    //     for (Map.Entry<Pair<Integer, Integer>, Pair<ArrayList<Chunk>, Integer>> entry : intermediate_results.entrySet()) {
+    //         //System.out.println(entry.getKey().hashCode());
+    //         //System.out.println(" User : " + entry.getKey().getKey() + " gpx : " + entry.getKey().getValue());
+    //         if (entry.getKey().equals(o)) {
+    //             return entry.getKey();
+    //         }
+    //     }
+    //     return o;
+    // }
 
     // public static void Print(Chunk c) {
     //     for (Map.Entry<Pair<Integer, Integer>, Pair<ArrayList<Chunk>, Integer>> entry : intermediate_results.entrySet()) {
@@ -51,7 +56,7 @@ public class Reducer {
     //     }
     // }
 
-    private static void calcResults(ArrayList<Chunk> chunks, Pair<Integer, Integer> id, String user)
+    private static void calcResults(ArrayList<Chunk> chunks, int id, String user)
     {
         // Final Results
         double distanceResult = 0.0;

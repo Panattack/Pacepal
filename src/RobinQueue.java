@@ -12,6 +12,11 @@ public class RobinQueue<T>{
         this.queue = new LinkedList<>();
     }
 
+    public int getIndex()
+    {
+        return this.index;
+    }
+
     public void add(T element) {
         this.queue.addLast(element);
     }
@@ -24,19 +29,10 @@ public class RobinQueue<T>{
         return false;
     }
 
-    // public T remove() {
-    //     if (!this.is_Empty()) {
-    //         return this.queue.removeFirst();
-    //     }
-    //     System.out.println("empty");
-    //     return null;
-    // }
-
     public T get() {
-        if (maxSize == this.index) {
-            this.index = 0;
-        }
-        return this.queue.get(index++);
+        T o = queue.get(this.index % maxSize);
+        this.index++;
+        return o;
     }
 
     public int size() {

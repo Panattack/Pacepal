@@ -63,5 +63,7 @@ public class Worker extends Thread{
     public static void main(String[] args) {
         new Worker(1).start();
         new Worker(2).start();
+
+        // TODO: The worker will be one main and it's code will be from that in the run function
     }
 }

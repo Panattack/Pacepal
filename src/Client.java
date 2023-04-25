@@ -2,6 +2,7 @@ import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Properties;
+import java.util.Scanner;
 
 public class Client extends Thread{
 
@@ -10,8 +11,14 @@ public class Client extends Thread{
     private String gpx;
     ObjectOutputStream out = null ;
     ObjectInputStream in = null ;
+
+    // User id is static because threads must have a common id from the same user
     static private int userId = 0;
+    // File id is unique for every thread
     private int fileId;
+    static int indexFile = 0;
+    static Scanner scanner = new Scanner(System.in);
+    static String clearCommand = "";
 
     public Client(String file, int fileIndex)
     {
@@ -21,17 +28,43 @@ public class Client extends Thread{
 
     public static void main(String[] args) {
         // start = System.currentTimeMillis();
-        int indexFile = 0;
-        new Client(path + "route1.gpx", indexFile++).start();
-        new Client(path + "/route4.gpx", indexFile).start();
+        // int indexFile = 0;
+        // new Client(path + "route1.gpx", indexFile++).start();
+        // new Client(path + "/route4.gpx", indexFile).start();
 
-        // TODO : Give me the user statistics
+        // Check the operating system to determine the appropriate clear command
+        String os = System.getProperty("os.name").toLowerCase();
+        if (os.contains("windows")) {
+            clearCommand = "cmd /c cls";
+        } else if (os.contains("linux") || os.contains("mac")) {
+            clearCommand = "clear";
+        }
+        boolean flag = true;
 
+        while (flag)
+        {
+            System.out.println("You have the following options :");
+            System.out.println("1. Send files");
+            System.out.println("2. Check your statistics");
+            System.out.println("3. Exit our app");
+            System.out.print("Insert your answer : ");
+            int answer = scanner.nextInt();
 
-        // new Client(path + "/route3.gpx").start();
-        // new Client(path + "/route4.gpx").start();
-        // new Client(path + "/route5.gpx").start();
-        // new Client(path + "/route6.gpx").start();
+            switch (answer)
+            {
+                case 1:
+                    // TODO: Send files
+                    uiGpx();
+                    break;
+                case 2:
+                    // TODO: Check your statistics
+                    break;
+                default:
+                    // Exit:
+                    flag = false;
+                    break;
+            }
+        }
         //code
         // Properties prop = new Properties();
         // String fileName = "pacepal/src/config.conf";
@@ -43,6 +76,23 @@ public class Client extends Thread{
         // } catch (IOException e) {
         //     e.printStackTrace();
         // }
+    }
+
+    private static void uiGpx() 
+    {
+        while (true)
+        {
+            System.out.print("Insert the file name : ");
+            String name = scanner.nextLine();
+            new Client(path + name, indexFile++).start();
+            System.out.print(" Do you want to insert another file (y or n)");
+            String choice = scanner.nextLine();
+
+            if (choice == "n")
+            {
+                break;
+            }
+        }
     }
 
     private void sendFile(String fileName) 
