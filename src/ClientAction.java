@@ -13,19 +13,22 @@ public class ClientAction extends Thread {
     private int fileId;
     // Given from the Master : num of waypoints per chunk
     private int num_of_wpt;
-    // Given from the Master : 
+    // Given from the Master : Global input file
     private int inputFile;
+    // An arraylist that contains all the intermediate results of the specific file from Master
+    ArrayList<Chunk> interResults;
+    // Monitor
+    Object lock;
     private final ParserGPX parser = new ParserGPX();
 
-    // User id
-
-    public ClientAction(Socket connection, int inputFile, int num_of_wpt) {
+    public ClientAction(Socket connection, int inputFile, int num_of_wpt, Object monitor) {
         try {
             // Socket connection to listen from the client
             this.socket = connection;
             // File id is the global variable and we use it as a key in  the chunk
             this.inputFile = inputFile;
-            // 
+            this.num_of_wpt = num_of_wpt;
+            this.lock = monitor;
             this.in = new ObjectInputStream(connection.getInputStream());
             this.out = new ObjectOutputStream(connection.getOutputStream());
         } catch (IOException e) {
@@ -114,7 +117,7 @@ public class ClientAction extends Thread {
                     outstream.flush();
                 }
                 // TODO Maybe we will make a HashMap generic class to sync methods
-                Master.clientHandlers.put(this.inputFile, this.out);
+                // Master.clientHandlers.put(this.inputFile, this.out);
                 
                 // System.out.println(socket.getPort());
                 // System.out.println(sublist);
@@ -147,6 +150,63 @@ public class ClientAction extends Thread {
             }
         }
     }
+    
+    public void setIntermResults(ArrayList<Chunk> list)
+    {
+        this.interResults = list;
+    }
+
+    private Results reduceResults()
+    {
+         // Final Results
+         double distanceResult = 0.0;
+         double timeResult = 0.0;
+         double avgSpeedResult = 0.0;
+         double elevationResult = 0.0;
+         double num_chunks = 0.0;
+         double timeInSeconds = 0.0;
+ 
+         for (Chunk c : this.interResults) {
+             // System.out.println(c.getTotalDistance());
+             distanceResult += c.getTotalDistance();
+             timeResult += c.getTotalTime();
+             elevationResult += c.getTotalElevation();
+             avgSpeedResult += c.getAvgSpeed();
+             timeInSeconds += c.getTotalTimeInSeconds();
+             num_chunks++;
+         }
+ 
+         avgSpeedResult = avgSpeedResult / num_chunks;
+ 
+         Results results = new Results(distanceResult, avgSpeedResult, elevationResult, timeInSeconds, this.fileId, this.userId);
+
+         return results;
+    }
+
+    private void sendResults()
+    {
+        if (this.interResults == null)
+        {
+            synchronized (this.lock)
+            {
+                try {
+                    wait();
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        try {
+            Results results = reduceResults();
+            this.out.writeObject(results);
+            this.out.flush();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
 
     @Override 
     public void run()
@@ -161,10 +221,6 @@ public class ClientAction extends Thread {
         ArrayList<Waypoint> wpt_list = parser.parse(this.is);
         create_chunk(wpt_list);
 
-        // Wait to receive a list
-        // while (flag)
-        // reuducing
-        // this.out.writeObject(Result);
-        // this.out.flush();
+        sendResults();
     }
 }

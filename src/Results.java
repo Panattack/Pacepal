@@ -3,7 +3,7 @@ import java.io.Serializable;
 public class Results  implements Serializable {
     
     private int gpx_id;
-    private String user_id;
+    private int user_id;
 
 
     private double totalDistance ;
@@ -11,7 +11,7 @@ public class Results  implements Serializable {
     private double totalElevation;
     private double totalTime;
 
-    public Results (Double d, Double s, Double e, Double t, int gid, String uid)
+    public Results (Double d, Double s, Double e, Double t, int gid, int uid)
     {
         this.totalDistance = d;
         this.avgSpeed = s;
@@ -63,11 +63,11 @@ public class Results  implements Serializable {
         this.gpx_id = gpx_id;
     }
 
-    public String getUser_id() {
+    public int getUser_id() {
         return user_id;
     }
 
-    public void setUser_id(String user_id) {
+    public void setUser_id(int user_id) {
         this.user_id = user_id;
     }
    

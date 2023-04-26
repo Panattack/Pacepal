@@ -1,8 +1,47 @@
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class SynchronizedHashMap<K, V> {
+
     private final Map<K, V> map;
+    private Node<K, V>[] table; // Array of Nodes to store buckets
+
+    static class Node<K, V> implements Map.Entry<K, V> {
+        final int hash;
+        final K key;
+        V value;
+        Node<K, V> next;
+
+        // Constructor
+        Node(int hash, K key, V value, Node<K, V> next) {
+            this.hash = hash;
+            this.key = key;
+            this.value = value;
+            this.next = next;
+        }
+
+        // Getter for key
+        @Override
+        public K getKey() {
+            return key;
+        }
+
+        // Getter for value
+        @Override
+        public V getValue() {
+            return value;
+        }
+
+        // Setter for value
+        @Override
+        public V setValue(V value) {
+            V oldValue = this.value;
+            this.value = value;
+            return oldValue;
+        }
+    }
 
     public SynchronizedHashMap() {
         this.map = new HashMap<>();
@@ -38,5 +77,22 @@ public class SynchronizedHashMap<K, V> {
 
     public synchronized void clear() {
         map.clear();
+    }
+
+    public Set<Map.Entry<K, V>> entrySet() {
+        // Create a new HashSet to store the entries
+        Set<Map.Entry<K, V>> entrySet = new HashSet<>();
+
+        // Iterate through the buckets (array of linked nodes)
+        for (Node<K, V> node : table) {
+            while (node != null) {
+                // Add each entry to the entrySet
+                entrySet.add(node);
+                node = node.next;
+            }
+        }
+
+        // Return the entrySet
+        return entrySet;
     }
 }

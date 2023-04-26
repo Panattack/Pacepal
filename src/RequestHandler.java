@@ -33,8 +33,11 @@ public class RequestHandler extends Thread{
             // If size == 0 then send signal to the Master and remove the element
             if (size == 0)
             {
-                // Master.clientHandlers.get(inputFileId).writeObject(Master.intermediate_results.get(inputFileId).getKey());
-                // Master.clientHandlers.get(inputFileId).flush();
+                synchronized (Master.clientLockers.get(inputFileId))
+                {
+                    Master.clientLHandlers.get(inputFileId).setIntermResults(Master.intermediate_results.get(inputFileId).getKey());
+                    Master.clientLockers.get(inputFileId).notify();
+                }
             }
             // End of request socket
             in.close();

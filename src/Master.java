@@ -15,11 +15,13 @@ public class Master
     // It's a global id from clients --> workers and vice versa
     public static int inputFile = 0;
     // A hashmap that we keep the user records
-    public static SynchronizedHashMap<Integer, User> userList; //id, user
-    // A hashmap that we keep the outstreams to send the results to the client
-    public static SynchronizedHashMap<Integer, ObjectOutputStream> clientHandlers;
+    public static SynchronizedHashMap<Integer, User> userList = new SynchronizedHashMap<>(); //id, user
+    // A hashmap that we keep the locks to notify the clientAction thread
+    public static SynchronizedHashMap<Integer, Object> clientLockers = new SynchronizedHashMap<>();
+    // A hashmap that we keep the locks to add results to the clientThread
+    public static SynchronizedHashMap<Integer, ClientAction> clientLHandlers= new SynchronizedHashMap<>();
     // A hashmap that we keep all the intermediate results per file in order to reduce them
-    public static SynchronizedHashMap<Integer, Pair<ArrayList<Chunk>, Integer>> intermediate_results;
+    public static SynchronizedHashMap<Integer, Pair<ArrayList<Chunk>, Integer>> intermediate_results = new SynchronizedHashMap<>();
 
     /* Define the socket that sends requests to workers */
     ServerSocket workerSocket;
@@ -51,9 +53,11 @@ public class Master
                         // Define the socket that is used to handle the connection for a file from a client
                         // Can have multiple threads per client
                         Socket connectionSocket = clientSocket.accept();
-                        Master.clientHandlers.put(Master.inputFile, new ObjectOutputStream(connectionSocket.getOutputStream()));
+                        Object lock = new Object();
+                        ClientAction clienThread = new ClientAction(connectionSocket, inputFile++, num_of_wpt, lock);
+                        Master.clientLHandlers.put(Master.inputFile, clienThread);
+                        Master.clientLockers.put(Master.inputFile, lock);
 
-                        Thread clienThread = new ClientAction(connectionSocket, inputFile++, num_of_wpt);
                         clienThread.start();
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -102,7 +106,7 @@ public class Master
 
     public static void main(String[] args) {
 
-        Master master = new Master(2, 16);
+        Master master = new Master(1, 16);
         master.openServer();
     }
 }

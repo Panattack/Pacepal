@@ -1,12 +1,14 @@
 import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Properties;
 import java.util.Scanner;
 
 public class Client extends Thread{
 
     private static String path = "pacepal/gpxs/gpxs/";
+    private static SynchronizedHashMap<Integer, Results> resultsList = new SynchronizedHashMap<>();
     static long start;
     private String gpx;
     ObjectOutputStream out = null ;
@@ -40,19 +42,24 @@ public class Client extends Thread{
         {
             System.out.println("You have the following options :");
             System.out.println("1. Send files");
-            System.out.println("2. Check your statistics");
-            System.out.println("3. Exit our app");
+            System.out.println("2. View your results");
+            System.out.println("3. Check your statistics");
+            System.out.println("4. Exit our app");
             System.out.print("Insert your answer : ");
             int answer = scanner.nextInt();
 
             switch (answer)
             {
                 case 1:
-                    // TODO: Send files
                     uiGpx();
                     break;
                 case 2:
+                    // TODO: View Results
+                    // uiResults
+                    break;
+                case 3:
                     // TODO: Check your statistics
+                    // uiStatistics
                     break;
                 default:
                     // Exit:
@@ -60,34 +67,30 @@ public class Client extends Thread{
                     break;
             }
         }
-        //code
-        // Properties prop = new Properties();
-        // String fileName = "pacepal/src/config.conf";
-        // try (FileInputStream fis = new FileInputStream(fileName)) {
-        //     prop.load(fis);
-        //     System.out.println(prop.getProperty("num_of_workers"));
-        // } catch (FileNotFoundException ex) {
-        //     System.out.println("File not found !!!"); // FileNotFoundException catch is optional and can be collapsed
-        // } catch (IOException e) {
-        //     e.printStackTrace();
-        // }
     }
 
     private static void uiGpx() 
     {
-        while (true)
-        {
-            System.out.print("Insert the file name : ");
-            String name = scanner.nextLine();
-            new Client(path + name, indexFile++).start();
-            System.out.print(" Do you want to insert another file (y or n)");
-            String choice = scanner.nextLine();
+        new Client(path + "route1.gpx", indexFile++).start();
+        // while (true)
+        // {
+        //     System.out.print("Insert the file name : ");
+        //     String name = scanner.next();
+        //     new Client(path + name, indexFile++).start();
+        //     System.out.print(" Do you want to insert another file (y or n)");
+        //     String choice = scanner.nextLine();
 
-            if (choice == "n")
-            {
-                break;
-            }
-        }
+        //     if (choice == "n")
+        //     {
+        //         break;
+        //     }
+        // }
+        // TODO Join the threads that send files
+    }
+
+    private static void uiResults()
+    {
+        
     }
 
     private void sendFile(String fileName) 
@@ -145,7 +148,7 @@ public class Client extends Thread{
 			try {
                 // Route statistics
 				Results results = (Results) in.readObject();
-                System.out.println(results);
+                resultsList.put(this.fileId, results);
                 // long end = System.currentTimeMillis();
                 // long elapsedTime = end - start;
                 // System.out.println("Elapsed time: " + elapsedTime + " milliseconds");
