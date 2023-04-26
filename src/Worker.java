@@ -31,7 +31,7 @@ public class Worker extends Thread{
             // Send them to the reducer
             this.out.writeObject(chunk);
             this.out.flush();
-    } catch (IOException e) {
+        } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
@@ -41,8 +41,6 @@ public class Worker extends Thread{
 
         // TODO The worker will be one main and it's code will be from that in the run function
         
-            
-        // System.out.println(requestSocket.getLocalPort() + " " + this.id);
         String host = "localhost";
         Socket connectionSocket;
         try {
@@ -60,6 +58,7 @@ public class Worker extends Thread{
             try {
                 Chunk chunk = (Chunk) in.readObject();
                 Socket chunkSocket = new Socket(host, 9876);
+                System.out.println(chunkSocket.getLocalPort());
                 // new Socket per request
                 new Worker(chunkSocket, chunk).start();
             } catch (ClassNotFoundException | IOException e) {

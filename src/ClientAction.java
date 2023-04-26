@@ -28,7 +28,9 @@ public class ClientAction extends Thread {
             // File id is the global variable and we use it as a key in  the chunk
             this.inputFile = inputFile;
             this.num_of_wpt = num_of_wpt;
+            // Monitor
             this.lock = new Object();
+
             this.in = new ObjectInputStream(connection.getInputStream());
             this.out = new ObjectOutputStream(connection.getOutputStream());
         } catch (IOException e) {
@@ -164,35 +166,35 @@ public class ClientAction extends Thread {
         this.interResults = list;
         synchronized (this.lock)
         {
-            notify();
+            this.lock.notify();
         }
     }
 
     private Results reduceResults()
     {
-         // Final Results
-         double distanceResult = 0.0;
-         double timeResult = 0.0;
-         double avgSpeedResult = 0.0;
-         double elevationResult = 0.0;
-         double num_chunks = 0.0;
-         double timeInSeconds = 0.0;
+        // Final Results
+        double distanceResult = 0.0;
+        double timeResult = 0.0;
+        double avgSpeedResult = 0.0;
+        double elevationResult = 0.0;
+        double num_chunks = 0.0;
+        double timeInSeconds = 0.0;
  
-         for (Chunk c : this.interResults) {
-             // System.out.println(c.getTotalDistance());
-             distanceResult += c.getTotalDistance();
-             timeResult += c.getTotalTime();
-             elevationResult += c.getTotalElevation();
-             avgSpeedResult += c.getAvgSpeed();
-             timeInSeconds += c.getTotalTimeInSeconds();
-             num_chunks++;
-         }
+        for (Chunk c : this.interResults) {
+            // System.out.println(c.getTotalDistance());
+            distanceResult += c.getTotalDistance();
+            timeResult += c.getTotalTime();
+            elevationResult += c.getTotalElevation();
+            avgSpeedResult += c.getAvgSpeed();
+            timeInSeconds += c.getTotalTimeInSeconds();
+            num_chunks++;
+        }
  
-         avgSpeedResult = avgSpeedResult / num_chunks;
- 
-         Results results = new Results(distanceResult, avgSpeedResult, elevationResult, timeInSeconds, this.fileId, this.userId);
+        avgSpeedResult = avgSpeedResult / num_chunks;
 
-         return results;
+        Results results = new Results(distanceResult, avgSpeedResult, elevationResult, timeInSeconds, this.fileId, this.userId);
+
+        return results;
     }
 
     private void sendResults()
@@ -202,8 +204,7 @@ public class ClientAction extends Thread {
             synchronized (this.lock)
             {
                 try {
-                    
-                    wait();
+                    this.lock.wait();
                 } catch (InterruptedException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
@@ -213,6 +214,14 @@ public class ClientAction extends Thread {
 
         try {
             Results results = reduceResults();
+            // TODO Check for the computation of the personal record
+            synchronized (Master.userList.get(this.userId))
+            {
+                // register the new route for the server
+                Master.userList.get(this.userId).getResultList().put(this.fileId, results);
+                // update the personal record
+                Master.userList.get(this.userId).updateStatistics(results.getTotalDistance(), results.getTotalTime(), results.getTotalElevation());
+            }
             this.out.writeObject(results);
             this.out.flush();
         } catch (IOException e) {
@@ -234,8 +243,8 @@ public class ClientAction extends Thread {
         ArrayList<Waypoint> wpt_list = parser.parse(this.is);
         create_chunk(wpt_list);
 
-        while (true)
-        {}
-        // sendResults();
+        // while (true)
+        // {}
+        sendResults();
     }
 }

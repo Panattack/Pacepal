@@ -2,13 +2,14 @@ import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Properties;
+import java.util.Map;
 import java.util.Scanner;
 
-public class Client extends Thread{
+public class Client extends Thread {
 
     private static String path = "pacepal/gpxs/gpxs/";
-    private static SynchronizedHashMap<Integer, Results> resultsList = new SynchronizedHashMap<>();
+    // private static SynchronizedHashMap<Integer, Results> resultsList = new SynchronizedHashMap<>();
+    private static ArrayList<Results> resultsList = new ArrayList<>();
     static long start;
     private String gpx;
     ObjectOutputStream out = null ;
@@ -47,15 +48,16 @@ public class Client extends Thread{
             System.out.println("4. Exit our app");
             System.out.print("Insert your answer : ");
             int answer = scanner.nextInt();
-
+            scanner.nextLine();
+            // System.out.println();
             switch (answer)
             {
                 case 1:
                     uiGpx();
                     break;
                 case 2:
-                    // TODO: View Results
-                    // uiResults
+                    // TODO: View Results -->check in another time the HashMap.entrySet
+                    uiResults();
                     break;
                 case 3:
                     // TODO: Check your statistics
@@ -67,30 +69,34 @@ public class Client extends Thread{
                     break;
             }
         }
+        scanner.close();
     }
 
     private static void uiGpx() 
     {
-        new Client(path + "route1.gpx", indexFile++).start();
-        // while (true)
-        // {
-        //     System.out.print("Insert the file name : ");
-        //     String name = scanner.next();
-        //     new Client(path + name, indexFile++).start();
-        //     System.out.print(" Do you want to insert another file (y or n)");
-        //     String choice = scanner.nextLine();
+        // new Client(path + "route1.gpx", indexFile++).start();
+        String name;
+        while (true)
+        {
+            System.out.print("Insert the file name : ");
+            name = scanner.nextLine();
+            new Client(path + name, indexFile++).start();
+            System.out.print("Do you want to insert another file (y or n) : ");
+            String choice = scanner.nextLine();
 
-        //     if (choice == "n")
-        //     {
-        //         break;
-        //     }
-        // }
-        // TODO Join the threads that send files
+            if (choice.equals("n"))
+            {
+                break;
+            }
+        }
     }
 
     private static void uiResults()
     {
-        
+        for (Results result : Client.resultsList)
+        {
+            System.out.println(result);
+        }
     }
 
     private void sendFile(String fileName) 
@@ -142,13 +148,17 @@ public class Client extends Thread{
 
             sendFile(this.gpx);
             //Sending GPX file
-            // out.writeObject(gpx);
-            // out.flush();
             
 			try {
                 // Route statistics
 				Results results = (Results) in.readObject();
-                resultsList.put(this.fileId, results);
+
+                // TODO : Fix EntrySet in HashMap to initialize resultList as SyncHashMap --> Results List is already in sync so there is no need for synchronized
+                //Client.resultsList.put(this.fileId, results);
+                synchronized (Client.resultsList)
+                {
+                    Client.resultsList.add(results);
+                }
                 // long end = System.currentTimeMillis();
                 // long elapsedTime = end - start;
                 // System.out.println("Elapsed time: " + elapsedTime + " milliseconds");
@@ -164,19 +174,6 @@ public class Client extends Thread{
             System.err.println("You are trying to connect to an unknown host!");
         } catch (IOException ioException) {
             ioException.printStackTrace();
-        // } catch (ClassNotFoundException e) {
-        //     // TODO Auto-generated catch block
-        //     e.printStackTrace();
-        // }
-        // } finally {
-        //     try {
-        //         System.out.println("end of client");
-        //         // in.close(); out.close();
-        //         // requestSocket.close();
-        //     } catch (IOException ioException) {
-        //         ioException.printStackTrace();
-        //     }
-        // }
         }
     }
 }

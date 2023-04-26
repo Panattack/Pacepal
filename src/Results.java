@@ -5,7 +5,6 @@ public class Results  implements Serializable {
     private int gpx_id;
     private int user_id;
 
-
     private double totalDistance ;
     private double avgSpeed;
     private double totalElevation;
@@ -75,5 +74,4 @@ public class Results  implements Serializable {
     {
         return  "User_id: "+user_id+" Gpx: "+gpx_id+"\n"+"Total Dist: "+totalDistance+"\n"+"Avg Speed: "+avgSpeed+"\n"+"Total Elev: "+totalElevation+"\n"+"Hours: "+ (int) totalTime /3600 + " Minutes: " + (int) (totalTime%3600) / 60 + " Seconds: " + (int) totalTime % 60 + "\n\n";
     }
-
 }

@@ -6,7 +6,6 @@ import java.util.Set;
 public class SynchronizedHashMap<K, V> {
 
     private final Map<K, V> map;
-    private Node<K, V>[] table; // Array of Nodes to store buckets
 
     static class Node<K, V> implements Map.Entry<K, V> {
         final int hash;
@@ -82,7 +81,7 @@ public class SynchronizedHashMap<K, V> {
     public Set<Map.Entry<K, V>> entrySet() {
         // Create a new HashSet to store the entries
         Set<Map.Entry<K, V>> entrySet = new HashSet<>();
-
+        final Node<K, V>[] table = new Node[map.size()]; // Array of Nodes to store buckets
         // Iterate through the buckets (array of linked nodes)
         for (Node<K, V> node : table) {
             while (node != null) {
@@ -91,7 +90,6 @@ public class SynchronizedHashMap<K, V> {
                 node = node.next;
             }
         }
-
         // Return the entrySet
         return entrySet;
     }

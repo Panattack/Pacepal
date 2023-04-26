@@ -4,8 +4,8 @@ import java.util.*;
 
 public class Master
 {
-    private int num_of_workers;// DEFINE IN Config file
-    private int num_of_wpt;// DEFINE IN Config file
+    private int num_of_workers; // DEFINE IN Config file
+    private int num_of_wpt; // DEFINE IN Config file
     private String gpx;
     private int worker_port = 1234;
     private int user_port = 4321;
