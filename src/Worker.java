@@ -24,7 +24,7 @@ public class Worker extends Thread{
     }
     
     public void run() {
-        // Make the intermediate results
+        // Map Make the intermediate results
         this.chunk.calcStatistics();
         
         try {
@@ -58,7 +58,7 @@ public class Worker extends Thread{
             try {
                 Chunk chunk = (Chunk) in.readObject();
                 Socket chunkSocket = new Socket(host, 9876);
-                System.out.println(chunkSocket.getLocalPort());
+                // System.out.println(chunkSocket.getLocalPort());
                 // new Socket per request
                 new Worker(chunkSocket, chunk).start();
             } catch (ClassNotFoundException | IOException e) {

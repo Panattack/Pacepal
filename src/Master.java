@@ -11,7 +11,6 @@ public class Master
     private int user_port = 4321;
     private int reducer_port = 9876;
     static public RobinQueue<ObjectOutputStream> workerHandlers; //related to the socket that every worker has made
-    static public Reducer reducer;
     // It's a global id from clients --> workers and vice versa
     public static int inputFile = 0;
     // A hashmap that we keep the user records
