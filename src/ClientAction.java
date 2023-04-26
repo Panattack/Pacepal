@@ -21,19 +21,27 @@ public class ClientAction extends Thread {
     Object lock;
     private final ParserGPX parser = new ParserGPX();
 
-    public ClientAction(Socket connection, int inputFile, int num_of_wpt, Object monitor) {
+    public ClientAction(Socket connection, int inputFile, int num_of_wpt) {
         try {
             // Socket connection to listen from the client
             this.socket = connection;
             // File id is the global variable and we use it as a key in  the chunk
             this.inputFile = inputFile;
             this.num_of_wpt = num_of_wpt;
-            this.lock = monitor;
+            this.lock = new Object();
             this.in = new ObjectInputStream(connection.getInputStream());
             this.out = new ObjectOutputStream(connection.getOutputStream());
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public int getFileId() {
+        return fileId;
+    }
+
+    public void setFileId(int fileId) {
+        this.fileId = fileId;
     }
 
     private void receiveFile()
@@ -154,6 +162,10 @@ public class ClientAction extends Thread {
     public void setIntermResults(ArrayList<Chunk> list)
     {
         this.interResults = list;
+        synchronized (this.lock)
+        {
+            notify();
+        }
     }
 
     private Results reduceResults()
@@ -190,6 +202,7 @@ public class ClientAction extends Thread {
             synchronized (this.lock)
             {
                 try {
+                    
                     wait();
                 } catch (InterruptedException e) {
                     // TODO Auto-generated catch block
@@ -221,6 +234,8 @@ public class ClientAction extends Thread {
         ArrayList<Waypoint> wpt_list = parser.parse(this.is);
         create_chunk(wpt_list);
 
-        sendResults();
+        while (true)
+        {}
+        // sendResults();
     }
 }

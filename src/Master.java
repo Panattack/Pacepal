@@ -16,8 +16,6 @@ public class Master
     public static int inputFile = 0;
     // A hashmap that we keep the user records
     public static SynchronizedHashMap<Integer, User> userList = new SynchronizedHashMap<>(); //id, user
-    // A hashmap that we keep the locks to notify the clientAction thread
-    public static SynchronizedHashMap<Integer, Object> clientLockers = new SynchronizedHashMap<>();
     // A hashmap that we keep the locks to add results to the clientThread
     public static SynchronizedHashMap<Integer, ClientAction> clientLHandlers= new SynchronizedHashMap<>();
     // A hashmap that we keep all the intermediate results per file in order to reduce them
@@ -53,11 +51,11 @@ public class Master
                         // Define the socket that is used to handle the connection for a file from a client
                         // Can have multiple threads per client
                         Socket connectionSocket = clientSocket.accept();
-                        Object lock = new Object();
-                        ClientAction clienThread = new ClientAction(connectionSocket, inputFile++, num_of_wpt, lock);
+                        // Object lock = new Object();
+                        ClientAction clienThread = new ClientAction(connectionSocket, inputFile, num_of_wpt);
                         Master.clientLHandlers.put(Master.inputFile, clienThread);
-                        Master.clientLockers.put(Master.inputFile, lock);
-
+                        Master.inputFile++;
+                        System.out.println("Master : " + Master.inputFile);
                         clienThread.start();
                     } catch (IOException e) {
                         e.printStackTrace();

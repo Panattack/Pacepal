@@ -33,6 +33,7 @@ public class Chunk implements Serializable{
 
     public Chunk(Chunk other) {
         this.ls_wpt = other.ls_wpt;
+        this.key = other.key;
         this.number = other.getNum();
         this.user = other.getUser();
         this.fileId = other.getFileId();
