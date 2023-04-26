@@ -11,12 +11,12 @@ public class Reducer {
     public static HashMap<Integer, Pair<ArrayList<Chunk>, Integer>> intermediate_results =  new HashMap<>();
     
     // TODO if there is a generic HashMap class with sync methods, this method will be removed
-    public static void createEntry(int key, int size) {
-        synchronized (intermediate_results)
-        {
-            intermediate_results.put(key, new Pair<ArrayList<Chunk>, Integer>(new ArrayList<Chunk>(), size));
-        }
-    }
+    // public static void createEntry(int key, int size) {
+    //     synchronized (intermediate_results)
+    //     {
+    //         intermediate_results.put(key, new Pair<ArrayList<Chunk>, Integer>(new ArrayList<Chunk>(), size));
+    //     }
+    // }
 
     public static void addResults(Chunk intermResult) {
         int size;

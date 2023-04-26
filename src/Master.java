@@ -14,9 +14,12 @@ public class Master
     static public Reducer reducer;
     // It's a global id from clients --> workers and vice versa
     public static int inputFile = 0;
-    public static HashMap<Integer, User> userList; //id, user
-
-    public static HashMap<Integer, ObjectOutputStream> clientHandlers; // 
+    // A hashmap that we keep the user records
+    public static SynchronizedHashMap<Integer, User> userList; //id, user
+    // A hashmap that we keep the outstreams to send the results to the client
+    public static SynchronizedHashMap<Integer, ObjectOutputStream> clientHandlers;
+    // A hashmap that we keep all the intermediate results per file in order to reduce them
+    public static SynchronizedHashMap<Integer, Pair<ArrayList<Chunk>, Integer>> intermediate_results;
 
     /* Define the socket that sends requests to workers */
     ServerSocket workerSocket;
@@ -30,8 +33,8 @@ public class Master
     public Master(int num_workers, int num_of_wpt) {
         this.num_of_wpt = num_of_wpt;
         Master.workerHandlers = new RobinQueue<>(num_workers);
-        userList = new HashMap<>();
-        Master.clientHandlers = new HashMap<>();
+        userList = new SynchronizedHashMap<>();
+        // Master.clientHandlers = new HashMap<>();
     }
 
     void openServer() {
@@ -39,8 +42,8 @@ public class Master
             // TODO 1. The backlog for workersocket and num_of_workers will be defined from a config file
             clientSocket = new ServerSocket(user_port, 4);
             workerSocket = new ServerSocket(worker_port, 4);
-            reducerSocket = new ServerSocket(user_port, 4);
-            
+            reducerSocket = new ServerSocket(reducer_port, 4);
+
             Thread client = new Thread(() -> {
                 while (true) {
                     try {
@@ -48,7 +51,7 @@ public class Master
                         // Define the socket that is used to handle the connection for a file from a client
                         // Can have multiple threads per client
                         Socket connectionSocket = clientSocket.accept();
-                        // Master.clientHandlers.put(Master.inputFile, new ObjectOutputStream(connection.getOutputStream()));
+                        Master.clientHandlers.put(Master.inputFile, new ObjectOutputStream(connectionSocket.getOutputStream()));
 
                         Thread clienThread = new ClientAction(connectionSocket, inputFile++, num_of_wpt);
                         clienThread.start();
@@ -66,16 +69,17 @@ public class Master
                         // Define the socket that is used to handle the connection for an intermediate result from a worker
                         // Can have multiple threads per client
                         Socket requestSocket = reducerSocket.accept();
-                        // New class to receive and reduce intermediate results
-                        Thread reduceThread = new Thread();
+                        
+                        // TODO New class to receive and reduce intermediate results
+                        Thread reduceThread = new RequestHandler(requestSocket);
                         reduceThread.start();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                 }
             });
-            client.start();
-            
+            reducer.start();
+
             Thread worker = new Thread(() -> {
                 while (true) {
                     try {
@@ -84,10 +88,6 @@ public class Master
                         Socket communicationSocket = workerSocket.accept();
 
                         Master.workerHandlers.add(new ObjectOutputStream(communicationSocket.getOutputStream()));
-
-                        // WorkerAction / Reduce
-                        Thread workerThread = new WorkerAction(communicationSocket);
-                        workerThread.start();
                     } catch (IOException e) {
                         e.printStackTrace();
                     } 
@@ -104,7 +104,5 @@ public class Master
 
         Master master = new Master(2, 16);
         master.openServer();
-
     }
-
 }

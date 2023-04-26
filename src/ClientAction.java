@@ -97,23 +97,30 @@ public class ClientAction extends Thread {
             num_chunk++;
         }
 
-        Reducer.createEntry(this.inputFile, num_chunk);
+        Master.intermediate_results.put(this.inputFile, new Pair<ArrayList<Chunk>, Integer>(new ArrayList<Chunk>(), num_chunk));
+        
         for (Chunk c : chunks) { 
             //send chunk in RR sequence with random gpx order
-            synchronized (Master.workerHandlers) {
-                try {
-                    ObjectOutputStream out = Master.workerHandlers.get();
-                    out.writeObject(c);
-                    out.flush();
-
-                    Master.clientHandlers.put(this.inputFile, this.out);
-                    
-                    // System.out.println(socket.getPort());
-                    // System.out.println(sublist);
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+            ObjectOutputStream outstream;
+            
+            outstream = Master.workerHandlers.get();
+            
+            try {
+                // Sync in order to send a chunk in the worker 
+                // but if two or more client threads have the same outstream, lock it
+                synchronized (outstream)
+                {
+                    outstream.writeObject(c);
+                    outstream.flush();
                 }
+                // TODO Maybe we will make a HashMap generic class to sync methods
+                Master.clientHandlers.put(this.inputFile, this.out);
+                
+                // System.out.println(socket.getPort());
+                // System.out.println(sublist);
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
             }
         }
     }
@@ -133,8 +140,9 @@ public class ClientAction extends Thread {
     private void create_user(int user) {
         synchronized (Master.userList)
         {
-            if (Master.userList.get(user) == null) {
-                // TODO Maybe we will create a general class with sync methods
+            if (Master.userList.get(user) == null) 
+            {
+                // TODO Maybe we will create a general class with sync methods -- 
                 Master.userList.put(user, new User(user));
             }
         }
@@ -152,5 +160,11 @@ public class ClientAction extends Thread {
 
         ArrayList<Waypoint> wpt_list = parser.parse(this.is);
         create_chunk(wpt_list);
+
+        // Wait to receive a list
+        // while (flag)
+        // reuducing
+        // this.out.writeObject(Result);
+        // this.out.flush();
     }
 }

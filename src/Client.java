@@ -33,7 +33,7 @@ public class Client extends Thread{
         // new Client(path + "route1.gpx", indexFile++).start();
         // new Client(path + "/route4.gpx", indexFile).start();
 
-        String clearScreen = "\033[H\033[2J";
+        // String clearScreen = "\033[H\033[2J";
         boolean flag = true;
 
         while (flag)
