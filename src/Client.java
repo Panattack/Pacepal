@@ -41,6 +41,7 @@ public class Client extends Thread {
 
         while (flag)
         {
+            System.out.println();
             System.out.println("You have the following options :");
             System.out.println("1. Send files");
             System.out.println("2. View your results");
@@ -152,7 +153,7 @@ public class Client extends Thread {
 			try {
                 // Route statistics
 				Results results = (Results) in.readObject();
-
+                // System.out.println(results);
                 // TODO : Fix EntrySet in HashMap to initialize resultList as SyncHashMap --> Results List is already in sync so there is no need for synchronized
                 //Client.resultsList.put(this.fileId, results);
                 synchronized (Client.resultsList)
