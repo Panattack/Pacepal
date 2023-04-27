@@ -7,7 +7,7 @@ import java.util.Scanner;
 
 public class Client extends Thread {
 
-    private static String path = "pacepal/gpxs/gpxs/";
+    private static String path = "gpxs/gpxs/";
     // private static SynchronizedHashMap<Integer, Results> resultsList = new SynchronizedHashMap<>();
     private static ArrayList<Results> resultsList = new ArrayList<>();
     static long start;
