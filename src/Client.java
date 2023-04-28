@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Scanner;
 
 public class Client extends Thread {
-
+    
     private static String path = "gpxs/gpxs/";
     // private static SynchronizedHashMap<Integer, Results> resultsList = new SynchronizedHashMap<>();
     private static ArrayList<Results> resultsList = new ArrayList<>();
@@ -15,6 +15,7 @@ public class Client extends Thread {
     ObjectOutputStream out = null ;
     ObjectInputStream in = null ;
 
+    private static Statistics stat;
     // User id is static because threads must have a common id from the same user
     // IS THE ONLY VARIABLE THAT WILL BE CHANGED FROM US
     static private int userId = 0;
@@ -28,6 +29,7 @@ public class Client extends Thread {
     {
         this.gpx = file;
         this.fileId = fileIndex;
+   
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {
@@ -62,7 +64,7 @@ public class Client extends Thread {
                     break;
                 case 3:
                     // TODO: Check your statistics
-                    // uiStatistics
+                    uiStatistics();
                     break;
                 default:
                     // Exit:
@@ -72,6 +74,36 @@ public class Client extends Thread {
         }
         scanner.close();
     }
+
+    private static void uiStatistics(){
+     
+       double totalDistance=0;
+       double  totalElevation=0;
+       double totalTime=0;
+
+        for (Results result : Client.resultsList){
+
+            totalDistance=totalDistance+ result.getTotalDistance();
+            totalTime= totalTime +result.getTotalTime();
+            totalElevation=totalElevation+result.getTotalElevation();
+
+        }
+
+        
+        totalDistance=((totalDistance-stat.getGlobalAvgDistance())/stat.getGlobalAvgDistance())*100;
+        totalTime=((totalTime-stat.getGlobalAvgTime())/stat.getGlobalAvgTime())*100;
+        totalElevation=((totalElevation-stat.getGlobalAvgElevation())/stat.getGlobalAvgElevation())*100;
+        
+
+        System.out.println("\nTotal Distance is : "+totalDistance +"\n"+
+        "Total Elevation is : "+ totalElevation+"\n"+
+        "Total Time is : "+ "Hours: "+ (int) totalTime /3600 + " Minutes: " + (int) (totalTime%3600) / 60 + " Seconds: " + (int) totalTime % 60 + "\n");
+
+
+    }
+
+
+    
 
     private static void uiGpx() 
     {
@@ -92,11 +124,12 @@ public class Client extends Thread {
         }
     }
 
-    private static void uiResults()
+    private static  void uiResults()
     {
         for (Results result : Client.resultsList)
         {
             System.out.println(result);
+            
         }
     }
 
@@ -153,6 +186,8 @@ public class Client extends Thread {
 			try {
                 // Route statistics
 				Results results = (Results) in.readObject();
+                System.out.println("\nYour results are ready!");
+                stat=(Statistics) in.readObject(); // we get the latest statistics and we save them 
                 // System.out.println(results);
                 // TODO : Fix EntrySet in HashMap to initialize resultList as SyncHashMap --> Results List is already in sync so there is no need for synchronized
                 //Client.resultsList.put(this.fileId, results);

@@ -104,7 +104,7 @@ public class Master
     public static void main(String[] args) {
 
         Properties prop = new Properties();
-        String fileName = "pacepal/src/config.conf";
+        String fileName = "src/config.conf";
         try (FileInputStream fis = new FileInputStream(fileName)) {
             prop.load(fis);
             //System.out.println(prop.getProperty("num_of_workers"));
@@ -112,7 +112,7 @@ public class Master
             System.out.println("File not found !!!");; // FileNotFoundException catch is optional and can be collapsed
         }
         System.out.println(prop.getProperty("num_of_workers"));
-        System.out.println(Integer.parseInt(prop.getProperty("num_wpt")));
+       System.out.println(Integer.parseInt(prop.getProperty("num_wpt")));
         // new Master(Integer.parseInt(prop.getProperty("num_of_workers")), Integer.parseInt(prop.getProperty("num_wpt"))).openServer();
         new Master(1, Integer.parseInt(prop.getProperty("num_wpt"))).openServer();
     }

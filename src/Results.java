@@ -10,6 +10,11 @@ public class Results  implements Serializable {
     private double totalElevation;
     private double totalTime;
 
+  
+
+    
+
+
     public Results (Double d, Double s, Double e, Double t, int gid, int uid)
     {
         this.totalDistance = d;

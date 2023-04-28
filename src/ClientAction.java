@@ -21,6 +21,11 @@ public class ClientAction extends Thread {
     Object lock;
     private final ParserGPX parser = new ParserGPX();
 
+    private static double globalAvgDistance=0.0;
+    private static double globalAvgElevation=0.0;
+    private static double  globalAvgTime=0.0;
+    private static int globalSize=0;
+
     public ClientAction(Socket connection, int inputFile, int num_of_wpt) {
         try {
             // Socket connection to listen from the client
@@ -174,7 +179,7 @@ public class ClientAction extends Thread {
     {
         // Final Results
         double distanceResult = 0.0;
-        double timeResult = 0.0;
+        //double timeResult = 0.0;
         double avgSpeedResult = 0.0;
         double elevationResult = 0.0;
         double num_chunks = 0.0;
@@ -183,7 +188,7 @@ public class ClientAction extends Thread {
         for (Chunk c : this.interResults) {
             // System.out.println(c.getTotalDistance());
             distanceResult += c.getTotalDistance();
-            timeResult += c.getTotalTime();
+            //timeResult += c.getTotalTime();?
             elevationResult += c.getTotalElevation();
             avgSpeedResult += c.getAvgSpeed();
             timeInSeconds += c.getTotalTimeInSeconds();
@@ -193,7 +198,12 @@ public class ClientAction extends Thread {
         avgSpeedResult = avgSpeedResult / num_chunks;
 
         Results results = new Results(distanceResult, avgSpeedResult, elevationResult, timeInSeconds, this.fileId, this.userId);
-
+    
+        ClientAction.globalAvgDistance=(ClientAction.globalAvgDistance* ClientAction.globalSize+distanceResult)/( ClientAction.globalSize+1);
+        ClientAction.globalAvgElevation=(ClientAction.globalAvgElevation* ClientAction.globalSize+elevationResult)/(ClientAction.globalSize+1);
+        ClientAction.globalAvgTime=(ClientAction.globalAvgTime* ClientAction.globalSize+timeInSeconds)/(ClientAction.globalSize+1);
+        ClientAction.globalSize++;
+        
         return results;
     }
 
@@ -223,6 +233,10 @@ public class ClientAction extends Thread {
                 Master.userList.get(this.userId).updateStatistics(results.getTotalDistance(), results.getTotalTime(), results.getTotalElevation());
             }
             this.out.writeObject(results);
+            this.out.flush();
+            //we send and the statistics.
+            Statistics stat=new Statistics(globalAvgTime, globalAvgDistance, globalAvgElevation, globalSize);
+            this.out.writeObject(stat);
             this.out.flush();
         } catch (IOException e) {
             // TODO Auto-generated catch block
