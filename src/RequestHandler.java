@@ -21,7 +21,7 @@ public class RequestHandler extends Thread{
             Chunk request = (Chunk) this.in.readObject();
             int inputFileId = request.getKey();
             int size;
-            synchronized (Master.intermediate_results.get(request.getKey()))
+            synchronized (Master.intermediate_results.get(inputFileId))
             {
                 // Add the intermediate result to the list
                 // 1st getKey is for chunk and 2nd getKey is for Pair
