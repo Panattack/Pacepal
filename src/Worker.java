@@ -47,6 +47,7 @@ public class Worker extends Thread{
         Socket connectionSocket;
         try {
             connectionSocket = new Socket(host, roundrobinPort);
+            System.out.println("OK");
             Worker.in = new ObjectInputStream(connectionSocket.getInputStream());
         } catch (UnknownHostException e) {
             // TODO Auto-generated catch block
@@ -58,6 +59,7 @@ public class Worker extends Thread{
         
         while (true) {
             try {
+                // new Socket();
                 Chunk chunk = (Chunk) in.readObject();
                 Socket chunkSocket = new Socket(host, requestreducePort);
                 // System.out.println(chunkSocket.getLocalPort());

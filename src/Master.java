@@ -109,7 +109,7 @@ public class Master
             prop.load(fis);
             //System.out.println(prop.getProperty("num_of_workers"));
         } catch (IOException ex) {
-            System.out.println("File not found !!!");; // FileNotFoundException catch is optional and can be collapsed
+            System.out.println("File not found !!!"); // FileNotFoundException catch is optional and can be collapsed
         }
         System.out.println(prop.getProperty("num_of_workers"));
         System.out.println(Integer.parseInt(prop.getProperty("num_wpt")));
