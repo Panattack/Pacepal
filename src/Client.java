@@ -1,15 +1,17 @@
 import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Scanner;
 
 public class Client extends Thread {
     
-    private static String path = "gpxs/gpxs/";
+    private static String path = "pacepal/gpxs/gpxs/";
     // private static SynchronizedHashMap<Integer, Results> resultsList = new SynchronizedHashMap<>();
     private static ArrayList<Results> resultsList = new ArrayList<>();
+    public static String host = "localhost";
     static long start;
     private String gpx;
     ObjectOutputStream out = null ;
@@ -29,7 +31,6 @@ public class Client extends Thread {
     {
         this.gpx = file;
         this.fileId = fileIndex;
-   
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {
@@ -37,8 +38,6 @@ public class Client extends Thread {
         // int indexFile = 0;
         // new Client(path + "route1.gpx", indexFile++).start();
         // new Client(path + "/route4.gpx", indexFile).start();
-
-        // String clearScreen = "\033[H\033[2J";
         boolean flag = true;
 
         while (flag)
@@ -56,6 +55,7 @@ public class Client extends Thread {
             switch (answer)
             {
                 case 1:
+                    // Send files
                     uiGpx();
                     break;
                 case 2:
@@ -76,38 +76,50 @@ public class Client extends Thread {
     }
 
     private static void uiStatistics(){
-     
-       double totalDistance=0;
-       double  totalElevation=0;
-       double totalTime=0;
+        ObjectOutputStream out;
+        ObjectInputStream in;
 
-        for (Results result : Client.resultsList){
+        /* Create the streams to send and receive data from server */
+        
+        try {
+            /* Create socket for contacting the server on port 4321*/
+            Socket requestSocket = new Socket(host, 4321);
+            out = new ObjectOutputStream(requestSocket.getOutputStream());
+            in = new ObjectInputStream(requestSocket.getInputStream());
+            out.writeInt(2);
+            out.flush();
 
-            totalDistance=totalDistance+ result.getTotalDistance();
-            totalTime= totalTime +result.getTotalTime();
-            totalElevation=totalElevation+result.getTotalElevation();
+            double totalDistance = 0;
+            double  totalElevation = 0;
+            double totalTime = 0;
 
+            for (Results result : Client.resultsList){
+
+                totalDistance = totalDistance + result.getTotalDistance();
+                totalTime = totalTime + result.getTotalTime();
+                totalElevation = totalElevation + result.getTotalElevation();
+            }
+            Statistics stat = (Statistics) in.readObject();
+            
+            totalDistance = ((totalDistance - stat.getGlobalAvgDistance()) / stat.getGlobalAvgDistance()) * 100;
+            totalTime = ((totalTime - stat.getGlobalAvgTime()) / stat.getGlobalAvgTime()) * 100;
+            totalElevation = ((totalElevation - stat.getGlobalAvgElevation()) / stat.getGlobalAvgElevation()) * 100;
+            
+            DecimalFormat df = new DecimalFormat("##.##");
+
+            System.out.println(
+            "\nPercentage Distance is : "+ Float.valueOf(df.format(totalDistance)) + "%" + "\n"+
+            "Percentage Elevation is : "+ Float.valueOf(df.format(totalElevation)) + "%" + "\n"+
+            "Percentage Time is : "+ Float.valueOf(df.format(totalTime)) + "%" + "\n"
+            );
+            
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
         }
-
-        
-        totalDistance=((totalDistance-stat.getGlobalAvgDistance())/stat.getGlobalAvgDistance())*100;
-        totalTime=((totalTime-stat.getGlobalAvgTime())/stat.getGlobalAvgTime())*100;
-        totalElevation=((totalElevation-stat.getGlobalAvgElevation())/stat.getGlobalAvgElevation())*100;
-        
-
-        System.out.println("\nTotal Distance is : "+totalDistance +"\n"+
-        "Total Elevation is : "+ totalElevation+"\n"+
-        "Total Time is : "+ "Hours: "+ (int) totalTime /3600 + " Minutes: " + (int) (totalTime%3600) / 60 + " Seconds: " + (int) totalTime % 60 + "\n");
-
-
     }
-
-
-    
-
+  
     private static void uiGpx() 
     {
-        // new Client(path + "route1.gpx", indexFile++).start();
         String name;
         while (true)
         {
@@ -126,10 +138,15 @@ public class Client extends Thread {
 
     private static  void uiResults()
     {
+        System.out.println();
+        if (Client.resultsList.isEmpty())
+        {
+            System.out.println("********** You haven't sent a file **********");
+            return;
+        }
         for (Results result : Client.resultsList)
         {
             System.out.println(result);
-            
         }
     }
 
@@ -163,14 +180,16 @@ public class Client extends Thread {
         Socket requestSocket = null;
 
         try {
-            String host = "localhost";
-
             /* Create socket for contacting the server on port 4321*/
             requestSocket = new Socket(host, 4321);
  
             /* Create the streams to send and receive data from server */
             out = new ObjectOutputStream(requestSocket.getOutputStream());
             in = new ObjectInputStream(requestSocket.getInputStream());
+
+            // Send id request --> File
+            out.writeInt(1);
+            out.flush();
 
             // Send user id
             out.writeInt(Client.userId);
@@ -186,8 +205,7 @@ public class Client extends Thread {
 			try {
                 // Route statistics
 				Results results = (Results) in.readObject();
-                System.out.println("\nYour results are ready!");
-                stat=(Statistics) in.readObject(); // we get the latest statistics and we save them 
+                // System.out.println("\nYour results are ready!");
                 // System.out.println(results);
                 // TODO : Fix EntrySet in HashMap to initialize resultList as SyncHashMap --> Results List is already in sync so there is no need for synchronized
                 //Client.resultsList.put(this.fileId, results);

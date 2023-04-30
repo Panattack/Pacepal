@@ -1,4 +1,5 @@
 import java.io.Serializable;
+import java.text.DecimalFormat;
 
 public class Results  implements Serializable {
     
@@ -9,12 +10,8 @@ public class Results  implements Serializable {
     private double avgSpeed;
     private double totalElevation;
     private double totalTime;
-
-  
-
+    DecimalFormat df = new DecimalFormat("##.##");
     
-
-
     public Results (Double d, Double s, Double e, Double t, int gid, int uid)
     {
         this.totalDistance = d;
@@ -77,6 +74,10 @@ public class Results  implements Serializable {
    
     public String toString()
     {
-        return  "User_id: "+user_id+" Gpx: "+gpx_id+"\n"+"Total Dist: "+totalDistance+"\n"+"Avg Speed: "+avgSpeed+"\n"+"Total Elev: "+totalElevation+"\n"+"Hours: "+ (int) totalTime /3600 + " Minutes: " + (int) (totalTime%3600) / 60 + " Seconds: " + (int) totalTime % 60 + "\n\n";
+        return  "User_id: " + user_id + " Gpx: " + gpx_id + "\n" + 
+        "Total Dist: " + Float.valueOf(df.format(totalDistance)) + " km" + "\n" + 
+        "Avg Speed: " + Float.valueOf(df.format(avgSpeed)) + " km per hour" + "\n" +
+        "Total Elev: " + Float.valueOf(df.format(totalElevation)) + " m" + "\n" +
+        "Hours: " + (int) totalTime /3600 + " Minutes: " + (int) (totalTime%3600) / 60 + " Seconds: " + (int) totalTime % 60 + "\n\n";
     }
 }

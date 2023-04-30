@@ -10,6 +10,7 @@ public class Master
     private int worker_port = 1234;
     private int user_port = 4321;
     private int reducer_port = 9876;
+    public static Statistics statistics;
     static public RobinQueue<ObjectOutputStream> workerHandlers; //related to the socket that every worker has made
     // It's a global id from clients --> workers and vice versa
     public static int inputFile = 0;
@@ -33,7 +34,7 @@ public class Master
         this.num_of_wpt = num_of_wpt;
         Master.workerHandlers = new RobinQueue<>(num_workers);
         userList = new SynchronizedHashMap<>();
-        // Master.clientHandlers = new HashMap<>();
+        Master.statistics = new Statistics();
     }
 
     void openServer() {
@@ -104,7 +105,7 @@ public class Master
     public static void main(String[] args) {
 
         Properties prop = new Properties();
-        String fileName = "src/config.conf";
+        String fileName = "pacepal/src/config.conf";
         try (FileInputStream fis = new FileInputStream(fileName)) {
             prop.load(fis);
             //System.out.println(prop.getProperty("num_of_workers"));

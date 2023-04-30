@@ -19,12 +19,9 @@ public class ClientAction extends Thread {
     ArrayList<Chunk> interResults;
     // Monitor
     Object lock;
+    // Menu choice
+    private int choice;
     private final ParserGPX parser = new ParserGPX();
-
-    private static double globalAvgDistance=0.0;
-    private static double globalAvgElevation=0.0;
-    private static double  globalAvgTime=0.0;
-    private static int globalSize=0;
 
     public ClientAction(Socket connection, int inputFile, int num_of_wpt) {
         try {
@@ -148,7 +145,9 @@ public class ClientAction extends Thread {
         // Listen from the client it's id and the file id 
         try {
             this.userId = this.in.readInt();
+            // System.out.println(this.userId);
             this.fileId = this.in.readInt();
+            // System.out.println(this.fileId);
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -198,11 +197,6 @@ public class ClientAction extends Thread {
         avgSpeedResult = avgSpeedResult / num_chunks;
 
         Results results = new Results(distanceResult, avgSpeedResult, elevationResult, timeInSeconds, this.fileId, this.userId);
-    
-        ClientAction.globalAvgDistance=(ClientAction.globalAvgDistance* ClientAction.globalSize+distanceResult)/( ClientAction.globalSize+1);
-        ClientAction.globalAvgElevation=(ClientAction.globalAvgElevation* ClientAction.globalSize+elevationResult)/(ClientAction.globalSize+1);
-        ClientAction.globalAvgTime=(ClientAction.globalAvgTime* ClientAction.globalSize+timeInSeconds)/(ClientAction.globalSize+1);
-        ClientAction.globalSize++;
         
         return results;
     }
@@ -231,13 +225,13 @@ public class ClientAction extends Thread {
                 Master.userList.get(this.userId).getResultList().put(this.fileId, results);
                 // update the personal record
                 Master.userList.get(this.userId).updateStatistics(results.getTotalDistance(), results.getTotalTime(), results.getTotalElevation());
+
             }
+            
             this.out.writeObject(results);
             this.out.flush();
-            //we send and the statistics.
-            Statistics stat=new Statistics(globalAvgTime, globalAvgDistance, globalAvgElevation, globalSize);
-            this.out.writeObject(stat);
-            this.out.flush();
+            // Update the flobal statistics
+            Master.statistics.updateValues(results.getTotalTime(), results.getTotalDistance(), results.getTotalElevation());
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -247,18 +241,39 @@ public class ClientAction extends Thread {
     @Override 
     public void run()
     {
-        // Set the ids
-        setIds();
-        // Create the user record
-        create_user(this.userId);
-        
-        receiveFile();
+        /*
+        Menu :
+            1. Send file
+            2. Send statistics
+        */ 
+        try {
+            this.choice = this.in.readInt();
 
-        ArrayList<Waypoint> wpt_list = parser.parse(this.is);
-        create_chunk(wpt_list);
+            switch (this.choice)
+            {
+                case 1:
+                    // Send file
+                    setIds();
+                    // Create the user record
+                    create_user(this.userId);
+                    
+                    receiveFile();
 
-        // while (true)
-        // {}
-        sendResults();
+                    ArrayList<Waypoint> wpt_list = parser.parse(this.is);
+                    create_chunk(wpt_list);
+
+                    sendResults();
+                    break;
+                case 2:
+                    this.out.writeObject(Master.statistics);
+                    this.out.flush();
+                    // Send statistics
+                    break;
+            }
+
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 }
