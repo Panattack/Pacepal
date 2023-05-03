@@ -128,11 +128,6 @@ public class ClientAction extends Thread {
                     outstream.writeObject(c);
                     outstream.flush();
                 }
-                // TODO Maybe we will make a HashMap generic class to sync methods
-                // Master.clientHandlers.put(this.inputFile, this.out);
-                
-                // System.out.println(socket.getPort());
-                // System.out.println(sublist);
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -157,10 +152,17 @@ public class ClientAction extends Thread {
     private void create_user(int user) {
         synchronized (Master.userList)
         {
-            if (Master.userList.get(user) == null) 
+            synchronized (Master.statistics)
             {
-                // TODO Maybe we will create a general class with sync methods -- 
-                Master.userList.put(user, new User(user));
+                if (Master.userList.get(user) == null) 
+                {
+                    // TODO Maybe we will create a general class with sync methods -- 
+                    Master.userList.put(user, new User(user));
+
+                    // Update globalSize in statistics
+                    int size = Master.statistics.getGlobalSize();
+                    Master.statistics.setGlobalSize(++size);
+                }
             }
         }
     }
@@ -225,13 +227,28 @@ public class ClientAction extends Thread {
                 Master.userList.get(this.userId).getResultList().put(this.fileId, results);
                 // update the personal record
                 Master.userList.get(this.userId).updateStatistics(results.getTotalDistance(), results.getTotalTime(), results.getTotalElevation());
-
             }
-            
+            // TODO Update statistics
+            Master.statistics.updateValues(results.getTotalTime(), results.getTotalDistance(), results.getTotalElevation());
+
             this.out.writeObject(results);
             this.out.flush();
-            // Update the flobal statistics
-            Master.statistics.updateValues(results.getTotalTime(), results.getTotalDistance(), results.getTotalElevation());
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
+    private void uploadStatistics()
+    {
+        // Statistics stat = new Statistics();
+        // for (Map.Entry<Integer, User> entry : Master.userList.entrySet())
+        // {
+        //     stat.updateValues(entry.getValue().getTotalTime(), entry.getValue().getTotalDistance(), entry.getValue().getTotalElevation());
+        // }
+        try {
+            this.out.writeObject(Master.statistics);
+            this.out.flush();
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -245,7 +262,7 @@ public class ClientAction extends Thread {
         Menu :
             1. Send file
             2. Send statistics
-        */ 
+        */
         try {
             this.choice = this.in.readInt();
 
@@ -264,9 +281,10 @@ public class ClientAction extends Thread {
 
                     sendResults();
                     break;
-                case 2:
-                    this.out.writeObject(Master.statistics);
-                    this.out.flush();
+                case 2: 
+                    // Change this line to update the statistics
+                    // Update the global statistics -- for all users
+                    uploadStatistics();
                     // Send statistics
                     break;
             }

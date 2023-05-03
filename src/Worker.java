@@ -60,7 +60,7 @@ public class Worker extends Thread{
         while (true) {
             try {
                 // new Socket();
-                Chunk chunk = (Chunk) in.readObject();
+                Chunk chunk = (Chunk) Worker.in.readObject();
                 Socket chunkSocket = new Socket(host, requestreducePort);
                 // System.out.println(chunkSocket.getLocalPort());
                 // new Socket per request

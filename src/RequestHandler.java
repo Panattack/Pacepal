@@ -35,7 +35,6 @@ public class RequestHandler extends Thread{
             {
                 // synchronized (Master.clientLockers.get(inputFileId))
                 // {
-                System.out.println("request handler : " + inputFileId);
                 Master.clientLHandlers.get(inputFileId).setIntermResults(Master.intermediate_results.get(inputFileId).getKey());
                     // Master.clientLockers.get(inputFileId).notify();
                 // }

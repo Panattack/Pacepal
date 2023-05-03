@@ -35,9 +35,6 @@ public class Client extends Thread {
 
     public static void main(String[] args) throws IOException, InterruptedException {
         // start = System.currentTimeMillis();
-        // int indexFile = 0;
-        // new Client(path + "route1.gpx", indexFile++).start();
-        // new Client(path + "/route4.gpx", indexFile).start();
         boolean flag = true;
 
         while (flag)
@@ -100,6 +97,8 @@ public class Client extends Thread {
                 totalElevation = totalElevation + result.getTotalElevation();
             }
             Statistics stat = (Statistics) in.readObject();
+
+            System.out.println(stat);
             
             totalDistance = ((totalDistance - stat.getGlobalAvgDistance()) / stat.getGlobalAvgDistance()) * 100;
             totalTime = ((totalTime - stat.getGlobalAvgTime()) / stat.getGlobalAvgTime()) * 100;
