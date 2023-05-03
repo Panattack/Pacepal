@@ -3,6 +3,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.InputMismatchException;
 import java.util.Map;
 import java.util.Scanner;
 
@@ -46,7 +47,15 @@ public class Client extends Thread {
             System.out.println("3. Check your statistics");
             System.out.println("4. Exit our app");
             System.out.print("Insert your answer : ");
-            int answer = scanner.nextInt();
+            int answer = 0;
+            try
+            {
+                answer = scanner.nextInt();
+            } catch (InputMismatchException e)
+            {
+                System.out.println("Mismatch type!");
+            }
+            
             scanner.nextLine();
             // System.out.println();
             switch (answer)
@@ -63,9 +72,11 @@ public class Client extends Thread {
                     // TODO: Check your statistics
                     uiStatistics();
                     break;
+                case 4:
+                    flag = false;
                 default:
                     // Exit:
-                    flag = false;
+                    System.out.println("Insert a valid number next time");
                     break;
             }
         }
@@ -77,7 +88,7 @@ public class Client extends Thread {
         ObjectInputStream in;
 
         /* Create the streams to send and receive data from server */
-        
+
         try {
             /* Create socket for contacting the server on port 4321*/
             Socket requestSocket = new Socket(host, 4321);
@@ -107,9 +118,9 @@ public class Client extends Thread {
             DecimalFormat df = new DecimalFormat("##.##");
 
             System.out.println(
-            "\nPercentage Distance is : "+ Float.valueOf(df.format(totalDistance)) + "%" + "\n"+
-            "Percentage Elevation is : "+ Float.valueOf(df.format(totalElevation)) + "%" + "\n"+
-            "Percentage Time is : "+ Float.valueOf(df.format(totalTime)) + "%" + "\n"
+            "\nPercentage Distance is : "+ Float.valueOf(df.format(totalDistance)) + " %" + "\n"+
+            "Percentage Elevation is : "+ Float.valueOf(df.format(totalElevation)) + " %" + "\n"+
+            "Percentage Time is : "+ Float.valueOf(df.format(totalTime)) + " %" + "\n"
             );
             
         } catch (IOException | ClassNotFoundException e) {
