@@ -152,17 +152,13 @@ public class ClientAction extends Thread {
     private void create_user(int user) {
         synchronized (Master.userList)
         {
-            synchronized (Master.statistics)
+            if (Master.userList.get(user) == null) 
             {
-                if (Master.userList.get(user) == null) 
-                {
-                    // TODO Maybe we will create a general class with sync methods -- 
-                    Master.userList.put(user, new User(user));
+                // TODO Maybe we will create a general class with sync methods -- 
+                Master.userList.put(user, new User(user));
 
-                    // Update globalSize in statistics
-                    int size = Master.statistics.getGlobalSize();
-                    Master.statistics.setGlobalSize(++size);
-                }
+                // Update globalSize in statistics
+                Master.statistics.addGlobalSize();
             }
         }
     }
@@ -241,11 +237,6 @@ public class ClientAction extends Thread {
 
     private void uploadStatistics()
     {
-        // Statistics stat = new Statistics();
-        // for (Map.Entry<Integer, User> entry : Master.userList.entrySet())
-        // {
-        //     stat.updateValues(entry.getValue().getTotalTime(), entry.getValue().getTotalDistance(), entry.getValue().getTotalElevation());
-        // }
         try {
             this.out.writeObject(Master.statistics);
             this.out.flush();
@@ -263,6 +254,7 @@ public class ClientAction extends Thread {
             1. Send file
             2. Send statistics
         */
+        
         try {
             this.choice = this.in.readInt();
 

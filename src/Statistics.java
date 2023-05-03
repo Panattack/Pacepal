@@ -54,11 +54,16 @@ public class Statistics implements Serializable {
         this.globalSize = globalSize;
     }
 
-    public synchronized void updateValues(double AvgTime, double AvgDistance, double AvgElevation) 
+    public synchronized void addGlobalSize()
     {
-        this.globalAvgTime = (this.globalAvgTime * this.preSize + AvgTime) / (this.globalSize);
-        this.globalAvgDistance = (this.globalAvgDistance * this.preSize + AvgDistance) / (this.globalSize);
-        this.globalAvgElevation = (this.globalAvgElevation * this.preSize + AvgElevation) / (this.globalSize);
+        this.globalSize++;
+    }
+
+    public synchronized void updateValues(double time, double distance, double elevation) 
+    {
+        this.globalAvgTime = (this.globalAvgTime * this.preSize + time) / (this.globalSize);
+        this.globalAvgDistance = (this.globalAvgDistance * this.preSize + distance) / (this.globalSize);
+        this.globalAvgElevation = (this.globalAvgElevation * this.preSize + elevation) / (this.globalSize);
 
         this.preSize = this.globalSize;
     }
@@ -69,8 +74,8 @@ public class Statistics implements Serializable {
         DecimalFormat df = new DecimalFormat("##.##");
 
         return "\n"  
-        + "Global Distance : " + Float.valueOf(df.format(this.globalAvgDistance)) + "\n" 
-        + "Global Elevation : " + Float.valueOf(df.format(this.globalAvgElevation)) + "\n" 
-        + "Global Time : " + Float.valueOf(df.format(this.globalAvgTime)) + "\n";
+        + "Global Distance : " + Float.valueOf(df.format(this.globalAvgDistance)) + " km" + "\n" 
+        + "Global Elevation : " + Float.valueOf(df.format(this.globalAvgElevation)) + " m" + "\n" 
+        + "Global Time : " + Float.valueOf(df.format(this.globalAvgTime)) + " seconds" + "\n";
     }
 }

@@ -18,10 +18,9 @@ public class Client extends Thread {
     ObjectOutputStream out = null ;
     ObjectInputStream in = null ;
 
-    private static Statistics stat;
     // User id is static because threads must have a common id from the same user
     // IS THE ONLY VARIABLE THAT WILL BE CHANGED FROM US
-    static private int userId = 0;
+    static private int userId = 1;
     // File id is unique for every thread
     private int fileId;
     static int indexFile = 0;
@@ -48,8 +47,7 @@ public class Client extends Thread {
             System.out.println("4. Exit our app");
             System.out.print("Insert your answer : ");
             int answer = 0;
-            try
-            {
+            try {
                 answer = scanner.nextInt();
             } catch (InputMismatchException e)
             {
@@ -65,7 +63,7 @@ public class Client extends Thread {
                     uiGpx();
                     break;
                 case 2:
-                    // TODO: View Results -->check in another time the HashMap.entrySet
+                    // TODO: View Results --> check in another time the HashMap.entrySet
                     uiResults();
                     break;
                 case 3:
@@ -131,11 +129,15 @@ public class Client extends Thread {
     private static void uiGpx() 
     {
         String name;
+        ArrayList<Thread> threadList = new ArrayList<>();
+
         while (true)
         {
             System.out.print("Insert the file name : ");
             name = scanner.nextLine();
-            new Client(path + name, indexFile++).start();
+            Client client = new Client(path + name, indexFile++);
+            threadList.add(client);
+            client.start();
             System.out.print("Do you want to insert another file (y or n) : ");
             String choice = scanner.nextLine();
 
@@ -144,6 +146,17 @@ public class Client extends Thread {
                 break;
             }
         }
+
+        System.out.println("Loading...");
+        for (Thread cl : threadList)
+        {
+            try {
+                cl.join();
+            } catch (InterruptedException e) {
+            System.out.println("Wrong join in " + cl.threadId());
+            }
+        }
+
     }
 
     private static  void uiResults()
