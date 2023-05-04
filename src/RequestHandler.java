@@ -21,7 +21,7 @@ public class RequestHandler extends Thread{
             Chunk request = (Chunk) this.in.readObject();
             int inputFileId = request.getKey();
             int size;
-            synchronized (Master.intermediate_results.get(inputFileId))
+            synchronized (Master.intermediate_results)
             {
                 // Add the intermediate result to the list
                 // 1st getKey is for chunk and 2nd getKey is for Pair
@@ -33,11 +33,11 @@ public class RequestHandler extends Thread{
             // If size == 0 then send signal to the Master and remove the element
             if (size == 0)
             {
-                // synchronized (Master.clientLockers.get(inputFileId))
-                // {
                 Master.clientLHandlers.get(inputFileId).setIntermResults(Master.intermediate_results.get(inputFileId).getKey());
-                    // Master.clientLockers.get(inputFileId).notify();
-                // }
+                
+                // Delete the file record from the database
+                Master.intermediate_results.remove(inputFileId);
+                Master.clientLHandlers.remove(inputFileId);
             }
             // End of request socket
             in.close();

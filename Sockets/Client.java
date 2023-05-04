@@ -1,7 +1,5 @@
 import java.io.*;
 import java.net.*;
-
-import javax.management.RuntimeErrorException;
  
 public class Client extends Thread {
     int a, b;

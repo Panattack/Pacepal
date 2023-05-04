@@ -1,7 +1,7 @@
 import java.io.*;
 import java.net.*;
 
-public class Worker extends Thread{
+public class Worker extends Thread {
     // Global socket for the worker to listen chunks-requests from the master
     private static ObjectInputStream in;
     // Local socket per request to send the intermediate result to the reducer
@@ -12,7 +12,7 @@ public class Worker extends Thread{
     private static int requestreducePort = 9876;
     private Chunk chunk;
     Socket requestSocket;
-    // int id = 0;
+    // public static int id = 0;
     
     public Worker(Socket connection, Chunk c){
         this.requestSocket = connection;
@@ -33,27 +33,21 @@ public class Worker extends Thread{
             // Send them to the reducer
             this.out.writeObject(chunk);
             this.out.flush();
+            this.requestSocket.close();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            System.out.println("Mapper found problem in sending the intermediate result");
         }
     }
 
     public static void main(String[] args) {
-
-        // TODO The worker will be one main and it's code will be from that in the run function
         
         String host = "localhost";
-        Socket connectionSocket;
+    
         try {
-            connectionSocket = new Socket(host, roundrobinPort);
-            System.out.println("OK");
+            Socket connectionSocket = new Socket(host, roundrobinPort);
             Worker.in = new ObjectInputStream(connectionSocket.getInputStream());
-        } catch (UnknownHostException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
+        }
+        catch (IOException e) {
             e.printStackTrace();
         }
         
@@ -66,9 +60,9 @@ public class Worker extends Thread{
                 // new Socket per request
                 new Worker(chunkSocket, chunk).start();
             } catch (ClassNotFoundException | IOException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         }
+        
     }
 }

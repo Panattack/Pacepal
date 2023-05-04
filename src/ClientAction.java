@@ -33,8 +33,8 @@ public class ClientAction extends Thread {
             // Monitor
             this.lock = new Object();
 
-            this.in = new ObjectInputStream(connection.getInputStream());
-            this.out = new ObjectOutputStream(connection.getOutputStream());
+            this.in = new ObjectInputStream(this.socket.getInputStream());
+            this.out = new ObjectOutputStream(this.socket.getOutputStream());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -50,10 +50,7 @@ public class ClientAction extends Thread {
 
     private void receiveFile()
     {
-        try {
-            // Get the file name from the client
-            // String filename = (String) in.readObject();
-        
+        try {        
             int fileSize = this.in.readInt();
             byte[] buffer = new byte[fileSize];
             byte[] fileBytes = new byte[0];
@@ -135,6 +132,29 @@ public class ClientAction extends Thread {
         }
     }
 
+    private boolean checkBuffer()
+    {
+        try
+        {
+            if (Master.workerHandlers.size() < Master.num_of_workers)
+            {
+                this.out.writeInt(0);
+                this.out.flush();
+                return false;
+            }
+            else 
+            {
+                this.out.writeInt(1);
+                this.out.flush();
+            }
+        } catch (IOException e)
+        {
+            System.out.println("Error in checking Master.WorkerHandlers");
+        }
+        
+        return true;
+    }
+
     private void setIds() 
     {
         // Listen from the client it's id and the file id 
@@ -208,8 +228,7 @@ public class ClientAction extends Thread {
                 try {
                     this.lock.wait();
                 } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    System.out.println("");
                 }
             }
         }
@@ -219,7 +238,7 @@ public class ClientAction extends Thread {
             // TODO Check for the computation of the personal record
             synchronized (Master.userList.get(this.userId))
             {
-                // register the new route for the server
+                // register the new route for the Database
                 Master.userList.get(this.userId).getResultList().put(this.fileId, results);
                 // update the personal record
                 Master.userList.get(this.userId).updateStatistics(results.getTotalDistance(), results.getTotalTime(), results.getTotalElevation());
@@ -238,11 +257,45 @@ public class ClientAction extends Thread {
     private void uploadStatistics()
     {
         try {
-            this.out.writeObject(Master.statistics);
+            int id = this.in.readInt();
+            User user = Master.userList.get(id);
+
+            if (user == null)
+            {
+                // End the thread
+                this.out.writeInt(0);
+                this.out.flush();
+                return;
+            }
+            
+            this.out.writeInt(1);
+            this.out.flush();
+            
+            double totalDistance = 0;
+            double totalElevation = 0;
+            double totalTime = 0;
+
+            for (Map.Entry<Integer, Results> tuple : user.getResultList().entrySet())
+            {
+                totalDistance = totalDistance + tuple.getValue().getTotalDistance();
+                totalTime = totalTime + tuple.getValue().getTotalTime();
+                totalElevation = totalElevation + tuple.getValue().getTotalElevation();
+            }
+
+            // Create a replica to avoid synchronizationa problems with different actions 
+            // that may alter the statistic (global) variable
+            Statistics stat = new Statistics(Master.statistics);
+
+            double presentageDistance = ((totalDistance - stat.getGlobalAvgDistance()) / stat.getGlobalAvgDistance()) * 100;
+            double presentageTime = ((totalTime - stat.getGlobalAvgTime()) / stat.getGlobalAvgTime()) * 100;
+            double presentageElevation = ((totalElevation - stat.getGlobalAvgElevation()) / stat.getGlobalAvgElevation()) * 100;
+
+            stat.defUS(presentageDistance, presentageElevation, presentageTime);
+
+            this.out.writeObject(stat);
             this.out.flush();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            System.out.println("False in statistics from clientThread");
         }
     }
 
@@ -257,21 +310,28 @@ public class ClientAction extends Thread {
         
         try {
             this.choice = this.in.readInt();
-
+            System.out.println(choice);
             switch (this.choice)
             {
                 case 1:
+                    // Check workerHandler size
+                    boolean workersOK = checkBuffer();
+                    if (!workersOK)
+                    {
+                        break;
+                    }
+
                     // Send file
                     setIds();
                     // Create the user record
                     create_user(this.userId);
-                    
                     receiveFile();
 
                     ArrayList<Waypoint> wpt_list = parser.parse(this.is);
                     create_chunk(wpt_list);
 
                     sendResults();
+
                     break;
                 case 2: 
                     // Change this line to update the statistics
@@ -280,7 +340,8 @@ public class ClientAction extends Thread {
                     // Send statistics
                     break;
             }
-
+            this.in.close();this.out.close();
+            this.socket.close();
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

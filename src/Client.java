@@ -4,28 +4,26 @@ import java.net.UnknownHostException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
-import java.util.Map;
 import java.util.Scanner;
 
 public class Client extends Thread {
     
     private static String path = "pacepal/gpxs/gpxs/";
-    // private static SynchronizedHashMap<Integer, Results> resultsList = new SynchronizedHashMap<>();
-    private static ArrayList<Results> resultsList = new ArrayList<>();
     public static String host = "localhost";
     static long start;
     private String gpx;
     ObjectOutputStream out = null ;
     ObjectInputStream in = null ;
-
+    private static Object lock_msg = new Object();
     // User id is static because threads must have a common id from the same user
     // IS THE ONLY VARIABLE THAT WILL BE CHANGED FROM US
-    static private int userId = 1;
+    static private int userId = 0;
     // File id is unique for every thread
     private int fileId;
     static int indexFile = 0;
     static Scanner scanner = new Scanner(System.in);
-    static String clearCommand = "";
+    // static File file;
+    static BufferedWriter writer;
 
     public Client(String file, int fileIndex)
     {
@@ -34,8 +32,10 @@ public class Client extends Thread {
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {
-        // start = System.currentTimeMillis();
+
         boolean flag = true;
+        writer = new BufferedWriter(new FileWriter("pacepal/Results/File"));
+        writer.close();
 
         while (flag)
         {
@@ -49,13 +49,12 @@ public class Client extends Thread {
             int answer = 0;
             try {
                 answer = scanner.nextInt();
-            } catch (InputMismatchException e)
-            {
+            } catch (InputMismatchException e) {
                 System.out.println("Mismatch type!");
             }
             
             scanner.nextLine();
-            // System.out.println();
+
             switch (answer)
             {
                 case 1:
@@ -72,6 +71,7 @@ public class Client extends Thread {
                     break;
                 case 4:
                     flag = false;
+                    break;
                 default:
                     // Exit:
                     System.out.println("Insert a valid number next time");
@@ -86,43 +86,48 @@ public class Client extends Thread {
         ObjectInputStream in;
 
         /* Create the streams to send and receive data from server */
-
         try {
             /* Create socket for contacting the server on port 4321*/
             Socket requestSocket = new Socket(host, 4321);
             out = new ObjectOutputStream(requestSocket.getOutputStream());
             in = new ObjectInputStream(requestSocket.getInputStream());
+
+            // Send id request --> Statistics
             out.writeInt(2);
             out.flush();
 
-            double totalDistance = 0;
-            double  totalElevation = 0;
-            double totalTime = 0;
+            // Send user id to check if there is a user in the database
+            out.writeInt(userId);
+            out.flush();
 
-            for (Results result : Client.resultsList){
+            int msg = in.readInt();
 
-                totalDistance = totalDistance + result.getTotalDistance();
-                totalTime = totalTime + result.getTotalTime();
-                totalElevation = totalElevation + result.getTotalElevation();
+            if (msg == 0)
+            {
+                // There is no user in the database
+                System.out.println("You haven't registered in our app.\nPlease do so by choosing \"Send files\" !");
+                requestSocket.close();
+                return;
             }
+
+            System.out.println("Here comes the statistics : ");
             Statistics stat = (Statistics) in.readObject();
 
             System.out.println(stat);
-            
-            totalDistance = ((totalDistance - stat.getGlobalAvgDistance()) / stat.getGlobalAvgDistance()) * 100;
-            totalTime = ((totalTime - stat.getGlobalAvgTime()) / stat.getGlobalAvgTime()) * 100;
-            totalElevation = ((totalElevation - stat.getGlobalAvgElevation()) / stat.getGlobalAvgElevation()) * 100;
-            
             DecimalFormat df = new DecimalFormat("##.##");
 
             System.out.println(
-            "\nPercentage Distance is : "+ Float.valueOf(df.format(totalDistance)) + " %" + "\n"+
-            "Percentage Elevation is : "+ Float.valueOf(df.format(totalElevation)) + " %" + "\n"+
-            "Percentage Time is : "+ Float.valueOf(df.format(totalTime)) + " %" + "\n"
+            "\nPercentage Distance is : "+ Float.valueOf(df.format(stat.getPcDistance())) + " %" + "\n"+
+            "Percentage Elevation is : "+ Float.valueOf(df.format(stat.getPcElevation())) + " %" + "\n"+
+            "Percentage Time is : "+ Float.valueOf(df.format(stat.getPcTime())) + " %" + "\n"
             );
-            
-        } catch (IOException | ClassNotFoundException e) {
+
+            requestSocket.close();
+        } catch (IOException e) {
+            // System.out.println("Connection Lost in statistic request");
             e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            System.out.println("Error in connection -- cannot receive statistic object");
         }
     }
   
@@ -130,7 +135,6 @@ public class Client extends Thread {
     {
         String name;
         ArrayList<Thread> threadList = new ArrayList<>();
-
         while (true)
         {
             System.out.print("Insert the file name : ");
@@ -138,7 +142,16 @@ public class Client extends Thread {
             Client client = new Client(path + name, indexFile++);
             threadList.add(client);
             client.start();
-            System.out.print("Do you want to insert another file (y or n) : ");
+            synchronized (Client.lock_msg)
+            {
+                try {
+                    Client.lock_msg.wait();
+                    System.out.print("Do you want to insert another file (y or n) : ");
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
             String choice = scanner.nextLine();
 
             if (choice.equals("n"))
@@ -148,6 +161,7 @@ public class Client extends Thread {
         }
 
         System.out.println("Loading...");
+
         for (Thread cl : threadList)
         {
             try {
@@ -161,15 +175,23 @@ public class Client extends Thread {
 
     private static  void uiResults()
     {
-        System.out.println();
-        if (Client.resultsList.isEmpty())
-        {
-            System.out.println("********** You haven't sent a file **********");
-            return;
-        }
-        for (Results result : Client.resultsList)
-        {
-            System.out.println(result);
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader("pacepal/Results/File"));
+            String line = reader.readLine();
+
+            if (line == null)
+            {
+                System.out.println("\n" + "********** You haven't sent a file **********");
+                reader.close();
+                return;
+            }
+            while (line != null) {
+                System.out.println(line);
+                line = reader.readLine();
+            }
+            reader.close();
+        } catch (IOException e) {
+            System.out.println("An error occurred in reading the file.");
         }
     }
 
@@ -213,7 +235,24 @@ public class Client extends Thread {
             // Send id request --> File
             out.writeInt(1);
             out.flush();
+            
+            int msg = in.readInt();
 
+            synchronized (Client.lock_msg) 
+            {
+                if (msg == 0)
+                {
+                    System.out.println("Not enough workers... Try again");
+                    Client.lock_msg.notify();
+                    return;
+                }
+                else 
+                {
+                    System.out.println("Enough workers --> approved");
+                    Client.lock_msg.notify();
+                }
+            }
+            
             // Send user id
             out.writeInt(Client.userId);
             out.flush();
@@ -228,18 +267,15 @@ public class Client extends Thread {
 			try {
                 // Route statistics
 				Results results = (Results) in.readObject();
-                // System.out.println("\nYour results are ready!");
-                // System.out.println(results);
-                // TODO : Fix EntrySet in HashMap to initialize resultList as SyncHashMap --> Results List is already in sync so there is no need for synchronized
-                //Client.resultsList.put(this.fileId, results);
-                synchronized (Client.resultsList)
+                
+                // Write the results in a list
+                synchronized (Client.writer)
                 {
-                    Client.resultsList.add(results);
+                    Client.writer = new BufferedWriter(new FileWriter("pacepal/Results/File", true));
+                    Client.writer.write(results.toString());
+                    Client.writer.close();
                 }
-                // long end = System.currentTimeMillis();
-                // long elapsedTime = end - start;
-                // System.out.println("Elapsed time: " + elapsedTime + " milliseconds");
-                // System.out.println(results);
+
                 in.close(); out.close();
                 requestSocket.close();
 			} catch (ClassNotFoundException e) {

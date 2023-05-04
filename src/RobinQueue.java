@@ -6,8 +6,8 @@ public class RobinQueue<T>{
     private LinkedList<T> queue;
     private int index;
 
-    public RobinQueue (int maxSize) {
-        this.maxSize = maxSize;
+    public RobinQueue() {
+        this.maxSize = 0;
         this.index = 0;
         this.queue = new LinkedList<>();
     }
@@ -19,6 +19,7 @@ public class RobinQueue<T>{
 
     public synchronized void add(T element) {
         this.queue.addLast(element);
+        this.maxSize++;
     }
 
     public synchronized boolean is_Empty() {
@@ -30,7 +31,7 @@ public class RobinQueue<T>{
     }
 
     public synchronized T get() {
-        T o = queue.get(this.index % maxSize);
+        T o = queue.get(this.index % this.maxSize);
         this.index++;
         return o;
     }

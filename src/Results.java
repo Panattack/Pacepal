@@ -74,10 +74,10 @@ public class Results  implements Serializable {
    
     public String toString()
     {
-        return  "User_id: " + user_id + " Gpx: " + gpx_id + "\n" + 
+        return "\n" + "User_id: " + user_id + " Gpx: " + gpx_id + "\n" + 
         "Total Dist: " + Float.valueOf(df.format(totalDistance)) + " km" + "\n" + 
         "Avg Speed: " + Float.valueOf(df.format(avgSpeed)) + " km per hour" + "\n" +
         "Total Elev: " + Float.valueOf(df.format(totalElevation)) + " m" + "\n" +
-        "Hours: " + (int) totalTime /3600 + " Minutes: " + (int) (totalTime%3600) / 60 + " Seconds: " + (int) totalTime % 60 + "\n\n";
+        "Hours: " + (int) totalTime / 3600 + " Minutes: " + (int) (totalTime%3600) / 60 + " Seconds: " + (int) totalTime % 60 + "\n";
     }
 }
