@@ -12,9 +12,8 @@ public class Worker extends Thread {
     private static int requestreducePort = 9876;
     private Chunk chunk;
     Socket requestSocket;
-    // public static int id = 0;
     
-    public Worker(Socket connection, Chunk c){
+    public Worker(Socket connection, Chunk c) {
         this.requestSocket = connection;
         this.chunk =  c;
         try {

@@ -12,9 +12,9 @@ public class Master
 {
     public static int num_of_workers; // DEFINE IN Config file
     private int num_of_wpt; // DEFINE IN Config file
-    private int worker_port = 1234;
-    private int user_port = 4321;
-    private int reducer_port = 9876;
+    private int worker_port;
+    private int user_port;
+    private int reducer_port;
     static public RobinQueue<ObjectOutputStream> workerHandlers; // related to the socket that every worker has made
     // It's a global id from clients --> workers and vice versa
     public static int inputFile = 0;
@@ -36,8 +36,11 @@ public class Master
     /* Define the socket that receives intermediate results from workers */
     ServerSocket reducerSocket;
 
-    public Master(int num_workers, int num_of_wpt) {
+    public Master(int num_workers, int num_of_wpt, int user_port, int worker_port, int reducer_port) {
         Master.statistics = new Statistics();
+        this.user_port = user_port;
+        this.worker_port = worker_port;
+        this.reducer_port = reducer_port;
         this.num_of_wpt = num_of_wpt;
         Master.num_of_workers = num_workers;
         Master.workerHandlers = new RobinQueue<>();
@@ -293,7 +296,6 @@ public class Master
             this.avgSize++;
         }
     }
-    
 
     class ParserGPX {
 
@@ -379,12 +381,13 @@ public class Master
                     size = Master.intermediate_results.get(inputFileId).getValue();
                     Master.intermediate_results.get(inputFileId).setValue(--size);
                 }
-    
+
                 // If size == 0 then send signal to the Master and remove the element
                 if (size == 0)
                 {
+                    // Doesn't need synchronized because there is only one client action per request
                     Master.clientLHandlers.get(inputFileId).setIntermResults(Master.intermediate_results.get(inputFileId).getKey());
-                    
+
                     // Delete the file record from the database
                     Master.intermediate_results.remove(inputFileId);
                     Master.clientLHandlers.remove(inputFileId);
@@ -600,9 +603,9 @@ public class Master
             }
      
             avgSpeedResult = avgSpeedResult / num_chunks;
-    
+
             Results results = new Results(distanceResult, avgSpeedResult, elevationResult, timeInSeconds, this.fileId, this.userId);
-            
+
             return results;
         }
     
@@ -623,14 +626,14 @@ public class Master
             try {
                 Results results = reduceResults();
                 // Check for the computation of the personal record
-                synchronized (Master.userList.get(this.userId))
+                synchronized (Master.userList)
                 {
                     // register the new route for the Database
                     Master.userList.get(this.userId).getResultList().put(this.fileId, results);
                     // update the personal record
                     Master.userList.get(this.userId).updateStatistics(results.getTotalDistance(), results.getTotalTime(), results.getTotalElevation());
                 }
-                // TODO Update statistics
+                // Update statistics
                 Master.statistics.updateValues(results.getTotalTime(), results.getTotalDistance(), results.getTotalElevation());
     
                 this.out.writeObject(results);
@@ -671,7 +674,11 @@ public class Master
     
                 // Create a replica to avoid synchronizationa problems with different actions 
                 // that may alter the statistic (global) variable
-                Statistics stat = new Statistics(Master.statistics);
+                Statistics stat;
+                synchronized (Master.statistics)
+                {
+                    stat = new Statistics(Master.statistics);
+                }
     
                 double presentageDistance = ((totalDistance - stat.getGlobalAvgDistance()) / stat.getGlobalAvgDistance()) * 100;
                 double presentageTime = ((totalTime - stat.getGlobalAvgTime()) / stat.getGlobalAvgTime()) * 100;
@@ -742,7 +749,7 @@ public class Master
             reducerSocket = new ServerSocket(reducer_port, 4);
 
             Thread client = new Thread(() -> {
-                while (true) {
+                while (!Thread.currentThread().isInterrupted()) {
                     try {
                         Socket connectionSocket = clientSocket.accept();
                         ClientAction clienThread = new ClientAction(connectionSocket, inputFile, num_of_wpt);
@@ -757,7 +764,7 @@ public class Master
             client.start();
 
             Thread reducer = new Thread(() -> {
-                while (true) {
+                while (!Thread.currentThread().isInterrupted()) {
                     try {
                         Socket requestSocket = reducerSocket.accept();
                         Thread reduceThread = new RequestHandler(requestSocket);
@@ -770,9 +777,10 @@ public class Master
             reducer.start();
 
             Thread worker = new Thread(() -> {
-                while (true) {
+                while (!Thread.currentThread().isInterrupted()) {
                     try {
                         Socket communicationSocket = workerSocket.accept();
+                        System.out.println("Accept");
                         Master.workerHandlers.add(new ObjectOutputStream(communicationSocket.getOutputStream()));
                     } catch (IOException e) {
                         System.err.println("Connection Error with Worker <--> Master");
@@ -794,8 +802,10 @@ public class Master
         } catch (IOException ex) {
             System.out.println("File not found !!!");
         }
-        System.out.println(prop.getProperty("num_of_workers"));
-        System.out.println(Integer.parseInt(prop.getProperty("num_wpt")));
-        new Master(Integer.parseInt(prop.getProperty("num_of_workers")), Integer.parseInt(prop.getProperty("num_wpt"))).openServer();
+        new Master(Integer.parseInt(prop.getProperty("num_of_workers")), 
+                    Integer.parseInt(prop.getProperty("num_wpt")), 
+                    Integer.parseInt(prop.getProperty("user_port")),
+                    Integer.parseInt(prop.getProperty("worker_port")),
+                    Integer.parseInt(prop.getProperty("reducer_port"))).openServer();
     }
 }

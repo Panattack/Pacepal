@@ -10,7 +10,6 @@ public class Client extends Thread {
     
     private static String path = "pacepal/gpxs/gpxs/";
     public static String host = "localhost";
-    static long start;
     private String gpx;
     ObjectOutputStream out = null ;
     ObjectInputStream in = null ;
@@ -24,6 +23,8 @@ public class Client extends Thread {
     static Scanner scanner = new Scanner(System.in);
     // static File file;
     static BufferedWriter writer;
+    static long start;
+    static long finish;
 
     public Client(String file, int fileIndex)
     {
@@ -32,7 +33,7 @@ public class Client extends Thread {
     }
 
     public static void main(String[] args) {
-
+        
         boolean flag = true;
         
         try {
@@ -44,13 +45,22 @@ public class Client extends Thread {
 
         while (flag)
         {
-            System.out.println();
+            // try {
+            //     new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
+            // } catch (InterruptedException e) {
+            //     // TODO Auto-generated catch block
+            //     e.printStackTrace();
+            // } catch (IOException e) {
+            //     // TODO Auto-generated catch block
+            //     e.printStackTrace();
+            // }
             System.out.println("You have the following options :");
             System.out.println("1. Send files");
             System.out.println("2. View your results");
             System.out.println("3. Check your statistics");
             System.out.println("4. Exit our app");
             System.out.print("Insert your answer : ");
+
             int answer = 0;
             try {
                 answer = scanner.nextInt();
@@ -67,11 +77,11 @@ public class Client extends Thread {
                     uiGpx();
                     break;
                 case 2:
-                    // TODO: View Results --> check in another time the HashMap.entrySet
+                    // View Results --> check in another time the HashMap.entrySet
                     uiResults();
                     break;
                 case 3:
-                    // TODO: Check your statistics
+                    // Check your statistics
                     uiStatistics();
                     break;
                 case 4:
@@ -86,7 +96,7 @@ public class Client extends Thread {
         scanner.close();
     }
 
-    private static void uiStatistics(){
+    private static void uiStatistics() {
         ObjectOutputStream out;
         ObjectInputStream in;
 
@@ -139,13 +149,16 @@ public class Client extends Thread {
     {
         String name;
         ArrayList<Thread> threadList = new ArrayList<>();
-        while (true)
+        // start = System.currentTimeMillis();
+        while (!Thread.interrupted())
         {
             System.out.print("Insert the file name : ");
             name = scanner.nextLine();
+
             Client client = new Client(path + name, indexFile++);
             threadList.add(client);
             client.start();
+
             synchronized (Client.lock_msg)
             {
                 try {
@@ -155,6 +168,7 @@ public class Client extends Thread {
                     System.err.println("Error in wait() method in uiGpx in main thread");
                 }
             }
+
             String choice = scanner.nextLine();
 
             if (choice.equals("n"))
@@ -173,6 +187,8 @@ public class Client extends Thread {
                 System.err.println("Wrong join in " + cl.threadId());
             }
         }
+        // finish = System.currentTimeMillis();
+        // System.out.println((finish - start));
     }
 
     private static  void uiResults()
@@ -197,7 +213,7 @@ public class Client extends Thread {
         }
     }
 
-    private void sendFile(String fileName) 
+    private void sendFile(String fileName, ObjectOutputStream out) 
     {
         try
         {
@@ -227,7 +243,6 @@ public class Client extends Thread {
         try {
             /* Create socket for contacting the server on port 4321*/
             requestSocket = new Socket(host, 4321);
- 
             /* Create the streams to send and receive data from server */
             out = new ObjectOutputStream(requestSocket.getOutputStream());
             in = new ObjectInputStream(requestSocket.getInputStream());
@@ -261,7 +276,7 @@ public class Client extends Thread {
             out.writeInt(this.fileId);
             out.flush();
 
-            sendFile(this.gpx);
+            sendFile(this.gpx, out);
             //Sending GPX file
             
             // Route statistics
