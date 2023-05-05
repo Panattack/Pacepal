@@ -31,11 +31,16 @@ public class Client extends Thread {
         this.fileId = fileIndex;
     }
 
-    public static void main(String[] args) throws IOException, InterruptedException {
+    public static void main(String[] args) {
 
         boolean flag = true;
-        writer = new BufferedWriter(new FileWriter("pacepal/Results/File"));
-        writer.close();
+        
+        try {
+            writer = new BufferedWriter(new FileWriter("pacepal/Results/File"));
+            writer.close();
+        } catch (IOException e) {
+            System.err.println("Error in creating the writer for the client: " + userId);
+        }
 
         while (flag)
         {
@@ -124,10 +129,9 @@ public class Client extends Thread {
 
             requestSocket.close();
         } catch (IOException e) {
-            // System.out.println("Connection Lost in statistic request");
-            e.printStackTrace();
+            System.err.println("Connection Lost in statistic request");
         } catch (ClassNotFoundException e) {
-            System.out.println("Error in connection -- cannot receive statistic object");
+            System.err.println("Error in connection -- cannot receive statistic object");
         }
     }
   
@@ -148,8 +152,7 @@ public class Client extends Thread {
                     Client.lock_msg.wait();
                     System.out.print("Do you want to insert another file (y or n) : ");
                 } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    System.err.println("Error in wait() method in uiGpx in main thread");
                 }
             }
             String choice = scanner.nextLine();
@@ -160,17 +163,16 @@ public class Client extends Thread {
             }
         }
 
-        System.out.println("Loading...");
+        System.out.println("\nLoading...");
 
         for (Thread cl : threadList)
         {
             try {
                 cl.join();
             } catch (InterruptedException e) {
-            System.out.println("Wrong join in " + cl.threadId());
+                System.err.println("Wrong join in " + cl.threadId());
             }
         }
-
     }
 
     private static  void uiResults()
@@ -181,7 +183,7 @@ public class Client extends Thread {
 
             if (line == null)
             {
-                System.out.println("\n" + "********** You haven't sent a file **********");
+                System.out.println("\n********** You haven't sent a file **********");
                 reader.close();
                 return;
             }
@@ -191,7 +193,7 @@ public class Client extends Thread {
             }
             reader.close();
         } catch (IOException e) {
-            System.out.println("An error occurred in reading the file.");
+            System.err.println("An error occurred in reading the file.");
         }
     }
 
@@ -212,10 +214,8 @@ public class Client extends Thread {
             out.write(buffer, 0, buffer.length);
             out.flush();
 
-            // Close the file input stream
-            // fileInputStream.close();
         }  catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("An error occured in the contexts in sendFile");
         }
     }
 
@@ -264,29 +264,26 @@ public class Client extends Thread {
             sendFile(this.gpx);
             //Sending GPX file
             
-			try {
-                // Route statistics
-				Results results = (Results) in.readObject();
-                
-                // Write the results in a list
-                synchronized (Client.writer)
-                {
-                    Client.writer = new BufferedWriter(new FileWriter("pacepal/Results/File", true));
-                    Client.writer.write(results.toString());
-                    Client.writer.close();
-                }
+            // Route statistics
+            Results results = (Results) in.readObject();
+            
+            // Write the results in a list
+            synchronized (Client.writer)
+            {
+                Client.writer = new BufferedWriter(new FileWriter("pacepal/Results/File", true));
+                Client.writer.write(results.toString());
+                Client.writer.close();
+            }
 
-                in.close(); out.close();
-                requestSocket.close();
-			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}            
-
+            in.close(); out.close();
+            requestSocket.close();
+			       
         } catch (UnknownHostException unknownHost) {
             System.err.println("You are trying to connect to an unknown host!");
         } catch (IOException ioException) {
-            ioException.printStackTrace();
+            System.err.println("Error: unusual context --> \"in\"  or \"out\" or writing in the file to run");
+        } catch (ClassNotFoundException e) {
+            System.err.println("Error: ClassNotFound in \"in\" to receiving result");
         }
     }
 }

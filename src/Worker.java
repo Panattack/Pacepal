@@ -20,8 +20,7 @@ public class Worker extends Thread {
         try {
             this.out = new ObjectOutputStream(connection.getOutputStream());
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            System.err.println("Error in creating the \"out\" object");
         }
     }
     
@@ -35,7 +34,7 @@ public class Worker extends Thread {
             this.out.flush();
             this.requestSocket.close();
         } catch (IOException e) {
-            System.out.println("Mapper found problem in sending the intermediate result");
+            System.err.println("Mapper found problem in sending the intermediate result");
         }
     }
 
@@ -48,7 +47,7 @@ public class Worker extends Thread {
             Worker.in = new ObjectInputStream(connectionSocket.getInputStream());
         }
         catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Error I/O error occurs when creating the socket when stabilizing with the Master");
         }
         
         while (true) {
@@ -59,10 +58,11 @@ public class Worker extends Thread {
                 // System.out.println(chunkSocket.getLocalPort());
                 // new Socket per request
                 new Worker(chunkSocket, chunk).start();
-            } catch (ClassNotFoundException | IOException e) {
-                e.printStackTrace();
+            } catch (ClassNotFoundException e) {
+                System.err.println("Error: Didn't read Chunk object from Master");
+            } catch (IOException e) {
+                System.err.println("Error: I/O error occurs when creating the socket per request");
             }
         }
-        
     }
 }
