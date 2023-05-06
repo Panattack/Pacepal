@@ -38,9 +38,8 @@ It contains 8 variables:
     3. Elevation 
 
 It also contains the following methods:
-- 2 different Constructors, depending on the usage of the object
-- Synchronized Getters and Setters for the previous variables
-- defUs -> updates the users variables 
-- updateValues -> updates the global variables
-- toString
-
+- 2 different <a>Constructors</a>, depending on the usage of the object
+- Synchronized <a>Getters</a> and <a>Setters</a> for the previous variables
+- <a>defUs</a> -> updates the users variables 
+- <a>updateValues</a> -> updates the global variables
+- <a>toString</a>

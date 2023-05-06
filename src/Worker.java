@@ -44,7 +44,7 @@ public class Worker extends Thread {
     public static void initDefault() {
 
         Properties prop = new Properties();
-        String fileName = "src/worker.cfg"; 
+        String fileName = "pacepal/config/worker.cfg"; 
         
         try (FileInputStream fis = new FileInputStream(fileName)) {
             prop.load(fis);

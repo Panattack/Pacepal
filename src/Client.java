@@ -29,8 +29,7 @@ public class Client extends Thread {
     static long start;
     static long finish;
 
-    public Client(String file, int fileIndex)
-    {
+    public Client(String file, int fileIndex) {
         this.gpx = file;
         this.fileId = fileIndex;
     }
@@ -156,8 +155,7 @@ public class Client extends Thread {
         }
     }
   
-    private static void uiGpx() 
-    {
+    private static void uiGpx() {
         String name;
         ArrayList<Thread> threadList = new ArrayList<>();
         // start = System.currentTimeMillis();
@@ -202,8 +200,7 @@ public class Client extends Thread {
         // System.out.println((finish - start));
     }
 
-    private static  void uiResults()
-    {
+    private static  void uiResults() {
         try {
             BufferedReader reader = new BufferedReader(new FileReader(fileName));
             String line = reader.readLine();
@@ -224,8 +221,7 @@ public class Client extends Thread {
         }
     }
 
-    private void sendFile(String fName, ObjectOutputStream out) 
-    {
+    private void sendFile(String fName, ObjectOutputStream out) {
         try
         {
             
@@ -246,8 +242,7 @@ public class Client extends Thread {
     }
 
     @Override
-    public void run()
-    {
+    public void run() {
         Socket requestSocket = null;
 
         try {

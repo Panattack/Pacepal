@@ -17,7 +17,7 @@ public class Master
     private static int reducer_port;
     static public RobinQueue<ObjectOutputStream> workerHandlers; // related to the socket that every worker has made
     // It's a global id from clients --> workers and vice versa
-    public static int inputFile = 0;
+    public static int requestNo = 0;
     // Global statistics
     public static Statistics statistics;
     // A hashmap that we keep the user records
@@ -407,8 +407,8 @@ public class Master
         private int fileId;
         // Given from the Master : num of waypoints per chunk
         private int num_of_wpt;
-        // Given from the Master : Global input file
-        private int inputFile;
+        // Given from the Master : Global request number
+        private int requestId;
         // An arraylist that contains all the intermediate results of the specific file from Master
         ArrayList<Chunk> interResults;
         // Monitor
@@ -418,12 +418,12 @@ public class Master
         private int num_of_workers;
         private final ParserGPX parser = new ParserGPX();
     
-        public ClientAction(Socket connection, int inputFile, int num_of_wpt, int num_of_workers) {
+        public ClientAction(Socket connection, int request, int num_of_wpt, int num_of_workers) {
             try {
                 // Socket connection to listen from the client
                 this.socket = connection;
                 // File id is the global variable and we use it as a key in  the chunk
-                this.inputFile = inputFile;
+                this.requestId = request;
                 this.num_of_wpt = num_of_wpt;
                 // Monitor
                 this.lock = new Object();
@@ -481,7 +481,7 @@ public class Master
                 List<Waypoint> list =  wpt_list.subList(0, endIndex);
                 // Create key to pass it in the hashmap in the reducer & in the chunk in order to use it 
                 // to access the hashmap
-                Chunk sublist = new Chunk(this.inputFile, num_chunk, wpt_list.get(0).getUser(), this.userId, this.fileId);
+                Chunk sublist = new Chunk(this.requestId, num_chunk, wpt_list.get(0).getUser(), this.userId, this.fileId);
     
                 int k = 0;
                 for (k = 0; k < endIndex; k++) 
@@ -502,13 +502,13 @@ public class Master
             }
             
             // Update the intermediate results
-            Master.intermediate_results.put(this.inputFile, new Pair<ArrayList<Chunk>, Integer>(new ArrayList<Chunk>(), num_chunk));
+            intermediate_results.put(this.requestId, new Pair<ArrayList<Chunk>, Integer>(new ArrayList<Chunk>(), num_chunk));
             
             for (Chunk c : chunks) { 
                 //send chunk in RR sequence with random gpx order
                 ObjectOutputStream outstream;
                 
-                outstream = Master.workerHandlers.get();
+                outstream = workerHandlers.get();
                 
                 try {
                     // Sync in order to send a chunk in the worker 
@@ -529,7 +529,7 @@ public class Master
         {
             try
             {
-                if (Master.workerHandlers.size() < this.num_of_workers)
+                if (workerHandlers.size() < this.num_of_workers)
                 {
                     this.out.writeInt(0);
                     this.out.flush();
@@ -560,12 +560,12 @@ public class Master
         private void create_user(int user) {
             synchronized (Master.userList)
             {
-                if (Master.userList.get(user) == null) 
+                if (userList.get(user) == null) 
                 {
-                    Master.userList.put(user, new User(user));
+                    userList.put(user, new User(user));
     
                     // Update globalSize in statistics
-                    Master.statistics.addGlobalSize();
+                    statistics.addGlobalSize();
                 }
             }
         }
@@ -621,15 +621,15 @@ public class Master
             try {
                 Results results = reduceResults();
                 // Check for the computation of the personal record
-                synchronized (Master.userList)
+                synchronized (userList)
                 {
                     // register the new route for the Database
-                    Master.userList.get(this.userId).getResultList().put(this.fileId, results);
+                    userList.get(this.userId).getResultList().put(this.fileId, results);
                     // update the personal record
-                    Master.userList.get(this.userId).updateStatistics(results.getTotalDistance(), results.getTotalTime(), results.getTotalElevation());
+                    userList.get(this.userId).updateStatistics(results.getTotalDistance(), results.getTotalTime(), results.getTotalElevation());
                 }
                 // Update statistics
-                Master.statistics.updateValues(results.getTotalTime(), results.getTotalDistance(), results.getTotalElevation());
+                statistics.updateValues(results.getTotalTime(), results.getTotalDistance(), results.getTotalElevation());
     
                 this.out.writeObject(results);
                 this.out.flush();
@@ -638,15 +638,13 @@ public class Master
             }
         }
     
-        private void uploadStatistics()
-        {
+        private void uploadStatistics() {
             try {
                 // Read user Id
                 this.userId = this.in.readInt();
                 User user = Master.userList.get(this.userId);
     
-                if (user == null)
-                {
+                if (user == null) {
                     // End the thread
                     this.out.writeInt(0);
                     this.out.flush();
@@ -660,8 +658,7 @@ public class Master
                 double totalElevation = 0;
                 double totalTime = 0;
     
-                for (Map.Entry<Integer, Results> tuple : user.getResultList().entrySet())
-                {
+                for (Map.Entry<Integer, Results> tuple : user.getResultList().entrySet()) {
                     totalDistance = totalDistance + tuple.getValue().getTotalDistance();
                     totalTime = totalTime + tuple.getValue().getTotalTime();
                     totalElevation = totalElevation + tuple.getValue().getTotalElevation();
@@ -670,9 +667,8 @@ public class Master
                 // Create a replica to avoid synchronizationa problems with different actions 
                 // that may alter the statistic (global) variable
                 Statistics stat;
-                synchronized (Master.statistics)
-                {
-                    stat = new Statistics(Master.statistics);
+                synchronized (statistics) {
+                    stat = new Statistics(statistics);
                 }
     
                 double presentageDistance = ((totalDistance - stat.getGlobalAvgDistance()) / stat.getGlobalAvgDistance()) * 100;
@@ -746,9 +742,9 @@ public class Master
                 while (!Thread.currentThread().isInterrupted()) {
                     try {
                         Socket connectionSocket = clientSocket.accept();
-                        ClientAction clienThread = new ClientAction(connectionSocket, inputFile, num_of_wpt, num_of_workers);
-                        Master.clientLHandlers.put(Master.inputFile, clienThread);
-                        Master.inputFile++;
+                        ClientAction clienThread = new ClientAction(connectionSocket, requestNo, num_of_wpt, num_of_workers);
+                        clientLHandlers.put(requestNo, clienThread);
+                        requestNo++;
                         clienThread.start();
                     } catch (IOException e) {
                         System.err.println("Connection Error with Client <--> Master");
@@ -775,7 +771,7 @@ public class Master
                     try {
                         Socket communicationSocket = workerSocket.accept();
                         System.out.println("Accept");
-                        Master.workerHandlers.add(new ObjectOutputStream(communicationSocket.getOutputStream()));
+                        workerHandlers.add(new ObjectOutputStream(communicationSocket.getOutputStream()));
                     } catch (IOException e) {
                         System.err.println("Connection Error with Worker <--> Master");
                     } 
