@@ -21,7 +21,6 @@ public class Results  implements Serializable {
 
         this.gpx_id = gid;
         this.user_id = uid;
-
     }
     
     public Double getTotalDistance() {

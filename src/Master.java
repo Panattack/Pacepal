@@ -354,6 +354,7 @@ public class Master
     }
 
     class RequestHandler extends Thread {
+
         ObjectInputStream in;
         ObjectOutputStream out;
     
@@ -400,6 +401,7 @@ public class Master
                 System.err.println("Connection Error in RequestHandler");
             }
         }
+
     }
 
     class ClientAction extends Thread {
@@ -504,7 +506,8 @@ public class Master
                 chunks.add(sublist);
                 num_chunk++;
             }
-    
+            
+            // Update the intermediate results
             Master.intermediate_results.put(this.inputFile, new Pair<ArrayList<Chunk>, Integer>(new ArrayList<Chunk>(), num_chunk));
             
             for (Chunk c : chunks) { 
@@ -566,7 +569,6 @@ public class Master
             {
                 if (Master.userList.get(user) == null) 
                 {
-                    // TODO Maybe we will create a general class with sync methods -- 
                     Master.userList.put(user, new User(user));
     
                     // Update globalSize in statistics
