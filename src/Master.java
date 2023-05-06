@@ -209,7 +209,7 @@ public class Master
             return this.id;
         }
     
-        public void setName(int id) {
+        public void setId(int id) {
             this.id = id;
         }
     
