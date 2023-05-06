@@ -5,11 +5,12 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.Scanner;
+import java.util.*;
 
 public class Client extends Thread {
     
-    private static String path = "pacepal/gpxs/gpxs/";
-    public static String host = "localhost";
+    private static String path; 
+    public static String host; 
     private String gpx;
     ObjectOutputStream out = null ;
     ObjectInputStream in = null ;
@@ -32,12 +33,27 @@ public class Client extends Thread {
         this.fileId = fileIndex;
     }
 
-    public static void main(String[] args) {
+    public static void initDefault() {
+        Properties prop = new Properties();
+        String fileName = "src/client.cfg"; 
         
+        try (FileInputStream fis = new FileInputStream(fileName)) {
+            prop.load(fis);
+        } catch (IOException ex) {
+            System.out.println("File not found !!!");
+        }
+        Client.path = prop.getProperty("path");
+        Client.host = prop.getProperty("host");
+
+    }
+
+    public static void main(String[] args) {
+
+        Client.initDefault();
         boolean flag = true;
         
         try {
-            writer = new BufferedWriter(new FileWriter("pacepal/Results/File"));
+            writer = new BufferedWriter(new FileWriter("Results/File")); // this one 
             writer.close();
         } catch (IOException e) {
             System.err.println("Error in creating the writer for the client: " + userId);
@@ -184,7 +200,7 @@ public class Client extends Thread {
             try {
                 cl.join();
             } catch (InterruptedException e) {
-                System.err.println("Wrong join in " + cl.threadId());
+                System.err.println("Wrong join in " );
             }
         }
         // finish = System.currentTimeMillis();

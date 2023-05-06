@@ -1,5 +1,7 @@
 import java.io.*;
 import java.net.*;
+import java.util.Properties;
+
 
 public class Worker extends Thread {
     // Global socket for the worker to listen chunks-requests from the master
@@ -7,9 +9,10 @@ public class Worker extends Thread {
     // Local socket per request to send the intermediate result to the reducer
     private ObjectOutputStream out;
     // Host port to listen the request
-    private static int roundrobinPort = 1234;
+    private static int roundrobinPort ;
     // Host port to send intermediate result per chunk
-    private static int requestreducePort = 9876;
+    private static int requestreducePort; 
+    private static String host ;
     private Chunk chunk;
     Socket requestSocket;
     
@@ -37,23 +40,45 @@ public class Worker extends Thread {
         }
     }
 
-    public static void main(String[] args) {
+
+    public static void initiDefault() {
+
+        Properties prop = new Properties();
+        String fileName = "src/worker.cfg"; 
         
-        String host = "localhost";
-    
+        try (FileInputStream fis = new FileInputStream(fileName)) {
+            prop.load(fis);
+        } catch (IOException ex) {
+            System.out.println("File not found !!!");
+        }
+     
+        Worker.host = prop.getProperty("host");
+        System.out.println(Worker.host);
+        Worker.roundrobinPort = Integer.parseInt(prop.getProperty("roundrobinPort"));
+        System.out.println( Worker.roundrobinPort);
+        Worker.roundrobinPort = Integer.parseInt(prop.getProperty("requestreducePort"));
+        
+    }
+
+    public static void main(String[] args) {
+        // new static method that initializes the congig (intiDefaultWork), it hs 3 variables
+        
+
+        Worker.initiDefault();
+        Socket connectionSocket ;
         try {
-            Socket connectionSocket = new Socket(host, roundrobinPort);
+            connectionSocket = new Socket(host, roundrobinPort);
             Worker.in = new ObjectInputStream(connectionSocket.getInputStream());
         }
         catch (IOException e) {
             System.err.println("Error I/O error occurs when creating the socket when stabilizing with the Master");
         }
         
-        while (true) {
+        while (!Thread.interrupted()) {
             try {
                 // new Socket();
                 Chunk chunk = (Chunk) Worker.in.readObject();
-                Socket chunkSocket = new Socket(host, requestreducePort);
+                Socket chunkSocket = new Socket(Worker.host, Worker.requestreducePort);
                 // System.out.println(chunkSocket.getLocalPort());
                 // new Socket per request
                 new Worker(chunkSocket, chunk).start();

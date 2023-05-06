@@ -10,11 +10,11 @@ import java.util.ArrayList;
 
 public class Master
 {
-    public static int num_of_workers; // DEFINE IN Config file
-    private int num_of_wpt; // DEFINE IN Config file
-    private int worker_port;
-    private int user_port;
-    private int reducer_port;
+    public static  int num_of_workers; // DEFINE IN Config file
+    private static int num_of_wpt; // DEFINE IN Config file
+    private static int worker_port;
+    private static int user_port;
+    private static int reducer_port;
     static public RobinQueue<ObjectOutputStream> workerHandlers; // related to the socket that every worker has made
     // It's a global id from clients --> workers and vice versa
     public static int inputFile = 0;
@@ -36,18 +36,18 @@ public class Master
     /* Define the socket that receives intermediate results from workers */
     ServerSocket reducerSocket;
 
-    public Master(int num_workers, int num_of_wpt, int user_port, int worker_port, int reducer_port) {
-        Master.statistics = new Statistics();
-        this.user_port = user_port;
-        this.worker_port = worker_port;
-        this.reducer_port = reducer_port;
-        this.num_of_wpt = num_of_wpt;
-        Master.num_of_workers = num_workers;
-        Master.workerHandlers = new RobinQueue<>();
-        Master.userList = new SynchronizedHashMap<>();
-        Master.clientLHandlers = new SynchronizedHashMap<>();
-        Master.intermediate_results = new SynchronizedHashMap<>();
-    }
+    // public Master(int num_workers, int num_of_wpt, int user_port, int worker_port, int reducer_port) {
+    //     Master.statistics = new Statistics();
+    //     this.user_port = user_port;
+    //     this.worker_port = worker_port;
+    //     this.reducer_port = reducer_port;
+    //     this.num_of_wpt = num_of_wpt;
+    //     Master.num_of_workers = num_workers;
+    //     Master.workerHandlers = new RobinQueue<>();
+    //     Master.userList = new SynchronizedHashMap<>();
+    //     Master.clientLHandlers = new SynchronizedHashMap<>();
+    //     Master.intermediate_results = new SynchronizedHashMap<>();
+    // }
 
     class SynchronizedHashMap<K, V> {
 
@@ -535,6 +535,7 @@ public class Master
         {
             try
             {
+                System.out.println(Master.workerHandlers.size());
                 if (Master.workerHandlers.size() < Master.num_of_workers)
                 {
                     this.out.writeInt(0);
@@ -796,18 +797,49 @@ public class Master
         }
     }
 
-    public static void main(String[] args) {
+    public void initDefault(){
         Properties prop = new Properties();
-        String fileName = "pacepal/src/config.cfg";
+        String fileName = "src/master.cfg"; 
+        
         try (FileInputStream fis = new FileInputStream(fileName)) {
             prop.load(fis);
         } catch (IOException ex) {
             System.out.println("File not found !!!");
         }
-        new Master(Integer.parseInt(prop.getProperty("num_of_workers")), 
-                    Integer.parseInt(prop.getProperty("num_wpt")), 
-                    Integer.parseInt(prop.getProperty("user_port")),
-                    Integer.parseInt(prop.getProperty("worker_port")),
-                    Integer.parseInt(prop.getProperty("reducer_port"))).openServer();
+
+        Master.user_port    = Integer.parseInt(prop.getProperty("user_port"));
+        Master.worker_port  = Integer.parseInt(prop.getProperty("worker_port"));
+        Master.reducer_port =Integer.parseInt(prop.getProperty("reducer_port"));
+        Master.num_of_wpt = Integer.parseInt(prop.getProperty("num_wpt"));
+
+        Master.num_of_workers =Integer.parseInt(prop.getProperty("num_of_workers"));
+        Master.workerHandlers = new RobinQueue<>();
+        Master.userList = new SynchronizedHashMap<>();
+        Master.clientLHandlers = new SynchronizedHashMap<>();
+        Master.intermediate_results = new SynchronizedHashMap<>();
+        Master.statistics = new Statistics();
+       
     }
-}
+    public Master(){}
+
+    public static void main(String[] args) {
+        // new master defaul constuctor ,static method(initDefault) that initialize the variables from config , new master . open server  
+        Master mas = new Master();
+        mas.initDefault();
+        System.out.println(Master.worker_port);
+        mas.openServer();
+
+//         Properties prop = new Properties();
+//         String fileName = "src/config.cfg"; 
+//         try (FileInputStream fis = new FileInputStream(fileName)) {
+//             prop.load(fis);
+//         } catch (IOException ex) {
+//             System.out.println("File not found !!!");
+//         }
+//         new Master(Integer.parseInt(prop.getProperty("num_of_workers")), 
+//                     Integer.parseInt(prop.getProperty("num_wpt")), 
+//                     Integer.parseInt(prop.getProperty("user_port")),
+//                     Integer.parseInt(prop.getProperty("worker_port")),
+//                     Integer.parseInt(prop.getProperty("reducer_port"))).openServer();
+  }
+ }
