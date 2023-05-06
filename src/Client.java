@@ -228,14 +228,13 @@ public class Client extends Thread {
     {
         try
         {
-            // Send the file name to the server
+            
             File file = new File(fName);
-            // out.writeObject(file.getName());
-            // out.flush();
             byte[] buffer = new byte[(int) file.length()];
             BufferedInputStream reader = new BufferedInputStream(new FileInputStream(file));
             reader.read(buffer, 0, buffer.length);
             reader.close();
+            
             out.writeInt(buffer.length);
             out.flush();
             out.write(buffer, 0, buffer.length);
