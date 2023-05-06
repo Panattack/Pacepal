@@ -36,19 +36,6 @@ public class Master
     /* Define the socket that receives intermediate results from workers */
     ServerSocket reducerSocket;
 
-    // public Master(int num_workers, int num_of_wpt, int user_port, int worker_port, int reducer_port) {
-    //     Master.statistics = new Statistics();
-    //     this.user_port = user_port;
-    //     this.worker_port = worker_port;
-    //     this.reducer_port = reducer_port;
-    //     this.num_of_wpt = num_of_wpt;
-    //     Master.num_of_workers = num_workers;
-    //     Master.workerHandlers = new RobinQueue<>();
-    //     Master.userList = new SynchronizedHashMap<>();
-    //     Master.clientLHandlers = new SynchronizedHashMap<>();
-    //     Master.intermediate_results = new SynchronizedHashMap<>();
-    // }
-
     class SynchronizedHashMap<K, V> {
 
         private final Map<K, V> map;
@@ -535,7 +522,6 @@ public class Master
         {
             try
             {
-                System.out.println(Master.workerHandlers.size());
                 if (Master.workerHandlers.size() < Master.num_of_workers)
                 {
                     this.out.writeInt(0);
@@ -701,7 +687,7 @@ public class Master
         {
             /*
             Menu :
-                1. Recei file
+                1. Receive file
                 2. Send statistics
             */
             
@@ -748,7 +734,7 @@ public class Master
     void openServer() {
         try {
             clientSocket = new ServerSocket(user_port, 4);
-            workerSocket = new ServerSocket(worker_port, 4);
+            workerSocket = new ServerSocket(Master.worker_port, 4);
             reducerSocket = new ServerSocket(reducer_port, 4);
 
             Thread client = new Thread(() -> {
@@ -823,23 +809,9 @@ public class Master
     public Master(){}
 
     public static void main(String[] args) {
-        // new master defaul constuctor ,static method(initDefault) that initialize the variables from config , new master . open server  
+          
         Master mas = new Master();
         mas.initDefault();
-        System.out.println(Master.worker_port);
         mas.openServer();
-
-//         Properties prop = new Properties();
-//         String fileName = "src/config.cfg"; 
-//         try (FileInputStream fis = new FileInputStream(fileName)) {
-//             prop.load(fis);
-//         } catch (IOException ex) {
-//             System.out.println("File not found !!!");
-//         }
-//         new Master(Integer.parseInt(prop.getProperty("num_of_workers")), 
-//                     Integer.parseInt(prop.getProperty("num_wpt")), 
-//                     Integer.parseInt(prop.getProperty("user_port")),
-//                     Integer.parseInt(prop.getProperty("worker_port")),
-//                     Integer.parseInt(prop.getProperty("reducer_port"))).openServer();
-  }
+    }
  }

@@ -53,16 +53,12 @@ public class Worker extends Thread {
         }
      
         Worker.host = prop.getProperty("host");
-        System.out.println(Worker.host);
         Worker.roundrobinPort = Integer.parseInt(prop.getProperty("roundrobinPort"));
-        System.out.println( Worker.roundrobinPort);
-        Worker.roundrobinPort = Integer.parseInt(prop.getProperty("requestreducePort"));
+        Worker.requestreducePort = Integer.parseInt(prop.getProperty("requestreducePort"));
         
     }
 
     public static void main(String[] args) {
-        // new static method that initializes the congig (intiDefaultWork), it hs 3 variables
-        
 
         Worker.initiDefault();
         Socket connectionSocket ;

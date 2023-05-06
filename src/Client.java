@@ -9,6 +9,8 @@ import java.util.*;
 
 public class Client extends Thread {
     
+    private static String fileName;
+    private static int serverPort;
     private static String path; 
     public static String host; 
     private String gpx;
@@ -35,15 +37,17 @@ public class Client extends Thread {
 
     public static void initDefault() {
         Properties prop = new Properties();
-        String fileName = "src/client.cfg"; 
+        String configName = "src/client.cfg"; 
         
-        try (FileInputStream fis = new FileInputStream(fileName)) {
+        try (FileInputStream fis = new FileInputStream(configName)) {
             prop.load(fis);
         } catch (IOException ex) {
             System.out.println("File not found !!!");
         }
         Client.path = prop.getProperty("path");
         Client.host = prop.getProperty("host");
+        Client.fileName = prop.getProperty("fileName");
+        Client.serverPort = Integer.parseInt(prop.getProperty("serverPort"));
 
     }
 
@@ -53,7 +57,7 @@ public class Client extends Thread {
         boolean flag = true;
         
         try {
-            writer = new BufferedWriter(new FileWriter("Results/File")); // this one 
+            writer = new BufferedWriter(new FileWriter(fileName)); // this one 
             writer.close();
         } catch (IOException e) {
             System.err.println("Error in creating the writer for the client: " + userId);
@@ -119,7 +123,7 @@ public class Client extends Thread {
         /* Create the streams to send and receive data from server */
         try {
             /* Create socket for contacting the server on port 4321*/
-            Socket requestSocket = new Socket(host, 4321);
+            Socket requestSocket = new Socket(host, serverPort);
             out = new ObjectOutputStream(requestSocket.getOutputStream());
             in = new ObjectInputStream(requestSocket.getInputStream());
 
@@ -210,7 +214,7 @@ public class Client extends Thread {
     private static  void uiResults()
     {
         try {
-            BufferedReader reader = new BufferedReader(new FileReader("pacepal/Results/File"));
+            BufferedReader reader = new BufferedReader(new FileReader(fileName));
             String line = reader.readLine();
 
             if (line == null)
@@ -229,12 +233,12 @@ public class Client extends Thread {
         }
     }
 
-    private void sendFile(String fileName, ObjectOutputStream out) 
+    private void sendFile(String fName, ObjectOutputStream out) 
     {
         try
         {
             // Send the file name to the server
-            File file = new File(fileName);
+            File file = new File(fName);
             // out.writeObject(file.getName());
             // out.flush();
             byte[] buffer = new byte[(int) file.length()];
@@ -258,7 +262,7 @@ public class Client extends Thread {
 
         try {
             /* Create socket for contacting the server on port 4321*/
-            requestSocket = new Socket(host, 4321);
+            requestSocket = new Socket(host, serverPort);
             /* Create the streams to send and receive data from server */
             out = new ObjectOutputStream(requestSocket.getOutputStream());
             in = new ObjectInputStream(requestSocket.getInputStream());
@@ -301,7 +305,7 @@ public class Client extends Thread {
             // Write the results in a list
             synchronized (Client.writer)
             {
-                Client.writer = new BufferedWriter(new FileWriter("pacepal/Results/File", true));
+                Client.writer = new BufferedWriter(new FileWriter(fileName, true));
                 Client.writer.write(results.toString());
                 Client.writer.close();
             }
