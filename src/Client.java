@@ -37,18 +37,18 @@ public class Client extends Thread {
 
     public static void initDefault() {
         Properties prop = new Properties();
-        String configName = "src/client.cfg"; 
+        String configName = "pacepal/config/client.cfg"; 
         
         try (FileInputStream fis = new FileInputStream(configName)) {
             prop.load(fis);
         } catch (IOException ex) {
             System.out.println("File not found !!!");
         }
+
         Client.path = prop.getProperty("path");
         Client.host = prop.getProperty("host");
         Client.fileName = prop.getProperty("fileName");
         Client.serverPort = Integer.parseInt(prop.getProperty("serverPort"));
-
     }
 
     public static void main(String[] args) {
@@ -65,15 +65,6 @@ public class Client extends Thread {
 
         while (flag)
         {
-            // try {
-            //     new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
-            // } catch (InterruptedException e) {
-            //     // TODO Auto-generated catch block
-            //     e.printStackTrace();
-            // } catch (IOException e) {
-            //     // TODO Auto-generated catch block
-            //     e.printStackTrace();
-            // }
             System.out.println("You have the following options :");
             System.out.println("1. Send files");
             System.out.println("2. View your results");

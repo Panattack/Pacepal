@@ -2,7 +2,6 @@ import java.io.*;
 import java.net.*;
 import java.util.Properties;
 
-
 public class Worker extends Thread {
     // Global socket for the worker to listen chunks-requests from the master
     private static ObjectInputStream in;
@@ -40,11 +39,10 @@ public class Worker extends Thread {
         }
     }
 
-
     public static void initiDefault() {
 
         Properties prop = new Properties();
-        String fileName = "src/worker.cfg"; 
+        String fileName = "pacepal/config/worker.cfg"; 
         
         try (FileInputStream fis = new FileInputStream(fileName)) {
             prop.load(fis);
@@ -85,4 +83,5 @@ public class Worker extends Thread {
             }
         }
     }
+    
 }

@@ -10,7 +10,7 @@ import java.util.ArrayList;
 
 public class Master
 {
-    public static  int num_of_workers; // DEFINE IN Config file
+    public static int num_of_workers; // DEFINE IN Config file
     private static int num_of_wpt; // DEFINE IN Config file
     private static int worker_port;
     private static int user_port;
@@ -122,7 +122,7 @@ public class Master
         }
     }
 
-    public class Pair<K, V> implements Serializable{
+    public class Pair<K, V> implements Serializable {
         private K key;
         private V value;
         
@@ -368,17 +368,21 @@ public class Master
                     Master.intermediate_results.get(inputFileId).getKey().add(request);
                     size = Master.intermediate_results.get(inputFileId).getValue();
                     Master.intermediate_results.get(inputFileId).setValue(--size);
-                }
 
-                // If size == 0 then send signal to the Master and remove the element
-                if (size == 0)
-                {
-                    // Doesn't need synchronized because there is only one client action per request
-                    Master.clientLHandlers.get(inputFileId).setIntermResults(Master.intermediate_results.get(inputFileId).getKey());
+                    // If size == 0 then send signal to the Master and remove the element
+                    if (size == 0)
+                    {
+                        synchronized (Master.clientLHandlers)
+                        {
+                        // Doesn't need synchronized because there is only one client action per request
+                        Master.clientLHandlers.get(inputFileId).setIntermResults(Master.intermediate_results.get(inputFileId).getKey());
 
-                    // Delete the file record from the database
-                    Master.intermediate_results.remove(inputFileId);
-                    Master.clientLHandlers.remove(inputFileId);
+                        // Delete the file record from the database
+                        Master.intermediate_results.remove(inputFileId);
+                        Master.clientLHandlers.remove(inputFileId);
+                        }
+
+                    }
                 }
                 // End of request socket
                 in.close();
@@ -392,6 +396,7 @@ public class Master
     }
 
     class ClientAction extends Thread {
+
         ObjectInputStream in;
         ObjectOutputStream out;
         private InputStream is;
@@ -536,7 +541,6 @@ public class Master
             } catch (IOException e) {
                 System.err.println("Error in checking Master.WorkerHandlers");
             }
-            
             return true;
         }
     
@@ -729,7 +733,6 @@ public class Master
             }
         }
     }
-    
 
     void openServer() {
         try {
@@ -783,9 +786,9 @@ public class Master
         }
     }
 
-    public void initDefault(){
+    public void initDefault() {
         Properties prop = new Properties();
-        String fileName = "src/master.cfg"; 
+        String fileName = "pacepal/config/master.cfg"; 
         
         try (FileInputStream fis = new FileInputStream(fileName)) {
             prop.load(fis);
@@ -793,9 +796,9 @@ public class Master
             System.out.println("File not found !!!");
         }
 
-        Master.user_port    = Integer.parseInt(prop.getProperty("user_port"));
-        Master.worker_port  = Integer.parseInt(prop.getProperty("worker_port"));
-        Master.reducer_port =Integer.parseInt(prop.getProperty("reducer_port"));
+        Master.user_port = Integer.parseInt(prop.getProperty("user_port"));
+        Master.worker_port = Integer.parseInt(prop.getProperty("worker_port"));
+        Master.reducer_port = Integer.parseInt(prop.getProperty("reducer_port"));
         Master.num_of_wpt = Integer.parseInt(prop.getProperty("num_wpt"));
 
         Master.num_of_workers =Integer.parseInt(prop.getProperty("num_of_workers"));
