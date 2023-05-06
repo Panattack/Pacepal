@@ -343,7 +343,6 @@ public class Master
     class RequestHandler extends Thread {
 
         ObjectInputStream in;
-        ObjectOutputStream out;
     
         public RequestHandler(Socket connection) {
             try {
@@ -355,6 +354,7 @@ public class Master
     
         @Override
         public void run() {
+
             try {
                 // Send it to the reducer
                 Chunk request = (Chunk) this.in.readObject();
@@ -415,9 +415,10 @@ public class Master
         Object lock;
         // Menu choice
         private int choice;
+        private int num_of_workers;
         private final ParserGPX parser = new ParserGPX();
     
-        public ClientAction(Socket connection, int inputFile, int num_of_wpt) {
+        public ClientAction(Socket connection, int inputFile, int num_of_wpt, int num_of_workers) {
             try {
                 // Socket connection to listen from the client
                 this.socket = connection;
@@ -426,7 +427,7 @@ public class Master
                 this.num_of_wpt = num_of_wpt;
                 // Monitor
                 this.lock = new Object();
-    
+                this.num_of_workers = num_of_workers;
                 this.in = new ObjectInputStream(this.socket.getInputStream());
                 this.out = new ObjectOutputStream(this.socket.getOutputStream());
             } catch (IOException e) {
@@ -489,6 +490,7 @@ public class Master
                 }
                 if (wpt_list.size() != 0) 
                 {
+                    // Put the the first waypoint of the next chunk
                     sublist.add(wpt_list.get(0));
                 }
                 if (list.size() == 1 && k == num_of_wpt) {
@@ -527,7 +529,7 @@ public class Master
         {
             try
             {
-                if (Master.workerHandlers.size() < Master.num_of_workers)
+                if (Master.workerHandlers.size() < this.num_of_workers)
                 {
                     this.out.writeInt(0);
                     this.out.flush();
@@ -664,7 +666,7 @@ public class Master
                     totalTime = totalTime + tuple.getValue().getTotalTime();
                     totalElevation = totalElevation + tuple.getValue().getTotalElevation();
                 }
-    
+                
                 // Create a replica to avoid synchronizationa problems with different actions 
                 // that may alter the statistic (global) variable
                 Statistics stat;
@@ -744,7 +746,7 @@ public class Master
                 while (!Thread.currentThread().isInterrupted()) {
                     try {
                         Socket connectionSocket = clientSocket.accept();
-                        ClientAction clienThread = new ClientAction(connectionSocket, inputFile, num_of_wpt);
+                        ClientAction clienThread = new ClientAction(connectionSocket, inputFile, num_of_wpt, num_of_workers);
                         Master.clientLHandlers.put(Master.inputFile, clienThread);
                         Master.inputFile++;
                         clienThread.start();
