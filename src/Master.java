@@ -1,4 +1,5 @@
 import java.io.*;
+import java.math.BigDecimal;
 import java.net.*;
 import java.util.*;
 import org.w3c.dom.*;
@@ -6,7 +7,10 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 
 public class Master
 {
@@ -35,6 +39,119 @@ public class Master
 
     /* Define the socket that receives intermediate results from workers */
     ServerSocket reducerSocket;
+
+    public static OpenWeatherAPI api;
+
+    class OpenWeatherAPI {
+
+        String openWeatherApiKey = "f211a2250af488644b66a17fc05ae350";
+        String openWeatherApiUrl = "http://api.openweathermap.org/data/2.5/weather?q=";
+        String mapBaseUrl = "https://www.mapquestapi.com/staticmap/v5/map";
+        String mapKey = "N39iOmpm6KwTBEN7r5uHmbgEmNG4rhtg";
+
+        public JSONObject getPlace(String city) {
+
+            String jsonResponse = "";
+            try {
+                openWeatherApiUrl += city + "&appid=" + openWeatherApiKey;
+                URL url = new URL(openWeatherApiUrl);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("GET");
+    
+                int responseCode = connection.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_OK) {
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                    String line;
+                    StringBuilder response = new StringBuilder();
+                    while ((line = reader.readLine()) != null) {
+                        response.append(line);
+                    }
+                    reader.close();
+    
+                    jsonResponse = response.toString();
+                    // System.out.println(jsonResponse);
+                } else {
+                    System.out.println("Error: " + responseCode);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return new JSONObject(jsonResponse);
+        }
+
+        public String getWeatherElements(JSONObject ob, String elem) {
+            // Get the weather array
+            JSONArray weatherArray = (JSONArray) ob.get("weather");
+
+            // Get the first weather object
+            JSONObject weatherObject = (JSONObject) weatherArray.get(0);
+
+            // Get the value of the "elem" field
+            String weather = (String) weatherObject.get(elem);
+            return weather;
+        }
+
+        public String getMainElements(JSONObject ob, String elem) {
+            // Get the "main" object
+            JSONObject mainObject = (JSONObject) ob.get("main");
+
+            // Extract the temperature value
+            Object main = mainObject.get(elem);
+
+            return String.valueOf(main);
+        }
+
+        public void generateWeatherIcon(String icon) {
+            // Get the icon URL
+            String iconUrl = "http://openweathermap.org/img/w/" + icon + ".png";
+            // Download the icon image
+            try {
+                URL url = new URL(iconUrl);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                try (BufferedInputStream inputStream = new BufferedInputStream(connection.getInputStream())) {
+                    File file = new File("weather_icon.png");
+                    try (FileOutputStream outputStream = new FileOutputStream(file)) {
+                        byte[] buffer = new byte[1024];
+                        int bytesRead;
+                        while ((bytesRead = inputStream.read(buffer)) != -1) {
+                            outputStream.write(buffer, 0, bytesRead);
+                        }
+                    }
+                    System.out.println("Weather icon saved successfully!");
+                }
+                connection.disconnect();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        public void generateMapIcon(JSONObject ob) {
+            
+            // Get the "coord" object
+            JSONObject coordObject = (JSONObject) ob.get("coord");
+            
+            // Extract the latitude and longitude values
+            BigDecimal latitude = (BigDecimal) coordObject.get("lat");
+            BigDecimal longitude = (BigDecimal) coordObject.get("lon");
+
+            String center = String.valueOf(latitude) + "," +String.valueOf(longitude); // latitude,longitude of center point
+            int zoom = 14;
+            int width = 600;
+            int height = 400;
+            String markers = "marker-red-A|" + center; // color-label-letter|latitude,longitude of marker
+
+            String urlString = mapBaseUrl + "?key=" + mapKey + "&center=" + center + "&zoom=" + zoom + "&size=" + width + "," + height + "&locations=" + markers;
+            System.out.println(urlString);
+
+            try {
+                URL url = new URL(urlString);
+                BufferedImage image = ImageIO.read(url);
+                ImageIO.write(image, "png", new File("map.png"));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     class SynchronizedHashMap<K, V> {
 
@@ -684,6 +801,29 @@ public class Master
             }
         }
     
+        private void checkWeather() {
+            try {
+                String city = (String) this.in.readObject();
+                OpenWeatherAPI api = new OpenWeatherAPI();
+                JSONObject place = api.getPlace(city);
+
+                String temperature = api.getMainElements(place, "temp");
+                String pressure = api.getMainElements(place, "pressure");
+                String humidity = api.getMainElements(place, "humidity");
+                String main = api.getWeatherElements(place, "main");
+                String description = api.getWeatherElements(place, "description");
+                
+                Weather weather = new Weather(temperature, pressure, humidity, main, description, city);
+
+                this.out.writeObject(weather);
+                this.out.flush();
+            } catch (ClassNotFoundException | IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            
+        }
+
         @Override 
         public void run()
         {
@@ -723,6 +863,10 @@ public class Master
                         uploadStatistics();
                         // Send statistics
                         break;
+                    case 3:
+                        // Check weather 
+                        checkWeather();
+                        break;
                 }
                 this.in.close();this.out.close();
                 this.socket.close();
@@ -743,6 +887,7 @@ public class Master
                     try {
                         Socket connectionSocket = clientSocket.accept();
                         ClientAction clienThread = new ClientAction(connectionSocket, requestNo, num_of_wpt, num_of_workers);
+                        System.out.println("accept");
                         clientLHandlers.put(requestNo, clienThread);
                         requestNo++;
                         clienThread.start();
@@ -805,7 +950,7 @@ public class Master
         Master.clientLHandlers = new SynchronizedHashMap<>();
         Master.intermediate_results = new SynchronizedHashMap<>();
         Master.statistics = new Statistics();
-       
+        Master.api = new OpenWeatherAPI();
     }
     public Master(){}
 
@@ -813,6 +958,11 @@ public class Master
           
         Master mas = new Master();
         mas.initDefault();
+        // JSONObject place = api.getPlace("Berlin");
+        // String icon = api.getWeatherElements(place, "icon");
+        // System.out.println(icon);
+        // api.generateWeatherIcon(icon);
+        // api.generateMapIcon(place);
         mas.openServer();
     }
  }

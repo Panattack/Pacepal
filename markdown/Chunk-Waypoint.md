@@ -1,5 +1,5 @@
 # Chunk and Waypoint
-**They are both Serializable and are being used by the Master and the Workers**
+**They are both `Serializable` and are being used by the Master and the Workers**
 
 ## *Waypoint*
 > With the object of this class we describe the waypoints that the gpx file contains.
@@ -15,7 +15,7 @@
     - <a>Getters</a> and <a>Setters</a> for the previous variables 
     - <a>toString</a> 
 ---
-## *Chunck* 
+## *Chunk* 
 > Α gpx file is separated to an x amount of chunks. We use this class to show that. 
 
 - This class has the following attributes:
@@ -42,6 +42,3 @@
     - <a>Distance calculator</a>
     - <a>calsStatistics</a> , for the remaining variables
     - <a>toString</a>
-
-
-

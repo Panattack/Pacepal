@@ -68,7 +68,8 @@ public class Client extends Thread {
             System.out.println("1. Send files");
             System.out.println("2. View your results");
             System.out.println("3. Check your statistics");
-            System.out.println("4. Exit our app");
+            System.out.println("4. Check the weather");
+            System.out.println("5. Exit our app");
             System.out.print("Insert your answer : ");
 
             int answer = 0;
@@ -95,6 +96,9 @@ public class Client extends Thread {
                     uiStatistics();
                     break;
                 case 4:
+                    uiWeather();
+                    break;
+                case 5:
                     flag = false;
                     break;
                 default:
@@ -104,6 +108,36 @@ public class Client extends Thread {
             }
         }
         scanner.close();
+    }
+
+    private static void uiWeather() {
+        ObjectOutputStream out;
+        ObjectInputStream in;
+
+        /* Create the streams to send and receive data from server */
+        try {
+            /* Create socket for contacting the server on port 4321*/
+            Socket requestSocket = new Socket(host, serverPort);
+            out = new ObjectOutputStream(requestSocket.getOutputStream());
+            in = new ObjectInputStream(requestSocket.getInputStream());
+
+            // Send id request --> Weather
+            out.writeInt(3);
+            out.flush();
+
+            System.out.print("Insert the city : ");
+            String name = scanner.nextLine();
+            out.writeObject(name);
+            out.flush();
+
+            Weather weather = (Weather) in.readObject();
+            System.out.println(weather);
+            requestSocket.close();
+        } catch (IOException e) {
+            System.err.println("Connection Lost in statistic request");
+        } catch (ClassNotFoundException e) {
+            System.err.println("Error in connection -- cannot receive statistic object");
+        }
     }
 
     private static void uiStatistics() {
