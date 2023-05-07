@@ -807,7 +807,8 @@ public class Master
                 OpenWeatherAPI api = new OpenWeatherAPI();
                 JSONObject place = api.getPlace(city);
 
-                String temperature = api.getMainElements(place, "temp");
+                // Kelvin -> Celsius
+                String temperature = String.valueOf(Float.parseFloat(api.getMainElements(place, "temp")) - 273.15);
                 String pressure = api.getMainElements(place, "pressure");
                 String humidity = api.getMainElements(place, "humidity");
                 String main = api.getWeatherElements(place, "main");
