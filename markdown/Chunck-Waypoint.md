@@ -5,10 +5,11 @@
 > With the object of this class we describe the waypoints that the gpx file contains.
 
 - It has the following attributes :
-    1. The users name 
+    1. The user's name 
     2. The longitude 
     3. The latitude
-    4. The time 
+    4. The elevation
+    5. The time 
 
 - It also has the following methods:
     - <a>Constructor</a>
