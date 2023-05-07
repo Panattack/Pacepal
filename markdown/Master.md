@@ -26,5 +26,5 @@
 - There are also the following inside classes per category :
     - [Collections](SynchronizedHashMap-RobinQueue.md)
     - [Connection Threads](RequestHandler-ClientAction.md)
-    - [Messages](Results-Statistics)
+    - [Messages](Results-Statistics.md)
     - [Other](Pair-User-ParserGPX.md)
