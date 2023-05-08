@@ -40,14 +40,23 @@ public class Master
     /* Define the socket that receives intermediate results from workers */
     ServerSocket reducerSocket;
 
-    public static OpenWeatherAPI api;
+    public static SynchronizedHashMap<Integer, ArrayList<Waypoint>> segmentMap;
 
-    class OpenWeatherAPI {
+    private static String segmentPath;
 
-        String openWeatherApiKey = "f211a2250af488644b66a17fc05ae350";
-        String openWeatherApiUrl = "http://api.openweathermap.org/data/2.5/weather?q=";
-        String mapBaseUrl = "https://www.mapquestapi.com/staticmap/v5/map";
-        String mapKey = "N39iOmpm6KwTBEN7r5uHmbgEmNG4rhtg";
+    class API {
+
+        String openWeatherApiKey;
+        String openWeatherApiUrl;
+        String mapBaseUrl;
+        String mapKey;
+
+        public API() {
+            openWeatherApiKey = "f211a2250af488644b66a17fc05ae350";
+            openWeatherApiUrl = "http://api.openweathermap.org/data/2.5/weather?q=";
+            mapBaseUrl = "https://www.mapquestapi.com/staticmap/v5/map";
+            mapKey = "N39iOmpm6KwTBEN7r5uHmbgEmNG4rhtg";
+        }
 
         public JSONObject getPlace(String city) {
 
@@ -532,7 +541,9 @@ public class Master
         Object lock;
         // Menu choice
         private int choice;
+        
         private int num_of_workers;
+
         private final ParserGPX parser = new ParserGPX();
     
         public ClientAction(Socket connection, int request, int num_of_wpt, int num_of_workers) {
@@ -795,15 +806,11 @@ public class Master
                 System.err.println("False in statistics from clientThread");
             }
         }
-    
-        private void setSegment() {
-            
-        }
 
         private void checkWeather() {
             try {
                 String city = (String) this.in.readObject();
-                OpenWeatherAPI api = new OpenWeatherAPI();
+                API api = new API();
                 JSONObject place = api.getPlace(city);
 
                 // Kelvin -> Celsius
@@ -864,10 +871,6 @@ public class Master
                         // Send statistics
                         break;
                     case 3:
-                        // Set segment
-                        setSegment();
-                        break;
-                    case 4:
                         // Check weather 
                         checkWeather();
                         break;
@@ -942,7 +945,7 @@ public class Master
         } catch (IOException ex) {
             System.out.println("File not found !!!");
         }
-
+        Master.segmentPath = prop.getProperty("path");
         Master.user_port = Integer.parseInt(prop.getProperty("user_port"));
         Master.worker_port = Integer.parseInt(prop.getProperty("worker_port"));
         Master.reducer_port = Integer.parseInt(prop.getProperty("reducer_port"));
@@ -953,15 +956,27 @@ public class Master
         Master.userList = new SynchronizedHashMap<>();
         Master.clientLHandlers = new SynchronizedHashMap<>();
         Master.intermediate_results = new SynchronizedHashMap<>();
+        Master.segmentMap = new SynchronizedHashMap<>();
         Master.statistics = new Statistics();
-        Master.api = new OpenWeatherAPI();
     }
+
+    private void setSegments() {
+        ParserGPX parser = new ParserGPX();
+        try {
+            ArrayList<Waypoint> segments = parser.parse(new FileInputStream(new File(segmentPath + "segment1.gpx")));
+            Master.segmentMap.put(1, segments);
+        } catch (FileNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
     public Master(){}
 
     public static void main(String[] args) {
-          
         Master mas = new Master();
         mas.initDefault();
+        mas.setSegments();
         mas.openServer();
     }
  }
