@@ -29,6 +29,8 @@ public class Client extends Thread {
     static long start;
     static long finish;
 
+    public Client() {}
+
     public Client(String file, int fileIndex) {
         this.gpx = file;
         this.fileId = fileIndex;
@@ -68,8 +70,9 @@ public class Client extends Thread {
             System.out.println("1. Send files");
             System.out.println("2. View your results");
             System.out.println("3. Check your statistics");
-            System.out.println("4. Check the weather");
-            System.out.println("5. Exit our app");
+            System.out.println("4. Sent segments");
+            System.out.println("5. Check the weather");
+            System.out.println("6. Exit our app");
             System.out.print("Insert your answer : ");
 
             int answer = 0;
@@ -96,9 +99,12 @@ public class Client extends Thread {
                     uiStatistics();
                     break;
                 case 4:
-                    uiWeather();
+                    uiBonus();
                     break;
                 case 5:
+                    uiWeather();
+                    break;
+                case 6:
                     flag = false;
                     break;
                 default:
@@ -138,6 +144,13 @@ public class Client extends Thread {
         } catch (ClassNotFoundException e) {
             System.err.println("Error in connection -- cannot receive statistic object");
         }
+    }
+
+    private static void uiBonus() {
+        Client client = new Client();
+        System.out.print("Insert the file of the segment : ");
+        String name = scanner.nextLine();
+
     }
 
     private static void uiStatistics() {
@@ -195,7 +208,7 @@ public class Client extends Thread {
         // start = System.currentTimeMillis();
         while (!Thread.interrupted())
         {
-            System.out.print("Insert the file name : ");
+            System.out.print("Insert the file of the route : ");
             name = scanner.nextLine();
 
             Client client = new Client(path + name, indexFile++);
@@ -220,7 +233,7 @@ public class Client extends Thread {
             }
         }
 
-        System.out.println("\nLoading...");
+        System.out.println("\nLoading...\n");
 
         for (Thread cl : threadList)
         {
@@ -257,8 +270,7 @@ public class Client extends Thread {
 
     private void sendFile(String fName, ObjectOutputStream out) {
         try
-        {
-            
+        { 
             File file = new File(fName);
             byte[] buffer = new byte[(int) file.length()];
             BufferedInputStream reader = new BufferedInputStream(new FileInputStream(file));

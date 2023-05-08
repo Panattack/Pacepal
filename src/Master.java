@@ -560,8 +560,7 @@ public class Master
             this.fileId = fileId;
         }
     
-        private void receiveFile()
-        {
+        private void receiveFile() {
             try {        
                 int fileSize = this.in.readInt();
                 byte[] buffer = new byte[fileSize];
@@ -642,8 +641,7 @@ public class Master
             }
         }
     
-        private boolean checkBuffer()
-        {
+        private boolean checkBuffer() {
             try
             {
                 if (workerHandlers.size() < this.num_of_workers)
@@ -663,8 +661,7 @@ public class Master
             return true;
         }
     
-        private void setIds() 
-        {
+        private void setIds() {
             // Listen from the client it's id and the file id 
             try {
                 this.userId = this.in.readInt();
@@ -687,8 +684,7 @@ public class Master
             }
         }
         
-        public void setIntermResults(ArrayList<Chunk> list)
-        {
+        public void setIntermResults(ArrayList<Chunk> list) {
             this.interResults = list;
             synchronized (this.lock)
             {
@@ -696,8 +692,7 @@ public class Master
             }
         }
     
-        private Results reduceResults()
-        {
+        private Results reduceResults() {
             // Final Results
             double distanceResult = 0.0;
             //double timeResult = 0.0;
@@ -801,6 +796,10 @@ public class Master
             }
         }
     
+        private void setSegment() {
+            
+        }
+
         private void checkWeather() {
             try {
                 String city = (String) this.in.readObject();
@@ -865,6 +864,10 @@ public class Master
                         // Send statistics
                         break;
                     case 3:
+                        // Set segment
+                        setSegment();
+                        break;
+                    case 4:
                         // Check weather 
                         checkWeather();
                         break;
@@ -959,11 +962,6 @@ public class Master
           
         Master mas = new Master();
         mas.initDefault();
-        // JSONObject place = api.getPlace("Berlin");
-        // String icon = api.getWeatherElements(place, "icon");
-        // System.out.println(icon);
-        // api.generateWeatherIcon(icon);
-        // api.generateMapIcon(place);
         mas.openServer();
     }
  }

@@ -1,7 +1,7 @@
 # Results and Statistics
 **Both classes are Serializable and are messages of Master , by request of the Client .**
 ## *Results*
-This class is mainly being used by the Master, to send the results to the Client. Obviously its Serializable , and it contains 6 variables.
+> This class is mainly being used by the Master, to send the results to the Client. Obviously its Serializable , and it contains 6 variables.
 
 - The results that the user wants to see :
     1. Total Distance
@@ -21,7 +21,7 @@ This class is mainly being used by the Master, to send the results to the Client
 - to String 
 ---
 ## *Statistics* 
->This class is has two different uses. First , as an object that the client gets its results from the master . Secondly , it hold the global values of the users .
+> This class is has two different uses. First , as an object that the client gets its results from the master . Secondly , it hold the global values of the users .
 
 It contains 8 variables:
 
