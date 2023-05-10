@@ -131,11 +131,12 @@ public class Client extends Thread {
             String name = scanner.nextLine();
             out.writeObject(name);
             out.flush();
-
+        
             Weather weather = (Weather) in.readObject();
             System.out.println(weather);
             requestSocket.close();
         } catch (IOException e) {
+            e.printStackTrace();
             System.err.println("Connection Lost in statistic request");
         } catch (ClassNotFoundException e) {
             System.err.println("Error in connection -- cannot receive statistic object");

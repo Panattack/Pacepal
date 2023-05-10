@@ -1,19 +1,45 @@
-import java.io.*;
-import java.math.BigDecimal;
-import java.net.*;
-import java.util.*;
-import org.w3c.dom.*;
-import org.xml.sax.SAXException;
-import javax.xml.parsers.*;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
-public class Master
-{
+import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.net.HttpURLConnection;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.URL;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+
+import javax.imageio.ImageIO;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+public class Master {
     public static int num_of_workers; // DEFINE IN Config file
     private static int num_of_wpt; // DEFINE IN Config file
     private static int worker_port;
@@ -40,33 +66,25 @@ public class Master
     /* Define the socket that receives intermediate results from workers */
     ServerSocket reducerSocket;
 
-    public static SynchronizedHashMap<Integer, ArrayList<Waypoint>> segmentMap;
+    public static OpenWeatherAPI api;
 
-    private static String segmentPath;
+    class OpenWeatherAPI {
 
-    class API {
-
-        String openWeatherApiKey;
-        String openWeatherApiUrl;
-        String mapBaseUrl;
-        String mapKey;
-
-        public API() {
-            openWeatherApiKey = "f211a2250af488644b66a17fc05ae350";
-            openWeatherApiUrl = "http://api.openweathermap.org/data/2.5/weather?q=";
-            mapBaseUrl = "https://www.mapquestapi.com/staticmap/v5/map";
-            mapKey = "N39iOmpm6KwTBEN7r5uHmbgEmNG4rhtg";
-        }
+        String openWeatherApiKey = "f211a2250af488644b66a17fc05ae350";
+        String openWeatherApiUrl = "http://api.openweathermap.org/data/2.5/weather?q=";
+        String mapBaseUrl = "https://www.mapquestapi.com/staticmap/v5/map";
+        String mapKey = "N39iOmpm6KwTBEN7r5uHmbgEmNG4rhtg";
 
         public JSONObject getPlace(String city) {
 
             String jsonResponse = "";
+            System.out.println(city);
             try {
                 openWeatherApiUrl += city + "&appid=" + openWeatherApiKey;
                 URL url = new URL(openWeatherApiUrl);
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 connection.setRequestMethod("GET");
-    
+
                 int responseCode = connection.getResponseCode();
                 if (responseCode == HttpURLConnection.HTTP_OK) {
                     BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
@@ -76,7 +94,7 @@ public class Master
                         response.append(line);
                     }
                     reader.close();
-    
+
                     jsonResponse = response.toString();
                     // System.out.println(jsonResponse);
                 } else {
@@ -135,15 +153,15 @@ public class Master
         }
 
         public void generateMapIcon(JSONObject ob) {
-            
+
             // Get the "coord" object
             JSONObject coordObject = (JSONObject) ob.get("coord");
-            
+
             // Extract the latitude and longitude values
             BigDecimal latitude = (BigDecimal) coordObject.get("lat");
             BigDecimal longitude = (BigDecimal) coordObject.get("lon");
 
-            String center = String.valueOf(latitude) + "," +String.valueOf(longitude); // latitude,longitude of center point
+            String center = String.valueOf(latitude) + "," + String.valueOf(longitude); // latitude,longitude of center point
             int zoom = 14;
             int width = 600;
             int height = 400;
@@ -165,43 +183,43 @@ public class Master
     class SynchronizedHashMap<K, V> {
 
         private final Map<K, V> map;
-    
+
         public SynchronizedHashMap() {
             this.map = new HashMap<>();
         }
-    
+
         public synchronized void put(K key, V value) {
             map.put(key, value);
         }
-    
+
         public synchronized V get(K key) {
             return map.get(key);
         }
-    
+
         public synchronized void remove(K key) {
             map.remove(key);
         }
-    
+
         public synchronized boolean containsKey(K key) {
             return map.containsKey(key);
         }
-    
+
         public synchronized boolean containsValue(V value) {
             return map.containsValue(value);
         }
-    
+
         public synchronized int size() {
             return map.size();
         }
-    
+
         public synchronized boolean isEmpty() {
             return map.isEmpty();
         }
-    
+
         public synchronized void clear() {
             map.clear();
         }
-    
+
         public synchronized Set<Map.Entry<K, V>> entrySet() {
             return map.entrySet();
         }
@@ -212,37 +230,36 @@ public class Master
         private int maxSize;
         private LinkedList<T> queue;
         private int index;
-    
+
         public RobinQueue() {
             this.maxSize = 0;
             this.index = 0;
             this.queue = new LinkedList<>();
         }
-    
-        public synchronized int getIndex()
-        {
+
+        public synchronized int getIndex() {
             return this.index;
         }
-    
+
         public synchronized void add(T element) {
             this.queue.addLast(element);
             this.maxSize++;
         }
-    
+
         public synchronized boolean is_Empty() {
             if (this.queue.size() == 0) {
                 return true;
             }
-            
+
             return false;
         }
-    
+
         public synchronized T get() {
             T o = queue.get(this.index % this.maxSize);
             this.index++;
             return o;
         }
-    
+
         public synchronized int size() {
             return this.queue.size();
         }
@@ -251,41 +268,40 @@ public class Master
     public class Pair<K, V> implements Serializable {
         private K key;
         private V value;
-        
+
         public Pair(K key, V value) {
             this.key = key;
             this.value = value;
         }
-        
+
         public K getKey() {
             return key;
         }
-        
+
         public V getValue() {
             return value;
         }
-        
+
         public void setKey(K key) {
             this.key = key;
         }
-        
+
         public void setValue(V value) {
             this.value = value;
         }
-    
+
         @Override
-        public boolean equals(Object obj)
-        {
+        public boolean equals(Object obj) {
             if (this == obj) { // If the objects are the same reference, they are equal
                 return true;
             }
-    
+
             if (!(obj instanceof Pair)) { // If the object is not an instance of Pair, they are not equal
                 return false;
             }
-    
+
             Pair<?, ?> other = (Pair<?, ?>) obj; // Cast the object to Pair
-    
+
             // Compare the key and value of the Pair objects
             if (key == null) {
                 if (other.key != null) {
@@ -294,7 +310,7 @@ public class Master
             } else if (!key.equals(other.key)) {
                 return false;
             }
-    
+
             if (value == null) {
                 if (other.value != null) {
                     return false;
@@ -302,7 +318,7 @@ public class Master
             } else if (!value.equals(other.value)) {
                 return false;
             }
-    
+
             return true; // If all comparisons are equal, the objects are equal
         }
     }
@@ -310,7 +326,7 @@ public class Master
     class User {
 
         private SynchronizedHashMap<Integer, Results> resultList = new SynchronizedHashMap<>();
-    
+
         private int avgSize;
         private int id;
         private double totalDistance;
@@ -319,7 +335,7 @@ public class Master
         private double avgDistance;
         private double avgElevation;
         private double avgTime;
-    
+
         public User(int id) {
             this.id = id;
             this.totalDistance = 0.0;
@@ -330,110 +346,106 @@ public class Master
             this.avgTime = 0.0;
             this.avgSize = 0;
         }
-    
+
         public int getId() {
             return this.id;
         }
-    
+
         public void setId(int id) {
             this.id = id;
         }
-    
+
         public double getTotalDistance() {
             return totalDistance;
         }
-    
+
         public void setTotalDistance(double totalDistance) {
             this.totalDistance = totalDistance;
         }
-    
+
         public double getTotalElevation() {
             return totalElevation;
         }
-    
+
         public void setTotalElevation(double totalElevation) {
             this.totalElevation = totalElevation;
         }
-    
+
         public double getTotalTime() {
             return totalTime;
         }
-    
+
         public void setTotalTime(double totalTime) {
             this.totalTime = totalTime;
         }
-    
+
         public double getAvgDistance() {
             return avgDistance;
         }
-    
+
         public void setAvgDistance(double avgDistance) {
             this.avgDistance = avgDistance;
         }
-    
+
         public double getAvgElevation() {
             return avgElevation;
         }
-    
+
         public void setAvgElevation(double avgElevation) {
             this.avgElevation = avgElevation;
         }
-    
+
         public double getAvgTime() {
             return avgTime;
         }
-    
+
         public void setAvgTime(double avgTime) {
             this.avgTime = avgTime;
         }
-    
+
         public SynchronizedHashMap<Integer, Results> getResultList() {
             return resultList;
         }
-    
+
         public void setResultList(SynchronizedHashMap<Integer, Results> resultList) {
             this.resultList = resultList;
         }
-        
-        public void updateStatistics(double distance, double time, double elevation) 
-        {
+
+        public void updateStatistics(double distance, double time, double elevation) {
             this.totalDistance = this.totalDistance + distance;
             this.totalTime = this.totalTime + time;
             this.totalElevation = this.totalElevation + elevation;
-    
+
             // New average size = (Old average size * Total number of values before new value + New value) / (Total number of values before new value + 1)
             this.avgDistance = (this.avgDistance * this.avgSize + distance) / (this.avgSize + 1);
             this.avgElevation = (this.avgElevation * this.avgSize + elevation) / (this.avgSize + 1);
             this.avgTime = (this.avgTime * this.avgSize + time) / (this.avgSize + 1);
-    
+
             this.avgSize++;
         }
     }
 
     class ParserGPX {
 
-        public ArrayList<Waypoint> parse(InputStream file)
-        {
+        public ArrayList<Waypoint> parse(InputStream file) {
             ArrayList<Waypoint> wpt_list = new ArrayList<>();
             try {
                 DocumentBuilderFactory dBfactory = DocumentBuilderFactory.newInstance();
                 DocumentBuilder builder = dBfactory.newDocumentBuilder();
-                
+
                 // Fetch GPX File
                 Document document = builder.parse(file);
                 document.getDocumentElement().normalize();
-        
+
                 //Get root node - gpx
                 Element root = document.getDocumentElement();
-        
+
                 //Get all waypoints
                 NodeList nList = document.getElementsByTagName("wpt");
-        
-                for (int i = 0; i < nList.getLength(); i++)
-                {
+
+                for (int i = 0; i < nList.getLength(); i++) {
                     Node node = nList.item(i);
-                    if (node.getNodeType() == Node.ELEMENT_NODE)
-                    {
+                    if (node.getNodeType() == Node.ELEMENT_NODE) {
                         // Waypoint's elements
                         Element element = (Element) node;
                         //Init waypoint 
@@ -444,22 +456,16 @@ public class Master
                         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
                         LocalDateTime time = LocalDateTime.parse(element.getElementsByTagName("time").item(0).getTextContent(), formatter);
                         Waypoint wpt = new Waypoint(user, lon, lat, ele, time);
-        
+
                         wpt_list.add(wpt);
                         //System.out.println("User_id: " + user + " " + " Wpt_id: " + i);
                     }
                 }
-            }
-            catch (ParserConfigurationException p)
-            {
+            } catch (ParserConfigurationException p) {
                 System.err.println("Error: a DocumentBuilder cannot be created in Gpx Parser which satisfies the configuration requested.");
-            }
-            catch (SAXException s)
-            {
+            } catch (SAXException s) {
                 System.err.println("Error: parse errors occurin Gpx Parser");
-            }
-            catch (IOException io)
-            {
+            } catch (IOException io) {
                 System.err.println("Error: In Gpx Parser please check the content of the file or the implementation of parsing");
             }
             return wpt_list;
@@ -469,7 +475,7 @@ public class Master
     class RequestHandler extends Thread {
 
         ObjectInputStream in;
-    
+
         public RequestHandler(Socket connection) {
             try {
                 this.in = new ObjectInputStream(connection.getInputStream());
@@ -477,7 +483,7 @@ public class Master
                 System.err.println("Error: Defining out in RequestHandler");
             }
         }
-    
+
         @Override
         public void run() {
 
@@ -487,8 +493,7 @@ public class Master
                 int inputFileId = request.getKey();
                 int size;
 
-                synchronized (Master.intermediate_results)
-                {
+                synchronized (Master.intermediate_results) {
                     // Add the intermediate result to the list
                     // 1st getKey is for chunk and 2nd getKey is for Pair
                     Master.intermediate_results.get(inputFileId).getKey().add(request);
@@ -496,16 +501,14 @@ public class Master
                     Master.intermediate_results.get(inputFileId).setValue(--size);
 
                     // If size == 0 then send signal to the Master and remove the element
-                    if (size == 0)
-                    {
-                        synchronized (Master.clientLHandlers)
-                        {
-                        // Doesn't need synchronized because there is only one client action per request
-                        Master.clientLHandlers.get(inputFileId).setIntermResults(Master.intermediate_results.get(inputFileId).getKey());
+                    if (size == 0) {
+                        synchronized (Master.clientLHandlers) {
+                            // Doesn't need synchronized because there is only one client action per request
+                            Master.clientLHandlers.get(inputFileId).setIntermResults(Master.intermediate_results.get(inputFileId).getKey());
 
-                        // Delete the file record from the database
-                        Master.intermediate_results.remove(inputFileId);
-                        Master.clientLHandlers.remove(inputFileId);
+                            // Delete the file record from the database
+                            Master.intermediate_results.remove(inputFileId);
+                            Master.clientLHandlers.remove(inputFileId);
                         }
 
                     }
@@ -541,11 +544,9 @@ public class Master
         Object lock;
         // Menu choice
         private int choice;
-        
         private int num_of_workers;
-
         private final ParserGPX parser = new ParserGPX();
-    
+
         public ClientAction(Socket connection, int request, int num_of_wpt, int num_of_workers) {
             try {
                 // Socket connection to listen from the client
@@ -562,22 +563,22 @@ public class Master
                 System.err.println("Error in defining \"out\" & \"in\" in ClientAction");
             }
         }
-    
+
         public int getFileId() {
             return fileId;
         }
-    
+
         public void setFileId(int fileId) {
             this.fileId = fileId;
         }
-    
+
         private void receiveFile() {
-            try {        
+            try {
                 int fileSize = this.in.readInt();
                 byte[] buffer = new byte[fileSize];
                 byte[] fileBytes = new byte[0];
                 int bytesRead;
-    
+
                 while (fileBytes.length < fileSize) {
                     bytesRead = in.read(buffer);
                     fileBytes = concatenateByteArrays(fileBytes, buffer, bytesRead);
@@ -587,36 +588,33 @@ public class Master
                 System.err.println("Error in receiving the bytestream from user in ClientAction");
             }
         }
-    
+
         private byte[] concatenateByteArrays(byte[] array1, byte[] array2, int length) {
             byte[] result = new byte[array1.length + length];
             System.arraycopy(array1, 0, result, 0, array1.length);
             System.arraycopy(array2, 0, result, array1.length, length);
             return result;
         }
-    
+
         private void create_chunk(ArrayList<Waypoint> wpt_list) {
             // When we create a chunk, we must keep a connection between the
             // the sequential chunks. Keep the last waypoint of the previous chunk
             // as the first waypoint to the next.
             int num_chunk = 0;
             ArrayList<Chunk> chunks = new ArrayList<>();
-            
-            while (wpt_list.size() != 0)
-            {
+
+            while (wpt_list.size() != 0) {
                 int endIndex = Math.min(this.num_of_wpt - 1, wpt_list.size());
-                List<Waypoint> list =  wpt_list.subList(0, endIndex);
+                List<Waypoint> list = wpt_list.subList(0, endIndex);
                 // Create key to pass it in the hashmap in the reducer & in the chunk in order to use it 
                 // to access the hashmap
                 Chunk sublist = new Chunk(this.requestId, num_chunk, wpt_list.get(0).getUser(), this.userId, this.fileId);
-    
+
                 int k = 0;
-                for (k = 0; k < endIndex; k++) 
-                {
+                for (k = 0; k < endIndex; k++) {
                     sublist.add((Waypoint) list.remove(0));
                 }
-                if (wpt_list.size() != 0) 
-                {
+                if (wpt_list.size() != 0) {
                     // Put the the first waypoint of the next chunk
                     sublist.add(wpt_list.get(0));
                 }
@@ -627,42 +625,37 @@ public class Master
                 chunks.add(sublist);
                 num_chunk++;
             }
-            
+
             // Update the intermediate results
             intermediate_results.put(this.requestId, new Pair<ArrayList<Chunk>, Integer>(new ArrayList<Chunk>(), num_chunk));
-            
-            for (Chunk c : chunks) { 
+
+            for (Chunk c : chunks) {
                 //send chunk in RR sequence with random gpx order
                 ObjectOutputStream outstream;
-                
+
                 outstream = workerHandlers.get();
-                
+
                 try {
                     // Sync in order to send a chunk in the worker 
                     // but if two or more client threads have the same outstream, lock it
-                    synchronized (outstream)
-                    {
+                    synchronized (outstream) {
                         outstream.writeObject(c);
                         outstream.flush();
                     }
-    
+
                 } catch (IOException e) {
                     System.err.println("Error in sending the chunk to the worker of the User: " + c.getUserId() + " and from the file: " + c.getFileId());
                 }
             }
         }
-    
+
         private boolean checkBuffer() {
-            try
-            {
-                if (workerHandlers.size() < this.num_of_workers)
-                {
+            try {
+                if (workerHandlers.size() < this.num_of_workers) {
                     this.out.writeInt(0);
                     this.out.flush();
                     return false;
-                }
-                else 
-                {
+                } else {
                     this.out.writeInt(1);
                     this.out.flush();
                 }
@@ -671,7 +664,7 @@ public class Master
             }
             return true;
         }
-    
+
         private void setIds() {
             // Listen from the client it's id and the file id 
             try {
@@ -681,28 +674,25 @@ public class Master
                 System.err.println("Error in reading the ids from the user in file reading");
             }
         }
-    
+
         private void create_user(int user) {
-            synchronized (Master.userList)
-            {
-                if (userList.get(user) == null) 
-                {
+            synchronized (Master.userList) {
+                if (userList.get(user) == null) {
                     userList.put(user, new User(user));
-    
+
                     // Update globalSize in statistics
                     statistics.addGlobalSize();
                 }
             }
         }
-        
+
         public void setIntermResults(ArrayList<Chunk> list) {
             this.interResults = list;
-            synchronized (this.lock)
-            {
+            synchronized (this.lock) {
                 this.lock.notify();
             }
         }
-    
+
         private Results reduceResults() {
             // Final Results
             double distanceResult = 0.0;
@@ -711,7 +701,7 @@ public class Master
             double elevationResult = 0.0;
             double num_chunks = 0.0;
             double timeInSeconds = 0.0;
-     
+
             for (Chunk c : this.interResults) {
                 distanceResult += c.getTotalDistance();
                 elevationResult += c.getTotalElevation();
@@ -719,20 +709,17 @@ public class Master
                 timeInSeconds += c.getTotalTimeInSeconds();
                 num_chunks++;
             }
-     
+
             avgSpeedResult = avgSpeedResult / num_chunks;
 
             Results results = new Results(distanceResult, avgSpeedResult, elevationResult, timeInSeconds, this.fileId, this.userId);
 
             return results;
         }
-    
-        private void sendResults()
-        {
-            if (this.interResults == null)
-            {
-                synchronized (this.lock)
-                {
+
+        private void sendResults() {
+            if (this.interResults == null) {
+                synchronized (this.lock) {
                     try {
                         this.lock.wait();
                     } catch (InterruptedException e) {
@@ -740,12 +727,11 @@ public class Master
                     }
                 }
             }
-    
+
             try {
                 Results results = reduceResults();
                 // Check for the computation of the personal record
-                synchronized (userList)
-                {
+                synchronized (userList) {
                     // register the new route for the Database
                     userList.get(this.userId).getResultList().put(this.fileId, results);
                     // update the personal record
@@ -753,53 +739,53 @@ public class Master
                 }
                 // Update statistics
                 statistics.updateValues(results.getTotalTime(), results.getTotalDistance(), results.getTotalElevation());
-    
+
                 this.out.writeObject(results);
                 this.out.flush();
             } catch (IOException e) {
                 System.err.println("error in sending the results of the user : " + this.userId + " & file: " + this.fileId);
             }
         }
-    
+
         private void uploadStatistics() {
             try {
                 // Read user Id
                 this.userId = this.in.readInt();
                 User user = Master.userList.get(this.userId);
-    
+
                 if (user == null) {
                     // End the thread
                     this.out.writeInt(0);
                     this.out.flush();
                     return;
                 }
-                
+
                 this.out.writeInt(1);
                 this.out.flush();
-                
+
                 double totalDistance = 0;
                 double totalElevation = 0;
                 double totalTime = 0;
-    
+
                 for (Map.Entry<Integer, Results> tuple : user.getResultList().entrySet()) {
                     totalDistance = totalDistance + tuple.getValue().getTotalDistance();
                     totalTime = totalTime + tuple.getValue().getTotalTime();
                     totalElevation = totalElevation + tuple.getValue().getTotalElevation();
                 }
-                
+
                 // Create a replica to avoid synchronizationa problems with different actions 
                 // that may alter the statistic (global) variable
                 Statistics stat;
                 synchronized (statistics) {
                     stat = new Statistics(statistics);
                 }
-    
+
                 double presentageDistance = ((totalDistance - stat.getGlobalAvgDistance()) / stat.getGlobalAvgDistance()) * 100;
                 double presentageTime = ((totalTime - stat.getGlobalAvgTime()) / stat.getGlobalAvgTime()) * 100;
                 double presentageElevation = ((totalElevation - stat.getGlobalAvgElevation()) / stat.getGlobalAvgElevation()) * 100;
-    
+
                 stat.defUS(presentageDistance, presentageElevation, presentageTime);
-    
+
                 this.out.writeObject(stat);
                 this.out.flush();
             } catch (IOException e) {
@@ -807,12 +793,16 @@ public class Master
             }
         }
 
+        private void setSegment() {
+
+        }
+
         private void checkWeather() {
             try {
                 String city = (String) this.in.readObject();
-                API api = new API();
+                OpenWeatherAPI api = new OpenWeatherAPI();
                 JSONObject place = api.getPlace(city);
-
+                
                 // Kelvin -> Celsius
                 String temperature = String.valueOf(Float.parseFloat(api.getMainElements(place, "temp")) - 273.15);
                 String pressure = api.getMainElements(place, "pressure");
@@ -821,50 +811,48 @@ public class Master
                 String description = api.getWeatherElements(place, "description");
                 
                 Weather weather = new Weather(temperature, pressure, humidity, main, description, city);
-
+                
                 this.out.writeObject(weather);
                 this.out.flush();
             } catch (ClassNotFoundException | IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-            
+
         }
 
-        @Override 
-        public void run()
-        {
+        @Override
+        public void run() {
             /*
             Menu :
                 1. Receive file
                 2. Send statistics
             */
-            
+
             try {
                 this.choice = this.in.readInt();
-                switch (this.choice)
-                {
+                System.out.println(choice);
+                switch (this.choice) {
                     case 1:
                         // Check workerHandler size
                         boolean workersOK = checkBuffer();
-                        if (!workersOK)
-                        {
+                        if (!workersOK) {
                             break;
                         }
-    
+
                         // Send file
                         setIds();
                         // Create the user record
                         create_user(this.userId);
                         receiveFile();
-    
+
                         ArrayList<Waypoint> wpt_list = parser.parse(this.is);
                         create_chunk(wpt_list);
-    
+
                         sendResults();
-    
+
                         break;
-                    case 2: 
+                    case 2:
                         // Change this line to update the statistics
                         // Update the global statistics -- for all users
                         uploadStatistics();
@@ -875,7 +863,8 @@ public class Master
                         checkWeather();
                         break;
                 }
-                this.in.close();this.out.close();
+                this.in.close();
+                this.out.close();
                 this.socket.close();
             } catch (IOException e) {
                 System.err.println("Connection Error : Master <--> Client");
@@ -926,7 +915,7 @@ public class Master
                         workerHandlers.add(new ObjectOutputStream(communicationSocket.getOutputStream()));
                     } catch (IOException e) {
                         System.err.println("Connection Error with Worker <--> Master");
-                    } 
+                    }
                 }
             });
             worker.start();
@@ -938,45 +927,37 @@ public class Master
 
     public void initDefault() {
         Properties prop = new Properties();
-        String fileName = "pacepal/config/master.cfg"; 
-        
+        String fileName = "pacepal/config/master.cfg";
+
         try (FileInputStream fis = new FileInputStream(fileName)) {
             prop.load(fis);
         } catch (IOException ex) {
             System.out.println("File not found !!!");
         }
-        Master.segmentPath = prop.getProperty("path");
+
         Master.user_port = Integer.parseInt(prop.getProperty("user_port"));
         Master.worker_port = Integer.parseInt(prop.getProperty("worker_port"));
         Master.reducer_port = Integer.parseInt(prop.getProperty("reducer_port"));
         Master.num_of_wpt = Integer.parseInt(prop.getProperty("num_wpt"));
 
-        Master.num_of_workers =Integer.parseInt(prop.getProperty("num_of_workers"));
+        Master.num_of_workers = Integer.parseInt(prop.getProperty("num_of_workers"));
         Master.workerHandlers = new RobinQueue<>();
         Master.userList = new SynchronizedHashMap<>();
         Master.clientLHandlers = new SynchronizedHashMap<>();
         Master.intermediate_results = new SynchronizedHashMap<>();
-        Master.segmentMap = new SynchronizedHashMap<>();
         Master.statistics = new Statistics();
+        Master.api = new OpenWeatherAPI();
     }
 
-    private void setSegments() {
-        ParserGPX parser = new ParserGPX();
-        try {
-            ArrayList<Waypoint> segments = parser.parse(new FileInputStream(new File(segmentPath + "segment1.gpx")));
-            Master.segmentMap.put(1, segments);
-        } catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+    public Master() {
     }
-
-    public Master(){}
 
     public static void main(String[] args) {
+
         Master mas = new Master();
         mas.initDefault();
-        mas.setSegments();
+        // JSONObject object = api.getPlace("Glyfada");
+        // System.out.println(api.getMainElements(object, "temp"));
         mas.openServer();
     }
- }
+}

@@ -1,5 +1,6 @@
 import java.io.Serializable;
 import java.text.DecimalFormat;
+
 public class Statistics implements Serializable {
     
     private double globalAvgTime;
