@@ -2,7 +2,6 @@ import java.io.*;
 import java.net.*;
 import java.util.Properties;
 
-
 public class Worker extends Thread {
     // Global socket for the worker to listen chunks-requests from the master
     private static ObjectInputStream in;

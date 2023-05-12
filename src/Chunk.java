@@ -4,9 +4,16 @@ import java.util.ArrayList;
 
 public class Chunk implements Serializable{
     /* Chunk must implement Serializable in order to pass it in stream */
+
+    /*
+     * typeId : 
+     *  1 -> segment
+     *  2 -> file
+     */
+    private int typeId;
+    private int segmentId;
     private ArrayList<Waypoint> ls_wpt;    
     private int number;
-    private String user;
     private int fileId;
     private int userId;
     private int key;
@@ -19,14 +26,14 @@ public class Chunk implements Serializable{
     private double totalElevation;
     private double totalTimeInSeconds;
 
-    public Chunk(int key, int num, String user, int userId, int fileId)
+    public Chunk(int typeId, int key, int num, int userId, int fileId)
     {
+        this.typeId = typeId;
         // Keep the number and id of user
         this.key = key;
         this.userId = userId;
         this.fileId = fileId;
         this.number = num;
-        this.user = user;
         ls_wpt = new ArrayList<Waypoint>();
     }
 
@@ -34,9 +41,24 @@ public class Chunk implements Serializable{
         this.ls_wpt = other.ls_wpt;
         this.key = other.key;
         this.number = other.getNum();
-        this.user = other.getUser();
         this.fileId = other.getFileId();
         this.userId = other.getUserId();
+    }
+
+    public int getTypeId() {
+        return typeId;
+    }
+
+    public void setTypeId(int typeId) {
+        this.typeId = typeId;
+    }
+
+    public int getSegmentId() {
+        return segmentId;
+    }
+
+    public void setSegmentId(int segmentId) {
+        this.segmentId = segmentId;
     }
 
     public int getKey() {
@@ -53,10 +75,6 @@ public class Chunk implements Serializable{
 
     public void setUserId(int userId) {
         this.userId = userId;
-    }
-
-    public String getUser() {
-        return this.user;
     }
 
     public void setFileId(int fileId) {

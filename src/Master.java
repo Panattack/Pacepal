@@ -56,7 +56,8 @@ public class Master {
     public static SynchronizedHashMap<Integer, ClientAction> clientLHandlers;
     // A hashmap that we keep all the intermediate results per file in order to reduce them
     public static SynchronizedHashMap<Integer, Pair<ArrayList<Chunk>, Integer>> intermediate_results;
-
+    // A hashmap that we keep all the segments in order to reduce them
+    public static SynchronizedHashMap<Integer, ArrayList<Waypoint>> segments;
     /* Define the socket that sends requests to workers */
     ServerSocket workerSocket;
 
@@ -608,7 +609,7 @@ public class Master {
                 List<Waypoint> list = wpt_list.subList(0, endIndex);
                 // Create key to pass it in the hashmap in the reducer & in the chunk in order to use it 
                 // to access the hashmap
-                Chunk sublist = new Chunk(this.requestId, num_chunk, wpt_list.get(0).getUser(), this.userId, this.fileId);
+                Chunk sublist = new Chunk(2, this.requestId, num_chunk, this.userId, this.fileId);
 
                 int k = 0;
                 for (k = 0; k < endIndex; k++) {
@@ -625,6 +626,8 @@ public class Master {
                 chunks.add(sublist);
                 num_chunk++;
             }
+            // Check if there are segments and sent them if they exists
+            setSegments(wpt_list);
 
             // Update the intermediate results
             intermediate_results.put(this.requestId, new Pair<ArrayList<Chunk>, Integer>(new ArrayList<Chunk>(), num_chunk));
@@ -646,6 +649,61 @@ public class Master {
                 } catch (IOException e) {
                     System.err.println("Error in sending the chunk to the worker of the User: " + c.getUserId() + " and from the file: " + c.getFileId());
                 }
+            }
+        }
+
+        private void setSegments(ArrayList<Waypoint> wptFile) {
+            for (Map.Entry<Integer, ArrayList<Waypoint>> entry : Master.segments.entrySet()) {
+                Chunk check = checkSegment(entry.getValue(), wptFile);
+
+                if (check != null) {
+                    try {
+                        ObjectOutputStream outstream = workerHandlers.get();
+                        // Sync in order to send a chunk in the worker 
+                        // but if two or more client threads have the same outstream, lock it
+                        synchronized (outstream) {
+                            outstream.writeObject(check);
+                            outstream.flush();
+                        }
+    
+                    } catch (IOException e) {
+                        System.err.println("Error in sending the chunk - segment to the worker of the User: ");
+                    }
+                }
+            }
+        }
+
+        private Chunk checkSegment(ArrayList<Waypoint> segment, ArrayList<Waypoint> wptFile) {
+            int firstIndex = 0;
+            int secondIndex = 0;
+            int checker = 0;
+            Chunk chunk = new Chunk(1, this.requestId, 1, this.userId, this.fileId);
+            while (firstIndex < segment.size() && secondIndex < wptFile.size()) {
+                Waypoint waypoint1 = segment.get(firstIndex);
+                Waypoint waypoint2 = wptFile.get(secondIndex);
+                double distance = waypoint1.distance(waypoint2);
+                
+                if (distance < 0.005) {
+                    // check if there was a previous connection
+                    if (checker == firstIndex - 1) {
+                        chunk.add(waypoint2);
+                        checker++;
+                    }
+                    // Match found, move to the next waypoint in both lists
+                    firstIndex++;
+                    secondIndex++;
+                } else {
+                    // No match found, only move to the next waypoint in the second list
+                    secondIndex++;
+                }
+            }
+    
+            // Check if all waypoints in the first list were matched and in sequence
+            if (chunk.size() == segment.size()) {
+                return chunk;
+            }
+            else {
+                return null;
             }
         }
 
@@ -793,10 +851,6 @@ public class Master {
             }
         }
 
-        private void setSegment() {
-
-        }
-
         private void checkWeather() {
             try {
                 String city = (String) this.in.readObject();
@@ -828,7 +882,6 @@ public class Master {
                 1. Receive file
                 2. Send statistics
             */
-
             try {
                 this.choice = this.in.readInt();
                 System.out.println(choice);
@@ -949,11 +1002,9 @@ public class Master {
         Master.api = new OpenWeatherAPI();
     }
 
-    public Master() {
-    }
+    public Master() {}
 
     public static void main(String[] args) {
-
         Master mas = new Master();
         mas.initDefault();
         // JSONObject object = api.getPlace("Glyfada");
