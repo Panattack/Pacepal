@@ -19,7 +19,7 @@ public class Client extends Thread {
     private static Object lock_msg = new Object();
     // User id is static because threads must have a common id from the same user
     // IS THE ONLY VARIABLE THAT WILL BE CHANGED FROM US
-    static private int userId = 1;
+    static private int userId = 0;
     // File id is unique for every thread
     private int fileId;
     static int indexFile = 0;
