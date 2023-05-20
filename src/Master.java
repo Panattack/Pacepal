@@ -86,21 +86,28 @@ public class Master {
         // Value : Array List of User objects
         public SynchronizedHashMap<Integer, ArrayList<User>> segmentUserList;
 
+        public SegmentDAO() {
+            this.segmentUserList = new SynchronizedHashMap<>();
+        }
+
         public synchronized void addRecord(int segmentId, Chunk chunk) {
             if (!this.segmentUserList.containsKey(segmentId)) {
                 this.segmentUserList.put(segmentId, new ArrayList<User>());
             }
 
-            Optional<User> user =  this.segmentUserList.get(segmentId).stream().filter(us -> us.getId() == chunk.getUserId()).findFirst();
+            Optional<User> user = this.segmentUserList.get(segmentId).stream().filter(us -> us.getId() == chunk.getUserId()).findFirst();
             
-            if (user.isPresent())
+            if (user.isPresent()) {
                 user.get().updateStatistics(chunk.getTotalDistance(), chunk.getTotalTime(), chunk.getTotalElevation());
+                // System.out.println(user.get().getId() + " " + chunk.getUserId());
+            }
             else {
                 User us = new User(chunk.getUserId());
                 us.updateStatistics(chunk.getTotalDistance(), chunk.getTotalTime(), chunk.getTotalElevation());
+                System.out.println(us.getTotalTime());
                 this.segmentUserList.get(segmentId).add(us);
+                // System.out.println(us.getId() + " " + chunk.getUserId());
             }
-            
         }
 
         public synchronized ArrayList<User> orderByTime(int segmentId) {
@@ -704,11 +711,6 @@ public class Master {
         }
 
         private void sendSegments(ArrayList<Waypoint> wptFile) {
-            // for (Map.Entry<Integer, ArrayList<Waypoint>> entry : Master.segments.entrySet()) {
-            //     for (Waypoint w : entry.getValue()) {
-            //         System.out.println(w);
-            //     }   
-            // }
             for (Map.Entry<Integer, ArrayList<Waypoint>> entry : Master.segments.entrySet()) {
                 checkSegment(entry.getValue(), wptFile, entry.getKey());
             }
@@ -718,6 +720,7 @@ public class Master {
             int segmentIdx = 0;
             int fileIdx = 0;
             Chunk segmChunk = new Chunk(1, segmentId, 0, this.userId, this.fileId);
+            // System.out.println(this.userId);
             while (fileIdx < wptFile.size()) {
                 //System.out.println(segment.get(segmentIdx).distance(wptFile.get(fileIdx)));
                 //System.out.println(segmentId + " " + fileIdx + " " + segmentIdx + " " + segment.size());
@@ -727,7 +730,7 @@ public class Master {
                     if (segmentIdx == segment.size()) {
                         try {
                             segmentIdx = 0;
-                            System.out.println(segmentId);
+                            // System.out.println(segmentId);
                             ObjectOutputStream outstream = workerHandlers.get();
                             // Sync in order to send a chunk in the worker 
                             // but if two or more client threads have the same outstream, lock it
@@ -920,6 +923,12 @@ public class Master {
             try {
                 // TODO 
                 int segmentId = this.in.readInt();
+
+                ArrayList<User> leaderboard = Master.segmentDAO.orderByTime(segmentId);
+
+                for (User us : leaderboard) {
+                    System.out.println("User : " +  us.getId() + " Time : " + us.getAvgTime());
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
