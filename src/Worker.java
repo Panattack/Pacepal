@@ -58,7 +58,6 @@ public class Worker extends Thread {
     }
 
     public static void main(String[] args) {
-
         Worker.initDefault();
         Socket connectionSocket ;
         try {
@@ -68,7 +67,6 @@ public class Worker extends Thread {
         catch (IOException e) {
             System.err.println("Error I/O error occurs when creating the socket when stabilizing with the Master");
         }
-        
         while (!Thread.interrupted()) {
             try {
                 // new Socket();

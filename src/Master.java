@@ -12,6 +12,7 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,13 +28,16 @@ import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
-
+import java.util.Optional;
 import javax.imageio.ImageIO;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -68,6 +72,43 @@ public class Master {
     ServerSocket reducerSocket;
 
     public static OpenWeatherAPI api;
+
+    /* Databases */
+    public static SegmentDAO segmentDAO;
+    // public class UserDatabase {
+    //     // A hashmap that we keep the user records
+    //     public SynchronizedHashMap<Integer, User> userList; //id, user
+
+    // }
+
+    public class SegmentDAO {
+        // Key : segment id
+        // Value : Array List of User objects
+        public SynchronizedHashMap<Integer, ArrayList<User>> segmentUserList;
+
+        public synchronized void addRecord(int segmentId, Chunk chunk) {
+            if (!this.segmentUserList.containsKey(segmentId)) {
+                this.segmentUserList.put(segmentId, new ArrayList<User>());
+            }
+
+            Optional<User> user =  this.segmentUserList.get(segmentId).stream().filter(us -> us.getId() == chunk.getUserId()).findFirst();
+            
+            if (user.isPresent())
+                user.get().updateStatistics(chunk.getTotalDistance(), chunk.getTotalTime(), chunk.getTotalElevation());
+            else {
+                User us = new User(chunk.getUserId());
+                us.updateStatistics(chunk.getTotalDistance(), chunk.getTotalTime(), chunk.getTotalElevation());
+                this.segmentUserList.get(segmentId).add(us);
+            }
+            
+        }
+
+        public synchronized ArrayList<User> orderByTime(int segmentId) {
+            ArrayList<User> results = new ArrayList<>(this.segmentUserList.get(segmentId));
+            Collections.sort(results, Comparator.comparingDouble(User::getAvgTime).reversed());
+            return results;
+        }
+    }
 
     class OpenWeatherAPI {
 
@@ -408,11 +449,11 @@ public class Master {
             return resultList;
         }
 
-        public void setResultList(SynchronizedHashMap<Integer, Results> resultList) {
-            this.resultList = resultList;
+        public synchronized void addResult(int key, Results value) {
+            this.resultList.put(key, value);
         }
 
-        public void updateStatistics(double distance, double time, double elevation) {
+        public synchronized void updateStatistics(double distance, double time, double elevation) {
             this.totalDistance = this.totalDistance + distance;
             this.totalTime = this.totalTime + time;
             this.totalElevation = this.totalElevation + elevation;
@@ -489,30 +530,39 @@ public class Master {
         public void run() {
 
             try {
-                // Send it to the reducer
                 Chunk request = (Chunk) this.in.readObject();
-                int inputFileId = request.getKey();
-                int size;
+                int choice = request.getTypeId();
 
-                synchronized (Master.intermediate_results) {
-                    // Add the intermediate result to the list
-                    // 1st getKey is for chunk and 2nd getKey is for Pair
-                    Master.intermediate_results.get(inputFileId).getKey().add(request);
-                    size = Master.intermediate_results.get(inputFileId).getValue();
-                    Master.intermediate_results.get(inputFileId).setValue(--size);
-
-                    // If size == 0 then send signal to the Master and remove the element
-                    if (size == 0) {
-                        synchronized (Master.clientLHandlers) {
-                            // Doesn't need synchronized because there is only one client action per request
-                            Master.clientLHandlers.get(inputFileId).setIntermResults(Master.intermediate_results.get(inputFileId).getKey());
-
-                            // Delete the file record from the database
-                            Master.intermediate_results.remove(inputFileId);
-                            Master.clientLHandlers.remove(inputFileId);
+                switch (choice)
+                {
+                    case 1:
+                        segmentDAO.addRecord(request.getSegmentId(), request);
+                        break;
+                    case 2:
+                        //  results handler
+                        int inputFileId = request.getKey();
+                        int size;
+                        synchronized (Master.intermediate_results) {
+                            // Add the intermediate result to the list
+                            // 1st getKey is for chunk and 2nd getKey is for Pair
+                            Master.intermediate_results.get(inputFileId).getKey().add(request);
+                            size = Master.intermediate_results.get(inputFileId).getValue();
+                            Master.intermediate_results.get(inputFileId).setValue(--size);
+        
+                            // If size == 0 then send signal to the Master and remove the element
+                            if (size == 0) {
+                                synchronized (Master.clientLHandlers) {
+                                    // Doesn't need synchronized because there is only one client action per request
+                                    Master.clientLHandlers.get(inputFileId).setIntermResults(Master.intermediate_results.get(inputFileId).getKey());
+        
+                                    // Delete the file record from the database
+                                    Master.intermediate_results.remove(inputFileId);
+                                    Master.clientLHandlers.remove(inputFileId);
+                                }
+        
+                            }
                         }
-
-                    }
+                        break;
                 }
                 // End of request socket
                 in.close();
@@ -603,6 +653,7 @@ public class Master {
             // as the first waypoint to the next.
             int num_chunk = 0;
             ArrayList<Chunk> chunks = new ArrayList<>();
+            ArrayList<Waypoint> filewpt = new ArrayList<Waypoint>(wpt_list);
 
             while (wpt_list.size() != 0) {
                 int endIndex = Math.min(this.num_of_wpt - 1, wpt_list.size());
@@ -627,7 +678,7 @@ public class Master {
                 num_chunk++;
             }
             // Check if there are segments and sent them if they exists
-            setSegments(wpt_list);
+            sendSegments(new ArrayList<Waypoint>(filewpt));
 
             // Update the intermediate results
             intermediate_results.put(this.requestId, new Pair<ArrayList<Chunk>, Integer>(new ArrayList<Chunk>(), num_chunk));
@@ -652,58 +703,52 @@ public class Master {
             }
         }
 
-        private void setSegments(ArrayList<Waypoint> wptFile) {
+        private void sendSegments(ArrayList<Waypoint> wptFile) {
+            // for (Map.Entry<Integer, ArrayList<Waypoint>> entry : Master.segments.entrySet()) {
+            //     for (Waypoint w : entry.getValue()) {
+            //         System.out.println(w);
+            //     }   
+            // }
             for (Map.Entry<Integer, ArrayList<Waypoint>> entry : Master.segments.entrySet()) {
-                Chunk check = checkSegment(entry.getValue(), wptFile);
-
-                if (check != null) {
-                    try {
-                        ObjectOutputStream outstream = workerHandlers.get();
-                        // Sync in order to send a chunk in the worker 
-                        // but if two or more client threads have the same outstream, lock it
-                        synchronized (outstream) {
-                            outstream.writeObject(check);
-                            outstream.flush();
-                        }
-    
-                    } catch (IOException e) {
-                        System.err.println("Error in sending the chunk - segment to the worker of the User: ");
-                    }
-                }
+                checkSegment(entry.getValue(), wptFile, entry.getKey());
             }
         }
 
-        private Chunk checkSegment(ArrayList<Waypoint> segment, ArrayList<Waypoint> wptFile) {
-            int firstIndex = 0;
-            int secondIndex = 0;
-            int checker = 0;
-            Chunk chunk = new Chunk(1, this.requestId, 1, this.userId, this.fileId);
-            while (firstIndex < segment.size() && secondIndex < wptFile.size()) {
-                Waypoint waypoint1 = segment.get(firstIndex);
-                Waypoint waypoint2 = wptFile.get(secondIndex);
-                double distance = waypoint1.distance(waypoint2);
-                
-                if (distance < 0.005) {
-                    // check if there was a previous connection
-                    if (checker == firstIndex - 1) {
-                        chunk.add(waypoint2);
-                        checker++;
+        private void checkSegment(ArrayList<Waypoint> segment, ArrayList<Waypoint> wptFile, int segmentId) {
+            int segmentIdx = 0;
+            int fileIdx = 0;
+            Chunk segmChunk = new Chunk(1, segmentId, 0, this.userId, this.fileId);
+            while (fileIdx < wptFile.size()) {
+                //System.out.println(segment.get(segmentIdx).distance(wptFile.get(fileIdx)));
+                //System.out.println(segmentId + " " + fileIdx + " " + segmentIdx + " " + segment.size());
+                if ((segment.get(segmentIdx).distance(wptFile.get(fileIdx)) * 1000) <= 8) {
+                    
+                    segmentIdx++;
+                    if (segmentIdx == segment.size()) {
+                        try {
+                            segmentIdx = 0;
+                            System.out.println(segmentId);
+                            ObjectOutputStream outstream = workerHandlers.get();
+                            // Sync in order to send a chunk in the worker 
+                            // but if two or more client threads have the same outstream, lock it
+                            synchronized (outstream) {
+                                segmChunk.setSegmentId(segmentId);
+                                outstream.writeObject(segmChunk);
+                                outstream.flush();
+                            }
+                        } catch (IOException e) {
+                            System.err.println("Error in sending the chunk - segment to the worker of the User: ");
+                        }
                     }
-                    // Match found, move to the next waypoint in both lists
-                    firstIndex++;
-                    secondIndex++;
                 } else {
-                    // No match found, only move to the next waypoint in the second list
-                    secondIndex++;
+                    segmentIdx = 0;
+                    segmChunk = new Chunk(1, segmentId, 0, this.userId, this.fileId);
+                    if (segment.get(segmentIdx).distance(wptFile.get(fileIdx)) * 1000 <= 8) {
+                        segmChunk.add(wptFile.get(fileIdx));
+                        segmentIdx++;
+                    }
                 }
-            }
-    
-            // Check if all waypoints in the first list were matched and in sequence
-            if (chunk.size() == segment.size()) {
-                return chunk;
-            }
-            else {
-                return null;
+                fileIdx++;
             }
         }
 
@@ -734,13 +779,11 @@ public class Master {
         }
 
         private void create_user(int user) {
-            synchronized (Master.userList) {
-                if (userList.get(user) == null) {
-                    userList.put(user, new User(user));
+            if (userList.get(user) == null) {
+                userList.put(user, new User(user));
 
-                    // Update globalSize in statistics
-                    statistics.addGlobalSize();
-                }
+                // Update globalSize in statistics
+                statistics.addGlobalSize();
             }
         }
 
@@ -770,8 +813,7 @@ public class Master {
 
             avgSpeedResult = avgSpeedResult / num_chunks;
 
-            Results results = new Results(distanceResult, avgSpeedResult, elevationResult, timeInSeconds, this.fileId, this.userId);
-
+            Results results = new Results(this.fileId, this.userId, distanceResult, avgSpeedResult, elevationResult, timeInSeconds);
             return results;
         }
 
@@ -789,12 +831,12 @@ public class Master {
             try {
                 Results results = reduceResults();
                 // Check for the computation of the personal record
-                synchronized (userList) {
-                    // register the new route for the Database
-                    userList.get(this.userId).getResultList().put(this.fileId, results);
-                    // update the personal record
-                    userList.get(this.userId).updateStatistics(results.getTotalDistance(), results.getTotalTime(), results.getTotalElevation());
-                }
+                // register the new route for the Database
+                userList.get(this.userId).addResult(this.fileId, results);
+
+                // update the personal record
+                userList.get(this.userId).updateStatistics(results.getTotalDistance(), results.getTotalTime(), results.getTotalElevation());
+                
                 // Update statistics
                 statistics.updateValues(results.getTotalTime(), results.getTotalDistance(), results.getTotalElevation());
 
@@ -869,7 +911,16 @@ public class Master {
                 this.out.writeObject(weather);
                 this.out.flush();
             } catch (ClassNotFoundException | IOException e) {
-                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+
+        }
+
+        private void makeLeaderboard() {
+            try {
+                // TODO 
+                int segmentId = this.in.readInt();
+            } catch (IOException e) {
                 e.printStackTrace();
             }
 
@@ -884,7 +935,6 @@ public class Master {
             */
             try {
                 this.choice = this.in.readInt();
-                System.out.println(choice);
                 switch (this.choice) {
                     case 1:
                         // Check workerHandler size
@@ -903,7 +953,6 @@ public class Master {
                         create_chunk(wpt_list);
 
                         sendResults();
-
                         break;
                     case 2:
                         // Change this line to update the statistics
@@ -915,6 +964,11 @@ public class Master {
                         // Check weather 
                         checkWeather();
                         break;
+                    case 4:
+                        // Check segment statistics in leaderboard
+                        makeLeaderboard();
+                        break;
+
                 }
                 this.in.close();
                 this.out.close();
@@ -998,8 +1052,22 @@ public class Master {
         Master.userList = new SynchronizedHashMap<>();
         Master.clientLHandlers = new SynchronizedHashMap<>();
         Master.intermediate_results = new SynchronizedHashMap<>();
+        Master.segments = new SynchronizedHashMap<>();
         Master.statistics = new Statistics();
         Master.api = new OpenWeatherAPI();
+        Master.segmentDAO = new SegmentDAO();
+        ParserGPX gpParser = new ParserGPX();
+
+        try {
+            ArrayList<Waypoint> segment1 = gpParser.parse(new FileInputStream("pacepal/gpxs/gpxs/segment1.gpx"));
+            ArrayList<Waypoint> segment2 = gpParser.parse(new FileInputStream("pacepal/gpxs/gpxs/segment2.gpx"));
+            Master.segments.put(0, segment1);
+            Master.segments.put(1, segment2);
+        } catch (FileNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        
     }
 
     public Master() {}

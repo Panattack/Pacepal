@@ -70,8 +70,9 @@ public class Client extends Thread {
             System.out.println("1. Send files");
             System.out.println("2. View your results");
             System.out.println("3. Check your statistics");
-            System.out.println("4. Check the weather");
-            System.out.println("5. Exit our app");
+            System.out.println("4. Check your segment statistics");
+            System.out.println("5. Check the weather");
+            System.out.println("6. Exit our app");
             System.out.print("Insert your answer : ");
 
             int answer = 0;
@@ -98,9 +99,12 @@ public class Client extends Thread {
                     uiStatistics();
                     break;
                 case 4:
-                    uiWeather();
+                    uiSegments();
                     break;
                 case 5:
+                    uiWeather();
+                    break;
+                case 6:
                     flag = false;
                     break;
                 default:
@@ -141,6 +145,12 @@ public class Client extends Thread {
         } catch (ClassNotFoundException e) {
             System.err.println("Error in connection -- cannot receive statistic object");
         }
+    }
+
+    private static void uiSegments() {
+        System.out.print("Insert the id of the segment (0 or 1) : ");
+        int segmentId = Integer.parseInt(scanner.nextLine());
+
     }
 
     private static void uiStatistics() {
