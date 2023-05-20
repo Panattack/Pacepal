@@ -151,6 +151,32 @@ public class Client extends Thread {
         System.out.print("Insert the id of the segment (0 or 1) : ");
         int segmentId = Integer.parseInt(scanner.nextLine());
 
+        ObjectOutputStream out;
+        ObjectInputStream in;
+
+        /* Create the streams to send and receive data from server */
+        try {
+            /* Create socket for contacting the server on port 4321*/
+            Socket requestSocket = new Socket(host, serverPort);
+            out = new ObjectOutputStream(requestSocket.getOutputStream());
+            in = new ObjectInputStream(requestSocket.getInputStream());
+
+            // Send id request --> Statistics
+            out.writeInt(4);
+            out.flush();
+
+            out.writeInt(segmentId);
+            out.flush();
+            
+            System.out.println("Here comes the leaderboard : ");
+            // ArrayList stat = (Statistics) in.readObject();
+        }
+        catch (IOException e) {
+            System.err.println("Connection Lost in leaderboard request");
+        }
+        // } catch (ClassNotFoundException e) {
+        //     System.err.println("Error in connection -- cannot receive leaderboard");
+        // }
     }
 
     private static void uiStatistics() {
