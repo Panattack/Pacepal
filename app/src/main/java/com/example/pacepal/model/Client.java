@@ -20,7 +20,7 @@ public class Client extends Thread {
     private static Object lock_msg = new Object();
     // User id is static because threads must have a common id from the same user
     // IS THE ONLY VARIABLE THAT WILL BE CHANGED FROM US
-    static private int userId = 0;
+    static private int userId = 1;
     // File id is unique for every thread
     private int fileId;
     static int indexFile = 0;
@@ -71,8 +71,9 @@ public class Client extends Thread {
             System.out.println("1. Send files");
             System.out.println("2. View your results");
             System.out.println("3. Check your statistics");
-            System.out.println("4. Check the weather");
-            System.out.println("5. Exit our app");
+            System.out.println("4. Check your segment statistics");
+            System.out.println("5. Check the weather");
+            System.out.println("6. Exit our app");
             System.out.print("Insert your answer : ");
 
             int answer = 0;
@@ -99,9 +100,12 @@ public class Client extends Thread {
                     uiStatistics();
                     break;
                 case 4:
-                    uiWeather();
+                    uiSegments();
                     break;
                 case 5:
+                    uiWeather();
+                    break;
+                case 6:
                     flag = false;
                     break;
                 default:
@@ -141,6 +145,39 @@ public class Client extends Thread {
             System.err.println("Connection Lost in statistic request");
         } catch (ClassNotFoundException e) {
             System.err.println("Error in connection -- cannot receive statistic object");
+        }
+    }
+
+    private static void uiSegments() {
+        System.out.print("Insert the id of the segment (0 or 1) : ");
+        int segmentId = Integer.parseInt(scanner.nextLine());
+
+        ObjectOutputStream out;
+        ObjectInputStream in;
+
+        /* Create the streams to send and receive data from server */
+        try {
+            /* Create socket for contacting the server on port 4321*/
+            Socket requestSocket = new Socket(host, serverPort);
+            out = new ObjectOutputStream(requestSocket.getOutputStream());
+            in = new ObjectInputStream(requestSocket.getInputStream());
+
+            // Send id request --> Statistics
+            out.writeInt(4);
+            out.flush();
+
+            out.writeInt(segmentId);
+            out.flush();
+
+            System.out.println("Here comes the leaderboard : ");
+            ArrayList<Chunk> leaderboard = (ArrayList<Chunk>) in.readObject();
+
+            for (Chunk us : leaderboard) {
+                System.out.println("User : " +  us.getUserId() + " Time : " + us.getTotalTimeInSeconds());
+            }
+        }
+        catch (IOException | ClassNotFoundException  e ) {
+            System.err.println("Connection Lost in leaderboard request");
         }
     }
 
