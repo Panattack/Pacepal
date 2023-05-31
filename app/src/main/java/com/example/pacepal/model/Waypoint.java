@@ -1,3 +1,4 @@
+package com.example.pacepal.model;
 import java.time.LocalDateTime;
 import java.io.*;
 

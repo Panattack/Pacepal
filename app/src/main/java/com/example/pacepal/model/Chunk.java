@@ -1,3 +1,4 @@
+package com.example.pacepal.model;
 import java.io.Serializable;
 import java.time.ZoneOffset;
 import java.util.ArrayList;

@@ -1,3 +1,4 @@
+package com.example.pacepal.model;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.w3c.dom.Document;
