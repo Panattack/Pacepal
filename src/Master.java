@@ -5,7 +5,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -75,16 +74,11 @@ public class Master {
 
     /* Databases */
     public static SegmentDAO segmentDAO;
-    // public class UserDatabase {
-    //     // A hashmap that we keep the user records
-    //     public SynchronizedHashMap<Integer, User> userList; //id, user
-
-    // }
 
     public class SegmentDAO {
         // Key : segment id
         // Value : Array List of User objects
-        public SynchronizedHashMap<Integer, ArrayList<User>> segmentUserList;
+        public SynchronizedHashMap<Integer, ArrayList<Chunk>> segmentUserList;
 
         public SegmentDAO() {
             this.segmentUserList = new SynchronizedHashMap<>();
@@ -92,27 +86,27 @@ public class Master {
 
         public synchronized void addRecord(int segmentId, Chunk chunk) {
             if (!this.segmentUserList.containsKey(segmentId)) {
-                this.segmentUserList.put(segmentId, new ArrayList<User>());
+                this.segmentUserList.put(segmentId, new ArrayList<Chunk>());
             }
 
-            Optional<User> user = this.segmentUserList.get(segmentId).stream().filter(us -> us.getId() == chunk.getUserId()).findFirst();
+            Optional<Chunk> user = this.segmentUserList.get(segmentId).stream().filter(us -> us.getUserId() == chunk.getUserId()).findFirst();
             
             if (user.isPresent()) {
-                user.get().updateStatistics(chunk.getTotalDistance(), chunk.getTotalTime(), chunk.getTotalElevation());
+                //user.get().updateStatistics(chunk.getTotalDistance(), chunk.getTotalTime(), chunk.getTotalElevation());
                 // System.out.println(user.get().getId() + " " + chunk.getUserId());
+                if (user.get().getTotalTimeInSeconds() > chunk.getTotalTimeInSeconds()) {
+                    this.segmentUserList.get(segmentId).remove(user.get());
+                    this.segmentUserList.get(segmentId).add(chunk);
+                }
             }
             else {
-                User us = new User(chunk.getUserId());
-                us.updateStatistics(chunk.getTotalDistance(), chunk.getTotalTime(), chunk.getTotalElevation());
-                System.out.println(us.getTotalTime());
-                this.segmentUserList.get(segmentId).add(us);
-                // System.out.println(us.getId() + " " + chunk.getUserId());
+                this.segmentUserList.get(segmentId).add(chunk);
             }
         }
 
-        public synchronized ArrayList<User> orderByTime(int segmentId) {
-            ArrayList<User> results = new ArrayList<>(this.segmentUserList.get(segmentId));
-            Collections.sort(results, Comparator.comparingDouble(User::getAvgTime).reversed());
+        public synchronized ArrayList<Chunk> orderByTime(int segmentId) {
+            ArrayList<Chunk> results = new ArrayList<>(this.segmentUserList.get(segmentId));
+            Collections.sort(results, Comparator.comparingDouble(Chunk::getTotalTimeInSeconds).reversed().thenComparingDouble(Chunk::getTotalDistance).reversed());
             return results;
         }
     }
@@ -542,7 +536,8 @@ public class Master {
 
                 switch (choice)
                 {
-                    case 1:
+                    case 1: 
+                        System.out.println(request);
                         segmentDAO.addRecord(request.getSegmentId(), request);
                         break;
                     case 2:
@@ -662,6 +657,9 @@ public class Master {
             ArrayList<Chunk> chunks = new ArrayList<>();
             ArrayList<Waypoint> filewpt = new ArrayList<Waypoint>(wpt_list);
 
+            // Check if there are segments and sent them if they exists
+            sendSegments(new ArrayList<Waypoint>(filewpt));
+
             while (wpt_list.size() != 0) {
                 int endIndex = Math.min(this.num_of_wpt - 1, wpt_list.size());
                 List<Waypoint> list = wpt_list.subList(0, endIndex);
@@ -684,8 +682,6 @@ public class Master {
                 chunks.add(sublist);
                 num_chunk++;
             }
-            // Check if there are segments and sent them if they exists
-            sendSegments(new ArrayList<Waypoint>(filewpt));
 
             // Update the intermediate results
             intermediate_results.put(this.requestId, new Pair<ArrayList<Chunk>, Integer>(new ArrayList<Chunk>(), num_chunk));
@@ -725,7 +721,7 @@ public class Master {
                 //System.out.println(segment.get(segmentIdx).distance(wptFile.get(fileIdx)));
                 //System.out.println(segmentId + " " + fileIdx + " " + segmentIdx + " " + segment.size());
                 if ((segment.get(segmentIdx).distance(wptFile.get(fileIdx)) * 1000) <= 8) {
-                    
+                    segmChunk.add(wptFile.get(fileIdx));
                     segmentIdx++;
                     if (segmentIdx == segment.size()) {
                         try {
@@ -735,7 +731,7 @@ public class Master {
                             // Sync in order to send a chunk in the worker 
                             // but if two or more client threads have the same outstream, lock it
                             synchronized (outstream) {
-                                segmChunk.setSegmentId(segmentId);
+                                segmChunk.setSegmentId(segmentId);                                
                                 outstream.writeObject(segmChunk);
                                 outstream.flush();
                             }
@@ -921,16 +917,14 @@ public class Master {
 
         private void makeLeaderboard() {
             try {
-                // TODO 
                 int segmentId = this.in.readInt();
 
-                ArrayList<User> leaderboard = Master.segmentDAO.orderByTime(segmentId);
+                ArrayList<Chunk> leaderboard = new ArrayList<>(Master.segmentDAO.orderByTime(segmentId));
 
-                for (User us : leaderboard) {
-                    System.out.println("User : " +  us.getId() + " Time : " + us.getAvgTime());
-                }
+                this.out.writeObject(leaderboard);
+
             } catch (IOException e) {
-                e.printStackTrace();
+                System.err.println("Something went wrong while sending the leaderboard");
             }
 
         }
@@ -1084,8 +1078,6 @@ public class Master {
     public static void main(String[] args) {
         Master mas = new Master();
         mas.initDefault();
-        // JSONObject object = api.getPlace("Glyfada");
-        // System.out.println(api.getMainElements(object, "temp"));
         mas.openServer();
     }
 }

@@ -19,7 +19,7 @@ public class Client extends Thread {
     private static Object lock_msg = new Object();
     // User id is static because threads must have a common id from the same user
     // IS THE ONLY VARIABLE THAT WILL BE CHANGED FROM US
-    static private int userId = 0;
+    static private int userId = 1;
     // File id is unique for every thread
     private int fileId;
     static int indexFile = 0;
@@ -169,14 +169,15 @@ public class Client extends Thread {
             out.flush();
 
             System.out.println("Here comes the leaderboard : ");
-            // ArrayList stat = (Statistics) in.readObject();
+            ArrayList<Chunk> leaderboard = (ArrayList<Chunk>) in.readObject();
+
+            for (Chunk us : leaderboard) {
+                System.out.println("User : " +  us.getUserId() + " Time : " + us.getTotalTimeInSeconds());
+            }
         }
-        catch (IOException e) {
+        catch (IOException | ClassNotFoundException  e ) {
             System.err.println("Connection Lost in leaderboard request");
         }
-        // } catch (ClassNotFoundException e) {
-        //     System.err.println("Error in connection -- cannot receive leaderboard");
-        // }
     }
 
     private static void uiStatistics() {
