@@ -2,8 +2,13 @@ package com.example.pacepal.model;
 import java.io.Serializable;
 import java.text.DecimalFormat;
 
-public record Results(int gpx_id, int user_id, double totalDistance, double avgSpeed, double totalElevation, double totalTime) implements Serializable {
-    
+public class Results implements Serializable {
+    int gpx_id;
+    int user_id;
+    double totalDistance;
+    double avgSpeed;
+    double totalElevation;
+    double totalTime;
     public Double getTotalDistance() {
         return totalDistance;
     }

@@ -4,9 +4,10 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import android.os.Handler;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.logging.Handler;
+
 import com.example.pacepal.model.Results;
 
 
@@ -23,7 +24,7 @@ public class SenderThread extends Thread {
     private static Object lock_msg = new Object();
 
 
-    public SenderThread(String arg ,int fileIndex Handler handler){
+    public SenderThread(String arg ,int fileIndex, Handler handler){
         this.gpx = arg;
         this.fileId = fileIndex;
         this.handler= handler;
@@ -66,19 +67,19 @@ public class SenderThread extends Thread {
             out.writeInt(this.fileId);
             out.flush();
 
-            sendFile(this.gpx, out);
-            //Sending GPX file
+            //sendFile(this.gpx, out);
+            // TODO Sending GPX file
 
             // Route statistics
             Results results = (Results) in.readObject();
 
-            // Write the results in a list
-            synchronized (Client.writer)
-            {
-                Client.writer = new BufferedWriter(new FileWriter(fileName, true));
-                Client.writer.write(results.toString());
-                Client.writer.close();
-            }
+            // TODO Write the results in a list
+            //synchronized (Client.writer)
+            //{
+              //  Client.writer = new BufferedWriter(new FileWriter(fileName, true));
+                //Client.writer.write(results.toString());
+                //Client.writer.close();
+            //}
 
             in.close(); out.close();
             requestSocket.close();
@@ -88,6 +89,8 @@ public class SenderThread extends Thread {
             System.err.println("You are trying to connect to an unknown host!");
         } catch (IOException ioException) {
             System.err.println("Error: unusual context --> \"in\"  or \"out\" or writing in the file to run");
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 }

@@ -48,7 +48,7 @@ public class Sender extends AppCompatActivity {
                 String txt = input.getText().toString();
 
                 //TODO start the thread that sends the file
-                SenderThread t = new SenderThread(txt,int k ,handler);
+                SenderThread t = new SenderThread(txt,8 ,handler);
 
                 AsyncTask<String,Void,String> myAsync = new AsyncTask<String, Void, String>() {
                     @Override
