@@ -4,61 +4,80 @@ import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link SenderFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+import java.util.ArrayList;
+import java.util.List;
+
+
 public class SenderFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    private LinearLayout container;
+    private Button addButton;
+    private Button sendButton;
+    private List<EditText> inputList;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
 
-    public SenderFragment() {
-        // Required empty public constructor
-    }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment SenderFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static SenderFragment newInstance(String param1, String param2) {
-        SenderFragment fragment = new SenderFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view=inflater.inflate(R.layout.fragment_sender,container,false);// Inflate the layout for this fragment
+        this.container= view.findViewById(R.id.container);
+        this.addButton= view.findViewById(R.id.buttonAdd);
+        this.sendButton= view.findViewById(R.id.buttonSend);
+        this.inputList= new ArrayList<>();
+
+
+        //Set click Listeners
+        addButton.setOnClickListener(v -> addInputList());
+        sendButton.setOnClickListener(v -> saveFileNames());
+
+        return view;
+    }
+
+    private void addInputList(){
+       if( inputList.size()==0){
+           //Create and add the fisrt EditText
+           EditText editText = new EditText(requireContext());
+           LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                   LinearLayout.LayoutParams.MATCH_PARENT,
+                   LinearLayout.LayoutParams.WRAP_CONTENT
+           );
+           editText.setLayoutParams(params);
+           editText.setHint("Enter file name");
+           container.addView(editText);
+           inputList.add(editText);
+       }
+       else { //Create and add subsequent EditText fields
+           EditText editText = new EditText(requireContext());
+           LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                   LinearLayout.LayoutParams.MATCH_PARENT,
+                   LinearLayout.LayoutParams.WRAP_CONTENT
+           );
+           editText.setLayoutParams(params);
+           editText.setHint("Enter file name");
+           container.addView(editText);
+           inputList.add(editText);
+       }
+
+    }
+
+    private void saveFileNames(){
+        //TODO change the list into another databaset
+        List<String> fileNames = new ArrayList<>();
+        for (EditText editText: inputList ){
+            String fileName = editText.getText().toString().trim();
+            Log.e("DEBUGGER", fileName);
+            fileNames.add(fileName);
         }
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_sender, container, false);
+        // TODO : empty the array with the Edit texts
+        // TODO : create threads end send?
     }
 }

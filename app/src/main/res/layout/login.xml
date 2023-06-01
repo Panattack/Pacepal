@@ -33,5 +33,5 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/titleText"
         app:layout_constraintVertical_bias="0.5"
-        app:srcCompat="@drawable/pacepal_logo" />
+        android:src="@drawable/logo_pacepal" />
 </androidx.constraintlayout.widget.ConstraintLayout>

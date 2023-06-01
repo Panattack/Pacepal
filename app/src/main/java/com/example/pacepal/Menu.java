@@ -54,11 +54,11 @@ public class Menu extends AppCompatActivity {
                        break;
                    case R.id.SenderFragment:
                        replaceFragment(new SenderFragment());
-                       Log.e("DEBUGGER", "Submission");
+                       Log.e("DEBUGGER", "Submit");
                        break;
                    case R.id.ResultsFragment:
                        replaceFragment(new ResultsFragment());
-                       Log.e("DEBUGGER", "Progress");
+                       Log.e("DEBUGGER", "Results");
                        break;
                }
                return true;

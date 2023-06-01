@@ -1,14 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".SenderFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
 
-</FrameLayout>
+<TextView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text ="To upload a file to the server press the add file. Press the add file  button as many times as you want "
+    android:textSize = "15sp"
+    />
+
+<!-- EditText fields container-->
+    <LinearLayout
+        android:id="@+id/container"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+        <!-- Dynamically added EditText fields will go here-->
+    </LinearLayout>
+
+    <!-- Buttons container -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="start"
+        android:layout_marginBottom="50dp"
+        >
+
+    <Button
+        android:id="@+id/buttonSend"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:drawableLeft="@drawable/send_icon"
+        android:text="Send Files"
+        android:layout_marginRight="5dp"
+       />
+
+    <Button
+        android:id="@+id/buttonAdd"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:drawableLeft="@drawable/plus_icon"
+        android:text="ADD FILE"
+
+        />
+
+
+</LinearLayout>
+</LinearLayout>
