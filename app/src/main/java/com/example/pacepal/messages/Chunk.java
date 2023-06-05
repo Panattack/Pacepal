@@ -1,4 +1,5 @@
-package com.example.pacepal.model;
+package com.example.pacepal.messages;
+
 import java.io.Serializable;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
@@ -13,7 +14,7 @@ public class Chunk implements Serializable{
      */
     private int typeId;
     private int segmentId;
-    private ArrayList<Waypoint> ls_wpt;    
+    private ArrayList<Waypoint> ls_wpt;
     private int number;
     private int fileId;
     private int userId;

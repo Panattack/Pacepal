@@ -1,56 +1,55 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context=".SenderFragment">
+    tools:context=".view.sender.SenderFragment">
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/instructions"
+        android:textSize="15sp"
+        android:id="@+id/instructionsText"
+        />
 
-<TextView
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text ="To upload a file to the server press the add file. Press the add file  button as many times as you want "
-    android:textSize = "15sp"
-    />
-
-<!-- EditText fields container-->
+    <!-- EditText fields container -->
     <LinearLayout
         android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_below="@id/instructionsText"
+        android:layout_above="@id/buttonsContainer"
         android:layout_weight="1"
         android:orientation="vertical">
-        <!-- Dynamically added EditText fields will go here-->
+        <!-- Dynamically added EditText fields will go here -->
     </LinearLayout>
 
     <!-- Buttons container -->
     <LinearLayout
+        android:id="@+id/buttonsContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
         android:orientation="horizontal"
         android:gravity="start"
-        android:layout_marginBottom="50dp"
-        >
+        android:layout_marginBottom="50dp">
 
-    <Button
-        android:id="@+id/buttonSend"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:drawableLeft="@drawable/send_icon"
-        android:text="Send Files"
-        android:layout_marginRight="5dp"
-       />
+        <Button
+            android:id="@+id/buttonSend"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@drawable/send_icon"
+            android:text="@string/send_files"
+            android:layout_marginRight="5dp" />
 
-    <Button
-        android:id="@+id/buttonAdd"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:drawableLeft="@drawable/plus_icon"
-        android:text="ADD FILE"
+        <Button
+            android:id="@+id/buttonAdd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="5dp"
+            android:drawableLeft="@drawable/plus_icon"
+            android:text="@string/add_file" />
 
-        />
-
-
-</LinearLayout>
-</LinearLayout>
+    </LinearLayout>
+</RelativeLayout>

@@ -1,4 +1,9 @@
 package com.example.pacepal.model;
+import com.example.pacepal.messages.Chunk;
+import com.example.pacepal.messages.Results;
+import com.example.pacepal.messages.Statistics;
+import com.example.pacepal.messages.Weather;
+
 import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -16,7 +21,7 @@ public class Client extends Thread {
     public static String host; 
     private String gpx;
     ObjectOutputStream out = null ;
-    ObjectInputStream in = null ;
+    ObjectInputStream in = null;
     private static Object lock_msg = new Object();
     // User id is static because threads must have a common id from the same user
     // IS THE ONLY VARIABLE THAT WILL BE CHANGED FROM US
@@ -39,8 +44,9 @@ public class Client extends Thread {
 
     public static void initDefault() {
         Properties prop = new Properties();
-        String configName = "pacepal/config/client.cfg"; 
-        
+        // String configName = "pacepal/config/client.cfg";
+        String configName = "config/client.cfg";
+
         try (FileInputStream fis = new FileInputStream(configName)) {
             prop.load(fis);
         } catch (IOException ex) {
@@ -233,7 +239,6 @@ public class Client extends Thread {
     private static void uiGpx() {
         String name;
         ArrayList<Thread> threadList = new ArrayList<>();
-        // start = System.currentTimeMillis();
         while (!Thread.interrupted())
         {
             System.out.print("Insert the file of the route : ");

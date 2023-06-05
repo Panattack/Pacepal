@@ -12,12 +12,12 @@
         tools:layout="@layout/fragment_menu" />
     <fragment
         android:id="@+id/SenderFragment"
-        android:name="com.example.pacepal.SenderFragment"
+        android:name="com.example.pacepal.view.sender.SenderFragment"
         android:label="fragment_search"
         tools:layout="@layout/fragment_sender" />
     <fragment
         android:id="@+id/ResultsFragment"
-        android:name="com.example.pacepal.ResultsFragment"
+        android:name="com.example.pacepal.view.results.ResultsFragment"
         android:label="fragment_submission"
         tools:layout="@layout/fragment_results" />
-    </navigation>
+</navigation>

@@ -1,4 +1,6 @@
 package com.example.pacepal.model;
+import com.example.pacepal.messages.Chunk;
+
 import java.io.*;
 import java.net.*;
 import java.util.Properties;
