@@ -1,9 +1,4 @@
 package com.example.pacepal.model;
-import com.example.pacepal.messages.Chunk;
-import com.example.pacepal.messages.Results;
-import com.example.pacepal.messages.Statistics;
-import com.example.pacepal.messages.Waypoint;
-import com.example.pacepal.messages.Weather;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -957,9 +952,11 @@ public class Master {
                         boolean workersOK = checkBuffer();
                         if (workersOK) {
                             this.out.writeInt(1);
+                            out.flush();
                         }
                         else {
                             this.out.writeInt(0);
+                            out.flush();
                         }
                     case 1:
                         // Send file
@@ -1008,7 +1005,7 @@ public class Master {
                     try {
                         Socket connectionSocket = clientSocket.accept();
                         ClientAction clienThread = new ClientAction(connectionSocket, requestNo, num_of_wpt, num_of_workers);
-                        System.out.println("accept");
+                        System.out.println("Client request accepted");
                         clientLHandlers.put(requestNo, clienThread);
                         requestNo++;
                         clienThread.start();
@@ -1023,6 +1020,7 @@ public class Master {
                 while (!Thread.currentThread().isInterrupted()) {
                     try {
                         Socket requestSocket = reducerSocket.accept();
+                        System.out.println("Reducer request accepted");
                         Thread reduceThread = new RequestHandler(requestSocket);
                         reduceThread.start();
                     } catch (IOException e) {
@@ -1036,7 +1034,7 @@ public class Master {
                 while (!Thread.currentThread().isInterrupted()) {
                     try {
                         Socket communicationSocket = workerSocket.accept();
-                        System.out.println("Accept");
+                        System.out.println("Worker request accepted");
                         workerHandlers.add(new ObjectOutputStream(communicationSocket.getOutputStream()));
                     } catch (IOException e) {
                         System.err.println("Connection Error with Worker <--> Master");
@@ -1052,7 +1050,7 @@ public class Master {
 
     public void initDefault() {
         Properties prop = new Properties();
-        String fileName = "pacepal/config/master.cfg";
+        String fileName = "config/master.cfg";
 
         try (FileInputStream fis = new FileInputStream(fileName)) {
             prop.load(fis);
@@ -1077,8 +1075,8 @@ public class Master {
         ParserGPX gpParser = new ParserGPX();
 
         try {
-            ArrayList<Waypoint> segment1 = gpParser.parse(new FileInputStream("pacepal/gpxs/gpxs/segment1.gpx"));
-            ArrayList<Waypoint> segment2 = gpParser.parse(new FileInputStream("pacepal/gpxs/gpxs/segment2.gpx"));
+            ArrayList<Waypoint> segment1 = gpParser.parse(new FileInputStream("gpxs/gpxs/segment1.gpx"));
+            ArrayList<Waypoint> segment2 = gpParser.parse(new FileInputStream("gpxs/gpxs/segment2.gpx"));
             Master.segments.put(0, segment1);
             Master.segments.put(1, segment2);
         } catch (FileNotFoundException e) {

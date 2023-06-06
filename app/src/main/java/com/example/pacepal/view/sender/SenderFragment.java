@@ -14,6 +14,7 @@ import android.widget.LinearLayout;
 
 import com.example.pacepal.R;
 
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,7 +40,6 @@ public class SenderFragment extends Fragment {
         //Set click Listeners
         addButton.setOnClickListener(v -> addInputList());
         sendButton.setOnClickListener(v -> saveFileNames());
-
         return view;
     }
 
@@ -77,7 +77,7 @@ public class SenderFragment extends Fragment {
             // Log.e("DEBUGGER", fileName);
             fileNames.add(fileName);
         }
-//        senderPresenter.sendFiles(fileNames);
+        senderPresenter.sendFiles(fileNames);
         // TODO : empty the array with the Edit texts
         // TODO : create threads end send?
     }

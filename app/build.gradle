@@ -6,6 +6,7 @@ android {
     namespace 'com.example.pacepal'
     compileSdk 33
 
+
     defaultConfig {
         applicationId "com.example.pacepal"
         minSdk 24

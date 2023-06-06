@@ -4,21 +4,18 @@ import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
-import android.os.Handler;
-
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 
-import com.example.pacepal.messages.Results;
-import com.example.pacepal.model.Client;
+import com.example.pacepal.model.Results;
 
 public class SenderThread extends Thread {
-    static BufferedWriter writer;
     private ObjectOutputStream out = null;
     private ObjectInputStream in = null;
     private final String host;
@@ -26,20 +23,24 @@ public class SenderThread extends Thread {
     private final String gpx;
     private final int serverPort;
     private final int fileId;
+    private String fileName = "results.txt";
+    static FileOutputStream writer;
 
-    public SenderThread(String host, int userId, String gpx, int serverPort, int fileId) {
+    public SenderThread(String host, int userId, String gpx, int serverPort, int fileId, String fileName) {
         this.host = host;
         this.userId = userId;
         this.gpx = gpx;
         this.serverPort = serverPort;
         this.fileId = fileId;
+        this.fileName = fileName;
     }
 
     private void sendFile(String fName, ObjectOutputStream out) {
         try {
             File file = new File(fName);
+            String filePostfix = ".gpx";
             byte[] buffer = new byte[(int) file.length()];
-            BufferedInputStream reader = new BufferedInputStream(new FileInputStream(file));
+            BufferedInputStream reader = new BufferedInputStream(new FileInputStream(file + filePostfix));
             reader.read(buffer, 0, buffer.length);
             reader.close();
 
@@ -83,6 +84,11 @@ public class SenderThread extends Thread {
 
             // Route statistics
             Results results = (Results) in.readObject();
+
+//            // Write the results in a list
+//            synchronized (SenderThread.writer) {
+//                writer = openFileOutput(fileName, MODE_PRIVATE);
+//            }
 
             in.close();
             out.close();

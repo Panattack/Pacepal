@@ -1,5 +1,6 @@
 package com.example.pacepal;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -8,6 +9,7 @@ import android.view.View;
 import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 public class LogIn extends Activity {
 
@@ -18,7 +20,12 @@ public class LogIn extends Activity {
         super.onCreate(savedInstanceState);
         setContentView((R.layout.login));
         pic = (ImageView) findViewById(R.id.logoImage);
-
+        ActivityCompat.requestPermissions(this,
+                new String[]{
+                        android.Manifest.permission.READ_EXTERNAL_STORAGE,
+                        Manifest.permission.MANAGE_EXTERNAL_STORAGE
+                }, 1
+        );
     }
 
     @Override

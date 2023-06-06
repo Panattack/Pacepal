@@ -1,8 +1,4 @@
 package com.example.pacepal.model;
-import com.example.pacepal.messages.Chunk;
-import com.example.pacepal.messages.Results;
-import com.example.pacepal.messages.Statistics;
-import com.example.pacepal.messages.Weather;
 
 import java.io.*;
 import java.net.Socket;
@@ -276,8 +272,6 @@ public class Client extends Thread {
                 System.err.println("Wrong join in " );
             }
         }
-        // finish = System.currentTimeMillis();
-        // System.out.println((finish - start));
     }
 
     private static  void uiResults() {

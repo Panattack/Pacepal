@@ -66,14 +66,6 @@ public class Menu extends AppCompatActivity {
            }
        });
 
-        handler= new Handler(Looper.getMainLooper(), new Handler.Callback() {
-            @Override
-            public boolean handleMessage(@NonNull Message message) {
-
-                return true ;
-            }
-        });
-
     }
 
     private void replaceFragment(Fragment fragment) {

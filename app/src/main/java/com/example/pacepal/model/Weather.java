@@ -1,4 +1,4 @@
-package com.example.pacepal.messages;
+package com.example.pacepal.model;
 import java.io.Serializable;
 
 public class Weather implements Serializable {
