@@ -3,9 +3,15 @@ package com.example.pacepal.view.sender;
 import android.annotation.SuppressLint;
 import android.content.res.AssetManager;
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.example.pacepal.SenderThread;
+import com.example.pacepal.model.Results;
+
+import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -17,46 +23,88 @@ import java.util.List;
 import java.util.Properties;
 
 public class SenderPresenter {
-    String host;
-    String path;
-    String fileName;
-    int serverPort;
+    String host = "192.168.1.6";
+    static int fileId;
+    private int userId;
+    int serverPort = 4321;
+    SenderFragmentView view;
+    private List<File> inputList;
+    protected boolean checking;
 
-    public SenderPresenter() {
-//
-//        host = prop.getProperty("path");
-//        path = prop.getProperty("host");
-//        fileName = prop.getProperty("fileName");
-//        serverPort = Integer.parseInt(prop.getProperty("serverPort"));
+    public SenderPresenter(SenderFragmentView view) {
+        this.view = view;
+        this.inputList = new ArrayList<>();
     }
 
-    public void sendFiles(List<String> files) {
+    public void loadFilesFromDownloadFolder() {
+        String downloadFolderPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath();
+        File downloadFolder = new File(downloadFolderPath);
+
+        ArrayList<String> titles = new ArrayList<>();
+
+        if (downloadFolder.exists() && downloadFolder.isDirectory()) {
+            File[] files = downloadFolder.listFiles();
+
+            if (files != null && files.length > 0) {
+                for (File file : files) {
+                    // You can add additional filters here if needed (e.g., file extension)
+                    titles.add(file.getName());
+                    inputList.add(file);
+                }
+            } else {
+                view.popMsg("No files found in the download folder");
+            }
+        } else {
+            view.popMsg("Download folder not found");
+        }
+        view.showFiles(titles);
+    }
+
+    private void sendFile(File file, ObjectOutputStream out) {
+        try {
+            byte[] buffer = new byte[(int) file.length()];
+            BufferedInputStream reader = new BufferedInputStream(new FileInputStream(file));
+            reader.read(buffer, 0, buffer.length);
+            reader.close();
+
+            out.writeInt(buffer.length);
+            out.flush();
+            out.write(buffer, 0, buffer.length);
+            out.flush();
+
+        } catch (Exception e) {
+            System.err.println("An error occurred in the contexts in sendFile");
+        }
+    }
+
+    public void submit() throws InterruptedException {
         Thread t = new Thread(this::checkWorkerLoad);
         t.start();
-//        ArrayList<Thread> threadList = new ArrayList<>();
-//
-//        for (int i = 0; i < files.size(); i++) {
-//            SenderThread sender = new SenderThread(host, 0, files.get(i), serverPort, i, fileName);
-//            threadList.add(sender);
-//            sender.start();
-//        }
-//
-//        for (Thread t : threadList) {
-//            try {
-//                t.join();
-//            } catch (InterruptedException e) {
-//                System.err.println("Wrong join in ");
-//            }
-//        }
+        try {
+            t.join();
+        } catch (InterruptedException e) {
+            throw new InterruptedException("Error in checking worker buffer");
+        }
+        if (checking) {
+            ArrayList<String> names = view.submitClicked();
+            for (File file : this.inputList) {
+                if (names.contains(file.getName())) {
+                    Thread sender = new Thread(() -> fileProcess(file, fileId++));
+                    sender.start();
+                }
+            }
+        } else {
+            view.alertBox("Error", "No available workers");
+        }
     }
 
-    private boolean checkWorkerLoad() {
-
+    private void checkWorkerLoad() {
         Socket requestSocket = null;
 
         try {
             /* Create socket for contacting the server on port 4321 */
-            requestSocket = new Socket("192.168.43.139", 4321);
+            // TODO Maybe it will go to the config or will be set dynamically from us
+            requestSocket = new Socket(host, 4321);
             /* Create the streams to send and receive data from server */
             ObjectOutputStream out = new ObjectOutputStream(requestSocket.getOutputStream());
             ObjectInputStream in = new ObjectInputStream(requestSocket.getInputStream());
@@ -65,9 +113,49 @@ public class SenderPresenter {
             out.flush();
 
             int msg = in.readInt();
-            return msg == 1;
+            checking = msg == 1;
         } catch (IOException e) {
-                throw new RuntimeException(e);
+            throw new RuntimeException(e);
         }
     }
+
+    private void fileProcess(File file, int id) {
+        // Convert it to byte stream
+        // Create a new thread and send it
+        Socket requestSocket = null;
+
+        try {
+            /* Create socket for contacting the server on port 4321*/
+            requestSocket = new Socket(host, serverPort);
+            /* Create the streams to send and receive data from server */
+            ObjectOutputStream out = new ObjectOutputStream(requestSocket.getOutputStream());
+            ObjectInputStream in = new ObjectInputStream(requestSocket.getInputStream());
+
+            // Send id request --> File
+            out.writeInt(1);
+            out.flush();
+
+            // Send user id
+            out.writeInt(this.userId);
+            out.flush();
+
+            //Send file id
+            out.writeInt(id);
+            out.flush();
+
+            //Sending GPX file
+            sendFile(file, out);
+
+            // Route statistics
+            Results results = (Results) in.readObject();
+            Log.e("DEBUG", String.valueOf(results.toString()));
+        } catch (UnknownHostException unknownHost) {
+            System.err.println("You are trying to connect to an unknown host!");
+        } catch (IOException ioException) {
+            System.err.println("Error: unusual context --> \"in\"  or \"out\" or writing in the file to run");
+        } catch (ClassNotFoundException e) {
+            System.err.println("Error: ClassNotFound in \"in\" to receiving result");
+        }
+    }
+
 }

@@ -33,15 +33,12 @@ public class LogIn extends Activity {
         super.onStart();
         pic.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                Log.e("DEBUGGPXAPP","before clicking");
                 Intent myIntent = new Intent(LogIn.this,Menu.class);
                 startActivityForResult(myIntent, 0);
             }
         });
 
     }
-
-
 }
 
 

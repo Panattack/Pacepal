@@ -12,6 +12,7 @@
     <string name="appTitle">PacePal</string>
     <string name="add_file">Add Files</string>
     <string name="send_files">Send Files</string>
+    <string name="ok">OK</string>
     <string name="instructions">To upload a file to the server press the add file. Press the add file  button as many times as you want</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

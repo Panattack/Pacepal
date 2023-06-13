@@ -26,6 +26,7 @@ public class Menu extends AppCompatActivity {
     private Fragment senderFragment;
     private Fragment resultsFragment;
     BottomNavigationView bottomNavigationView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -45,26 +46,23 @@ public class Menu extends AppCompatActivity {
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
 
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
-           @SuppressLint("NonConstantResourceId")
-           @Override
-           public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-               switch (item.getItemId()) {
-                   case R.id.MenuFragment:
-                       replaceFragment(new MenuFragment());
-                       Log.e("DEBUGGER", "Home");
-                       break;
-                   case R.id.SenderFragment:
-                       replaceFragment(new SenderFragment());
-                       Log.e("DEBUGGER", "Submit");
-                       break;
-                   case R.id.ResultsFragment:
-                       replaceFragment(new ResultsFragment());
-                       Log.e("DEBUGGER", "Results");
-                       break;
-               }
-               return true;
-           }
-       });
+            @SuppressLint("NonConstantResourceId")
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.MenuFragment:
+                        replaceFragment(new MenuFragment());
+                        break;
+                    case R.id.SenderFragment:
+                        replaceFragment(new SenderFragment());
+                        break;
+                    case R.id.ResultsFragment:
+                        replaceFragment(new ResultsFragment());
+                        break;
+                }
+                return true;
+            }
+        });
 
     }
 

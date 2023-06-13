@@ -1,55 +1,52 @@
-<RelativeLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".view.sender.SenderFragment">
+    android:orientation="vertical"
+    android:background="@color/lavender">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/instructions"
-        android:textSize="15sp"
-        android:id="@+id/instructionsText"
-        />
+        android:text="@string/add_file"
+        android:textAppearance="?android:textAppearanceMedium"
+        android:textColor="@android:color/black"
+        android:textStyle="bold"
+        android:padding="8dp" />
 
-    <!-- EditText fields container -->
-    <LinearLayout
-        android:id="@+id/container"
+    <!-- Gap -->
+    <View
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_below="@id/instructionsText"
-        android:layout_above="@id/buttonsContainer"
-        android:layout_weight="1"
-        android:orientation="vertical">
-        <!-- Dynamically added EditText fields will go here -->
-    </LinearLayout>
+        android:layout_height="16dp" />
 
-    <!-- Buttons container -->
-    <LinearLayout
-        android:id="@+id/buttonsContainer"
+    <ScrollView
         android:layout_width="match_parent"
+        android:layout_height="582dp">
+        <!-- Checkbox Table -->
+        <TableLayout
+            android:id="@+id/tableLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/white"
+            android:divider="@drawable/table_divider"
+            android:padding="16dp"
+            android:showDividers="middle"
+            android:stretchColumns="*"
+            android:visibility="gone">
+
+        </TableLayout>
+    </ScrollView>
+    <Button
+        android:id="@+id/submitBtn"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:text="SUBMIT"
         android:layout_alignParentBottom="true"
-        android:orientation="horizontal"
-        android:gravity="start"
-        android:layout_marginBottom="50dp">
+        android:layout_alignParentEnd="true"
+        android:layout_margin="16dp"
+        android:onClick="submitClicked" />
 
-        <Button
-            android:id="@+id/buttonSend"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:drawableLeft="@drawable/send_icon"
-            android:text="@string/send_files"
-            android:layout_marginRight="5dp" />
+</LinearLayout>
 
-        <Button
-            android:id="@+id/buttonAdd"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="5dp"
-            android:drawableLeft="@drawable/plus_icon"
-            android:text="@string/add_file" />
 
-    </LinearLayout>
-</RelativeLayout>
+
