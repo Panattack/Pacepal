@@ -88,6 +88,7 @@ public class ResultsFragment extends Fragment implements ResultsView{
             String key = entry.getKey();
             String value = entry.getValue();
 
+
             TextView textView = new TextView(getActivity());
             textView.setText(key+": "+value);
             textView.setTextSize(20);
