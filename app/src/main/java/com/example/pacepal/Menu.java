@@ -14,6 +14,8 @@ import android.os.Message;
 import android.util.Log;
 import android.view.MenuItem;
 
+import com.example.pacepal.view.LeaderBoard.LeaderBoardFragment;
+import com.example.pacepal.view.Statistics.StatisticsFragment;
 import com.example.pacepal.view.results.ResultsFragment;
 import com.example.pacepal.view.sender.SenderFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -58,6 +60,12 @@ public class Menu extends AppCompatActivity {
                         break;
                     case R.id.ResultsFragment:
                         replaceFragment(new ResultsFragment());
+                        break;
+                    case R.id.StatisticsFragment:
+                        replaceFragment(new StatisticsFragment());
+                        break;
+                    case R.id.LeaderBoardFragment:
+                        replaceFragment(new LeaderBoardFragment());
                         break;
                 }
                 return true;

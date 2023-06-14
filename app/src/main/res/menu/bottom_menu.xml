@@ -3,18 +3,32 @@
 
     <item
         android:id="@+id/MenuFragment"
-        android:title="Home"
+        android:title="@string/home"
         android:icon="@drawable/home_icon"/>
 
     <item
         android:id="@+id/SenderFragment"
-        android:title="Submit"
+        android:title="@string/submit"
         android:icon="@drawable/gpx_send"/>
 
     <item
         android:id="@+id/ResultsFragment"
-        android:title="Statistics "
+        android:title="@string/results"
         android:icon="@drawable/results_icon"/>
+
+    <item
+        android:id="@+id/StatisticsFragment"
+        android:title ="@string/statistics"
+        android:icon="@drawable/staticts_icon"/>
+
+    <item
+        android:id="@+id/LeaderBoardFragment"
+        android:title ="@string/leaderboard"
+        android:icon="@drawable/leaderboard"/>
+
+
+
+
 
     <!--Weather floating button
     Leaderboard

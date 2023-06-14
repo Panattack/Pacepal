@@ -20,4 +20,15 @@
         android:name="com.example.pacepal.view.results.ResultsFragment"
         android:label="fragment_submission"
         tools:layout="@layout/fragment_results" />
+    <fragment
+        android:id="@+id/StatisticsFragment"
+        android:name="com.example.pacepal.view.Statistics.StatisticsFragment"
+        android:label="fragment_statistics"
+        tools:layout="@layout/fragment_statistics" />
+    <fragment
+        android:id="@+id/LeaderBoardFragment"
+        android:name="com.example.pacepal.view.LeaderBoard.LeaderBoardFragment"
+        android:label="fragment_leader_board"
+        tools:layout="@layout/fragment_leader_board" />
+
 </navigation>
