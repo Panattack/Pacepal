@@ -5,7 +5,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".view.LeaderBoard.LeaderBoardFragment"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@drawable/backround1"
+
+    >
 
 
        <TextView
@@ -24,24 +27,24 @@
            android:layout_width="match_parent"
            android:layout_height="16dp" />
 
-       <ScrollView
-           android:layout_width="match_parent"
-           android:layout_height="582dp">
-           <!-- Checkbox Table -->
-           <TableLayout
-               android:id="@+id/tableLayout"
-               android:layout_width="match_parent"
-               android:layout_height="wrap_content"
-               android:background="@color/white"
-               android:divider="@drawable/table_divider"
-               android:padding="16dp"
-               android:showDividers="middle"
-               android:stretchColumns="*"
-               android:visibility="gone">
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="547dp">
+        <!-- Checkbox Table -->
+        <TableLayout
+            android:id="@+id/tableLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/white"
+            android:divider="@drawable/table_divider"
+            android:padding="16dp"
+            android:showDividers="middle"
+            android:stretchColumns="*"
+            android:visibility="gone">
 
-           </TableLayout>
-       </ScrollView>
+        </TableLayout>
+    </ScrollView>
 
 
-   </LinearLayout>
+</LinearLayout>
 
