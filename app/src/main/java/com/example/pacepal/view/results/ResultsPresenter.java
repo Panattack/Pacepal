@@ -29,8 +29,9 @@ public class ResultsPresenter {
             map.put("Average Speed", String.valueOf(r.getAvgSpeed()));
             map.put("Total Elevation", String.valueOf(r.getTotalElevation()));
             map.put("Total Time", String.valueOf(r.getTotalTime()));
+            view.viewResults(map);
         }
-        view.viewResults(map);
+
     }
 
 
