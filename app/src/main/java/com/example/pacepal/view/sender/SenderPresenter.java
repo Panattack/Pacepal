@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Properties;
 
 public class SenderPresenter {
-    String host = "192.168.2.8";
+    String host = "192.168.1.6";
     static int fileId;
     private int userId; // 0 by default
     private final Initializer init;
@@ -95,6 +95,10 @@ public class SenderPresenter {
         }
         if (checking) {
             ArrayList<String> names = view.submitClicked();
+            if (names.size() == 0) {
+                view.popMsg("Nothing send");
+                return;
+            }
             ArrayList<Thread> threadList = new ArrayList<>();
             for (File file : this.inputList) {
                 if (names.contains(file.getName())) {
@@ -105,7 +109,7 @@ public class SenderPresenter {
             }
             for (Thread thread : threadList)
                 thread.join();
-
+            view.popMsg("All send and results received");
         } else {
             view.alertBox("Error", "No available workers");
         }
