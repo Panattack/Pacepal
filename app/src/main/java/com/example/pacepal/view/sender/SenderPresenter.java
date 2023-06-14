@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Properties;
 
 public class SenderPresenter {
-    String host = "192.168.1.6";
+    String host = "192.168.2.8";
     static int fileId;
     private int userId;
     int serverPort = 4321;
