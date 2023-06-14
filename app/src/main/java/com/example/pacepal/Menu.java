@@ -23,10 +23,6 @@ import com.google.android.material.navigation.NavigationBarView;
 
 public class Menu extends AppCompatActivity {
 
-    Handler handler;
-    private Fragment homeFragment;
-    private Fragment senderFragment;
-    private Fragment resultsFragment;
     BottomNavigationView bottomNavigationView;
 
     @Override
@@ -35,14 +31,8 @@ public class Menu extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView((R.layout.menu));
 
-        //Initialize the fragments
-
-        homeFragment = new MenuFragment();
-        resultsFragment = new ResultsFragment();
-        senderFragment = new SenderFragment();
-
         // Set the initial fragment to be displayed
-        replaceFragment(new MenuFragment());
+        replaceFragment(new SenderFragment());
 
         // Set up the bottom navigation view
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
