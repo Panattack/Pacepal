@@ -59,7 +59,6 @@ public class ResultsFragment extends Fragment implements ResultsView{
     @Override
     public void viewResults(HashMap<String, String> results)
     {
-
         // Create the parent LinearLayout (IMAGE AND RESULTS CONTAINER)
         LinearLayout parentLayout = new LinearLayout(getActivity());
         LinearLayout.LayoutParams parentLayoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);

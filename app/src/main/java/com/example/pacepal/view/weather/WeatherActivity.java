@@ -16,15 +16,14 @@ public class WeatherActivity extends AppCompatActivity implements WeatherView{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_weather);
         searchText = (EditText) findViewById(R.id.searchBar);
         searchButton = (Button) findViewById(R.id.searchButton);
 
-        setContentView(R.layout.activity_weather);
         presenter = new WeatherPresenter(this);
         searchButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-//                String title = presenter.getTitle();
-//                presenter.decide(title);
+                presenter.sendCity();
             }
         });
 
