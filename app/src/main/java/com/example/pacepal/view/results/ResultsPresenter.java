@@ -8,23 +8,18 @@ import java.util.HashMap;
 import java.util.List;
 
 public class ResultsPresenter {
-
-
     private ResultDAO results;
     private ResultsView view;
 
-    public ResultsPresenter(ResultsView view, ResultDAO r)
-    {
+    public ResultsPresenter(ResultsView view, ResultDAO r) {
         this.results = r;
         this.view = view;
     }
 
-    public void initViewOfResults()
-    {
+    public void initViewOfResults() {
         DecimalFormat decimalFormat = new DecimalFormat("#.###");
         List<Results> res = results.findAll();
-        for(Results r:res)
-        {
+        for (Results r : res) {
             HashMap<String, String> map = new HashMap<>();
             map.put("GPX id", String.valueOf(r.getGpx_id()));
             map.put("User id", String.valueOf(r.getUser_id()));
@@ -34,8 +29,5 @@ public class ResultsPresenter {
             map.put("Total Time", String.valueOf(decimalFormat.format(r.getTotalTime())));
             view.viewResults(map);
         }
-
     }
-
-
 }

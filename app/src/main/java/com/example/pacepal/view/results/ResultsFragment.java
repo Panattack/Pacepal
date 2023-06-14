@@ -1,10 +1,8 @@
 package com.example.pacepal.view.results;
 
-import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
 
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
@@ -19,31 +17,24 @@ import com.example.pacepal.dao.Initializer;
 import com.example.pacepal.memorydao.MemoryInitializer;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 
-public class ResultsFragment extends Fragment implements ResultsView{
-
-
+public class ResultsFragment extends Fragment implements ResultsView {
     private ResultsPresenter presenter;
     Initializer init;
     LinearLayout container_of_image_and_second_linear;
     View myView;
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         myView = inflater.inflate(R.layout.fragment_results, container, false);
-
         init = new MemoryInitializer();
 
-        container_of_image_and_second_linear =(LinearLayout) myView.findViewById(R.id.linear_layout_);
+        container_of_image_and_second_linear = (LinearLayout) myView.findViewById(R.id.linear_layout_);
         presenter = new ResultsPresenter(this, init.getResultDAO());
-
-
 
         return myView;
     }
@@ -52,13 +43,9 @@ public class ResultsFragment extends Fragment implements ResultsView{
     public void onStart() {
         super.onStart();
         presenter.initViewOfResults();
-
     }
-
-
     @Override
-    public void viewResults(HashMap<String, String> results)
-    {
+    public void viewResults(HashMap<String, String> results) {
         // Create the parent LinearLayout (IMAGE AND RESULTS CONTAINER)
         LinearLayout parentLayout = new LinearLayout(getActivity());
         LinearLayout.LayoutParams parentLayoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -89,7 +76,7 @@ public class ResultsFragment extends Fragment implements ResultsView{
 
 
             TextView textView = new TextView(getActivity());
-            textView.setText(key+": "+value);
+            textView.setText(key + ": " + value);
             textView.setTextSize(20);
             textView.setTypeface(Typeface.DEFAULT_BOLD);
             LinearLayout.LayoutParams textLayoutParams = new LinearLayout.LayoutParams(
@@ -102,12 +89,6 @@ public class ResultsFragment extends Fragment implements ResultsView{
         parentLayout.addView(imageView);
         parentLayout.addView(childLayout);
 
-
-        // Add the parent LinearLayout to the fragment's root view
-        //View rootView = inflater.inflate(R.layout.fragment_layout, container, false);
-
         container_of_image_and_second_linear.addView(parentLayout);
-        //return rootView;
     }
-
 }
