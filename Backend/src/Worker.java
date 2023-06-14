@@ -44,7 +44,7 @@ public class Worker extends Thread {
     public static void initDefault() {
 
         Properties prop = new Properties();
-        String fileName = "config/worker.cfg";
+        String fileName = "Backend/config/worker.cfg";
         
         try (FileInputStream fis = new FileInputStream(fileName)) {
             prop.load(fis);
