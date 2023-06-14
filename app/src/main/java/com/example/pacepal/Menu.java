@@ -7,22 +7,27 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.example.pacepal.view.LeaderBoard.LeaderBoardFragment;
 import com.example.pacepal.view.Statistics.StatisticsFragment;
 import com.example.pacepal.view.results.ResultsFragment;
 import com.example.pacepal.view.sender.SenderFragment;
+import com.example.pacepal.view.weather.WeatherActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationBarView;
 
 public class Menu extends AppCompatActivity {
 
+    FloatingActionButton weather;
     BottomNavigationView bottomNavigationView;
 
     @Override
@@ -36,9 +41,15 @@ public class Menu extends AppCompatActivity {
 
         // Set up the bottom navigation view
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavigationView);
+        weather = (FloatingActionButton) findViewById(R.id.weatherButton);
+        weather.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                weatherButtonClicked();
+            }
+        });
 
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
-            @SuppressLint("NonConstantResourceId")
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
@@ -58,7 +69,6 @@ public class Menu extends AppCompatActivity {
                 return true;
             }
         });
-
     }
 
     private void replaceFragment(Fragment fragment) {
@@ -66,5 +76,10 @@ public class Menu extends AppCompatActivity {
         FragmentTransaction transaction = manager.beginTransaction();
         transaction.replace(R.id.frame_layout, fragment);
         transaction.commit();
+    }
+
+    public void weatherButtonClicked() {
+        Intent intent = new Intent(this, WeatherActivity.class);
+        startActivity(intent);
     }
 }
