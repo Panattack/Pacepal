@@ -16,6 +16,7 @@ import android.widget.TextView;
 
 import com.example.pacepal.R;
 import com.example.pacepal.dao.Initializer;
+import com.example.pacepal.memorydao.MemoryInitializer;
 
 import java.util.HashMap;
 import java.util.List;
@@ -36,6 +37,9 @@ public class ResultsFragment extends Fragment implements ResultsView{
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         myView = inflater.inflate(R.layout.fragment_results, container, false);
+
+        init = new MemoryInitializer();
+
         container_of_image_and_second_linear =(LinearLayout) myView.findViewById(R.id.linear_layout_);
         presenter = new ResultsPresenter(this, init.getResultDAO());
 
