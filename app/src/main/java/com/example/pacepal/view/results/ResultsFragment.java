@@ -43,6 +43,8 @@ public class ResultsFragment extends Fragment implements ResultsView{
         container_of_image_and_second_linear =(LinearLayout) myView.findViewById(R.id.linear_layout_);
         presenter = new ResultsPresenter(this, init.getResultDAO());
 
+
+
         return myView;
     }
 
@@ -50,6 +52,7 @@ public class ResultsFragment extends Fragment implements ResultsView{
     public void onStart() {
         super.onStart();
         presenter.initViewOfResults();
+
     }
 
 
@@ -100,7 +103,7 @@ public class ResultsFragment extends Fragment implements ResultsView{
         parentLayout.addView(childLayout);
 
 
-// Add the parent LinearLayout to the fragment's root view
+        // Add the parent LinearLayout to the fragment's root view
         //View rootView = inflater.inflate(R.layout.fragment_layout, container, false);
 
         container_of_image_and_second_linear.addView(parentLayout);

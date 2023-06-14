@@ -20,14 +20,15 @@ public class ResultsPresenter {
 
     public void initViewOfResults()
     {
-        HashMap<String, String> map = new HashMap<>();
         List<Results> res = results.findAll();
         for(Results r:res)
         {
+            HashMap<String, String> map = new HashMap<>();
             map.put("GPX id", String.valueOf(r.getGpx_id()));
             map.put("User id", String.valueOf(r.getUser_id()));
             map.put("Average Speed", String.valueOf(r.getAvgSpeed()));
             map.put("Total Elevation", String.valueOf(r.getTotalElevation()));
+            map.put("Total Distance", String.valueOf(r.getTotalDistance()));
             map.put("Total Time", String.valueOf(r.getTotalTime()));
             view.viewResults(map);
         }
