@@ -20,7 +20,7 @@ public class WeatherActivity extends AppCompatActivity implements WeatherView{
         searchButton = (Button) findViewById(R.id.searchButton);
 
         setContentView(R.layout.activity_weather);
-
+        presenter = new WeatherPresenter(this);
         searchButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
 //                String title = presenter.getTitle();

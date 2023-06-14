@@ -55,8 +55,7 @@ public class ResultsFragment extends Fragment implements ResultsView{
 
         // Create the parent LinearLayout (IMAGE AND RESULTS CONTAINER)
         LinearLayout parentLayout = new LinearLayout(getActivity());
-        LinearLayout.LayoutParams parentLayoutParams = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        LinearLayout.LayoutParams parentLayoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         parentLayoutParams.setMargins(0, 30, 0, 0);
         parentLayout.setOrientation(LinearLayout.HORIZONTAL);
         parentLayout.setLayoutParams(parentLayoutParams);
