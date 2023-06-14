@@ -154,7 +154,7 @@ public class Master {
             JSONObject weatherObject = (JSONObject) weatherArray.get(0);
 
             // Get the value of the "elem" field
-            String weather = (String) weatherObject.get(elem);
+            String weather = String.valueOf(weatherObject.get(elem)) ;
             return weather;
         }
 
@@ -912,8 +912,15 @@ public class Master {
                 String humidity = api.getMainElements(place, "humidity");
                 String main = api.getWeatherElements(place, "main");
                 String description = api.getWeatherElements(place, "description");
+                String id = api.getWeatherElements(place, "id");
 
-                Weather weather = new Weather(temperature, pressure, humidity, main, description, city);
+                HashMap<String, String> weather = new HashMap<>();
+                weather.put("temp", temperature);
+                weather.put("pressure", pressure);
+                weather.put("humidity", humidity);
+                weather.put("main", main);
+                weather.put("description", description);
+                weather.put("id", id);
 
                 this.out.writeObject(weather);
                 this.out.flush();
