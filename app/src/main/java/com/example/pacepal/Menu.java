@@ -52,9 +52,6 @@ public class Menu extends AppCompatActivity {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
-                    case R.id.MenuFragment:
-                        replaceFragment(new MenuFragment());
-                        break;
                     case R.id.SenderFragment:
                         replaceFragment(new SenderFragment());
                         break;
