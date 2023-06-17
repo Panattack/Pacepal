@@ -16,6 +16,9 @@
         android:theme="@style/Theme.Pacepal"
         tools:targetApi="31">
         <activity
+            android:name=".view.LeaderBoard.ShowLeaderBoard.ShowBoardActivity"
+            android:exported="false" />
+        <activity
             android:name=".view.weather.WeatherActivity"
             android:exported="false" />
         <activity
