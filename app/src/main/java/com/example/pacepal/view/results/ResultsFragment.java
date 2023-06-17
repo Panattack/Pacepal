@@ -1,6 +1,8 @@
 package com.example.pacepal.view.results;
 
+import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -49,9 +51,19 @@ public class ResultsFragment extends Fragment implements ResultsView {
         // Create the parent LinearLayout (IMAGE AND RESULTS CONTAINER)
         LinearLayout parentLayout = new LinearLayout(getActivity());
         LinearLayout.LayoutParams parentLayoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        parentLayoutParams.setMargins(0, 30, 0, 0);
+
+        parentLayoutParams.setMargins(50, 50, 50, 15);
         parentLayout.setOrientation(LinearLayout.HORIZONTAL);
+        //parentLayout.setBackgroundColor(Color.WHITE);
         parentLayout.setLayoutParams(parentLayoutParams);
+
+        // Set background with rounded corners
+        GradientDrawable gradientDrawable = new GradientDrawable();
+        gradientDrawable.setShape(GradientDrawable.RECTANGLE);
+        gradientDrawable.setCornerRadius(50); // Adjust the corner radius as desired
+        gradientDrawable.setColor(Color.WHITE);
+        parentLayout.setBackground(gradientDrawable);
+
 
         // Create the ImageView
         ImageView imageView = new ImageView(getActivity());
