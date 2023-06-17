@@ -106,6 +106,10 @@ public class Master {
             Collections.sort(results, Comparator.comparingDouble(Chunk::getTotalTimeInSeconds).reversed().thenComparingDouble(Chunk::getTotalDistance).reversed());
             return results;
         }
+
+        public synchronized int getNumber(){
+            return this.segmentUserList.size();
+        }
     }
 
     class OpenWeatherAPI {
@@ -932,11 +936,16 @@ public class Master {
 
         private void makeLeaderboard() {
             try {
-                int segmentId = this.in.readInt();
+                //We send the number of segments
+                this.out.writeInt(Master.segmentDAO.getNumber());
+                this.out.flush();
 
-                ArrayList<Chunk> leaderboard = new ArrayList<>(Master.segmentDAO.orderByTime(segmentId));
-
-                this.out.writeObject(leaderboard);
+                //We take from the user the segmennt id 
+//                 int segmentId = this.in.readInt();
+// 
+//                 ArrayList<Chunk> leaderboard = new ArrayList<>(Master.segmentDAO.orderByTime(segmentId));
+// 
+//                 this.out.writeObject(leaderboard);
 
             } catch (IOException e) {
                 System.err.println("Something went wrong while sending the leaderboard");
