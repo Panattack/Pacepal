@@ -8,7 +8,12 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.example.pacepal.SenderThread;
+import com.example.pacepal.dao.Initializer;
+import com.example.pacepal.memorydao.MemoryInitializer;
 import com.example.pacepal.model.Results;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -19,13 +24,15 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 
 public class SenderPresenter {
-    String host = "192.168.2.12";
+    String host = "192.168.1.6";
     static int fileId;
-    private int userId;
+    private int userId; // 0 by default
+    private final Initializer init;
     int serverPort = 4321;
     SenderFragmentView view;
     private List<File> inputList;
@@ -34,6 +41,7 @@ public class SenderPresenter {
     public SenderPresenter(SenderFragmentView view) {
         this.view = view;
         this.inputList = new ArrayList<>();
+        this.init = new MemoryInitializer();
     }
 
     public void loadFilesFromDownloadFolder() {
@@ -87,12 +95,21 @@ public class SenderPresenter {
         }
         if (checking) {
             ArrayList<String> names = view.submitClicked();
+            if (names.size() == 0) {
+                view.popMsg("Nothing send");
+                return;
+            }
+            ArrayList<Thread> threadList = new ArrayList<>();
             for (File file : this.inputList) {
                 if (names.contains(file.getName())) {
                     Thread sender = new Thread(() -> fileProcess(file, fileId++));
                     sender.start();
+                    threadList.add(sender);
                 }
             }
+            for (Thread thread : threadList)
+                thread.join();
+            view.popMsg("All send and results received");
         } else {
             view.alertBox("Error", "No available workers");
         }
@@ -147,8 +164,11 @@ public class SenderPresenter {
             sendFile(file, out);
 
             // Route statistics
-            Results results = (Results) in.readObject();
-            Log.e("DEBUG", String.valueOf(results.toString()));
+            HashMap<String, Double> results = (HashMap<String, Double>) in.readObject();
+            synchronized (this.init.getResultDAO()) {
+                Results res = new Results((new Double(results.get("gpxID"))).intValue(), (new Double(results.get("userID"))).intValue(), results.get("totalDistance"), results.get("avgSpeed"), results.get("totalElevation"), results.get("totalTime"));
+                init.getResultDAO().save(res);
+            }
         } catch (UnknownHostException unknownHost) {
             System.err.println("You are trying to connect to an unknown host!");
         } catch (IOException ioException) {
