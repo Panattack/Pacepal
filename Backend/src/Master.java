@@ -1041,7 +1041,7 @@ public class Master {
 
     public void initDefault() {
         Properties prop = new Properties();
-        String fileName = "config/master.cfg";
+        String fileName = "Backend/config/master.cfg";
         try (FileInputStream fis = new FileInputStream(fileName)) {
             prop.load(fis);
         } catch (IOException ex) {
@@ -1065,8 +1065,8 @@ public class Master {
         ParserGPX gpParser = new ParserGPX();
 
         try {
-            ArrayList<Waypoint> segment1 = gpParser.parse(new FileInputStream("gpxs/segment1.xml"));
-            ArrayList<Waypoint> segment2 = gpParser.parse(new FileInputStream("gpxs/segment2.xml"));
+            ArrayList<Waypoint> segment1 = gpParser.parse(new FileInputStream("Backend/gpxs/segment1.xml"));
+            ArrayList<Waypoint> segment2 = gpParser.parse(new FileInputStream("Backend/gpxs/segment2.xml"));
             Master.segments.put(0, segment1);
             Master.segments.put(1, segment2);
         } catch (FileNotFoundException e) {
