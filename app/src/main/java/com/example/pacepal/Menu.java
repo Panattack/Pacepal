@@ -6,17 +6,12 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.example.pacepal.view.LeaderBoard.LeaderBoardFragment;
+import com.example.pacepal.view.LeaderBoard.SelectSegment.LeaderBoardFragment;
 import com.example.pacepal.view.Statistics.StatisticsFragment;
 import com.example.pacepal.view.results.ResultsFragment;
 import com.example.pacepal.view.sender.SenderFragment;
