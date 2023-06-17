@@ -1,6 +1,7 @@
 import java.io.Serializable;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+//test
 
 public class Chunk implements Serializable{
     /* Chunk must implement Serializable in order to pass it in stream */
@@ -17,6 +18,8 @@ public class Chunk implements Serializable{
     private int fileId;
     private int userId;
     private int key;
+    //test
+    //test
 
     // Output of mapper 
     // results: [totalDistance, totalTimeInHours, averageSpeed, totalElevation]
