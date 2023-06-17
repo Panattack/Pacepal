@@ -2,24 +2,25 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
+    android:layout_width="wrap_content"
     android:layout_height="match_parent"
     tools:context=".view.LeaderBoard.LeaderBoardFragment"
     android:orientation="vertical"
     android:background="@drawable/backround1"
-
     >
 
 
-       <TextView
+
+        <TextView
            android:layout_width="match_parent"
            android:layout_height="wrap_content"
-           android:text="@string/leaderboard"
+           android:text="LEADERBOARD"
            android:textAppearance="?android:textAppearanceMedium"
-           android:textColor="@android:color/black"
            android:textStyle="bold"
            android:padding="8dp"
            android:textSize="30sp"
+           android:textColor="@color/white"
+           android:layout_marginTop="20dp"
            android:textAlignment="center"/>
 
        <!-- Gap -->
@@ -27,24 +28,29 @@
            android:layout_width="match_parent"
            android:layout_height="16dp" />
 
-    <ScrollView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="547dp">
-        <!-- Checkbox Table -->
-        <TableLayout
-            android:id="@+id/tableLayout"
+        android:layout_height="match_parent"
+
+        android:orientation="vertical">
+
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/white"
-            android:divider="@drawable/table_divider"
-            android:padding="16dp"
-            android:showDividers="middle"
-            android:stretchColumns="*"
-            android:visibility="gone">
+            android:layout_height="match_parent"
+            android:layout_margin="25dp"
+            >
+            <!-- Checkbox Table -->
+            <LinearLayout
+                android:id="@+id/tableLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                >
 
-        </TableLayout>
-    </ScrollView>
+            </LinearLayout>
+        </ScrollView>
 
+    </LinearLayout>
 
 </LinearLayout>
 

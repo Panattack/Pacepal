@@ -45,7 +45,6 @@
         app:tint="@color/teal_700"
         android:layout_marginBottom="-100dp"
         android:contentDescription="weather"
-        app:civ_border_color="@color/black"
         >
 
     </com.google.android.material.floatingactionbutton.FloatingActionButton>
