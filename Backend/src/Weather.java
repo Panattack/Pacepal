@@ -7,14 +7,16 @@ public class Weather implements Serializable {
     private String main;
     private String description;
     private String place;
+    private String id;
     
-    public Weather(String temperature, String pressure, String humidity, String main, String description, String place) {
+    public Weather(String temperature, String pressure, String humidity, String main, String description, String place, String id) {
         this.temperature = temperature;
         this.pressure = pressure;
         this.humidity = humidity;
         this.main = main;
         this.description = description;
         this.place = place;
+        this.id = id;
     }
     public String getTemperature() {
         return temperature;
@@ -51,6 +53,12 @@ public class Weather implements Serializable {
     }
     public void setPlace(String place) {
         this.place = place;
+    }
+    public void setId(String id) {
+        this.id = id;
+    }
+    public String getId() {
+        return this.id;
     }
 
     @Override
