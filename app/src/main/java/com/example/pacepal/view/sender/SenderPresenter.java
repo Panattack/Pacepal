@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Properties;
 
 public class SenderPresenter {
-    String host = "192.168.1.8";
+    String host = "192.168.2.14";
     static int fileId;
     private int userId; // 0 by default
     private final Initializer init;
