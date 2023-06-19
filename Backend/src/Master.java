@@ -934,18 +934,43 @@ public class Master {
 
         }
 
-        private void makeLeaderboard() {
-            try {
-                //We send the number of segments
+
+        private void sendSegmentNumber(){
+            try{
+
                 this.out.writeInt(Master.segmentDAO.getNumber());
                 this.out.flush();
+            
+            } catch (IOException e) {
+                System.err.println("Something went wrong while sending the leaderboard");
+            }
+        }
 
+    
+        private void makeLeaderboard() {
+            try {
+             
                 //We take from the user the segmennt id 
-//                 int segmentId = this.in.readInt();
-// 
-//                 ArrayList<Chunk> leaderboard = new ArrayList<>(Master.segmentDAO.orderByTime(segmentId));
-// 
-//                 this.out.writeObject(leaderboard);
+                int segmentId = this.in.readInt();
+                System.out.println(segmentId+" Segment Id");
+                ArrayList<Chunk> leaderboard = new ArrayList<>(Master.segmentDAO.orderByTime(segmentId));
+                
+                //<Position , userId>
+                HashMap<Integer,Integer> position = new HashMap<>();
+                // <UserId , Value>
+                HashMap<Integer,Double> value = new HashMap<>();
+                for(int i =0 ; i<leaderboard.size();i++){
+                    position.put(i+1,leaderboard.get(i).getUserId());
+                    value.put(leaderboard.get(i).getUserId(),leaderboard.get(i).getTotalTimeInSeconds());
+                }
+
+                this.out.writeObject(value);
+                this.out.flush();
+                
+                this.out.writeObject(position);
+                this.out.flush();
+
+                
 
             } catch (IOException e) {
                 System.err.println("Something went wrong while sending the leaderboard");
@@ -1001,10 +1026,17 @@ public class Master {
                         // Check segment statistics in leaderboard
                         makeLeaderboard();
                         break;
+                    case 5 :
+                        //  We send the amount of segments we have 
+                        sendSegmentNumber();
+                        break;
                 }
+
                 this.in.close();
                 this.out.close();
                 this.socket.close();
+
+                
             } catch (IOException e) {
                 System.err.println("Connection Error : Master <--> Client");
             }
