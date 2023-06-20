@@ -1,4 +1,5 @@
 package com.example.pacepal.view.Statistics;
 
-public class StatisticsView {
+public interface StatisticsView {
+    public void alertBox(String title, String message);
 }
