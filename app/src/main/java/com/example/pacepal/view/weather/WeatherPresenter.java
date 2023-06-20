@@ -11,7 +11,7 @@ import java.util.HashMap;
 
 public class WeatherPresenter {
     WeatherView view;
-    String host = "192.168.1.8";
+    String host = "192.168.1.3";
     static int fileId;
     private int userId; // 0 by default
     HashMap<String, String> weather;

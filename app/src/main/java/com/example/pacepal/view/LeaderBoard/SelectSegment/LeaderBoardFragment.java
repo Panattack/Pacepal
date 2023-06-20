@@ -57,10 +57,16 @@ public class LeaderBoardFragment extends Fragment implements LeaderBoardView {
        seg_number.setHint("You have " + number+ " segments");
     }
    @Override
-   public void sentOption(){
+   public void sentOption()  {
         int number = Integer.parseInt(String.valueOf(seg_number.getText()));
         boolean ok = presenter.checker(number);
         if (ok){
+//            try {
+//                presenter.answer();
+//            }
+//            catch(InterruptedException e ){
+//                throw new RuntimeException(e);
+//            }
             Intent intent = new Intent(getContext(), ShowBoardActivity.class);
             Bundle b = new Bundle();
             b.putInt("number", number); //Your id
@@ -77,6 +83,10 @@ public class LeaderBoardFragment extends Fragment implements LeaderBoardView {
         }
 
 
+   }
+
+   public int getChoice(){
+        return Integer.parseInt(String.valueOf(seg_number.getText()));
    }
 
 

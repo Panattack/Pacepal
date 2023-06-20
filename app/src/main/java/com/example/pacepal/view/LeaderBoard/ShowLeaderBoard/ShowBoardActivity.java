@@ -12,6 +12,7 @@ import com.example.pacepal.R;
 public class ShowBoardActivity extends Activity implements ShowBoardView {
     LinearLayout scroll;
     ShowBoardPresenter presenter;
+    int segment_id = -1; // or other values
     @Override
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,18 +22,22 @@ public class ShowBoardActivity extends Activity implements ShowBoardView {
 
         presenter = new ShowBoardPresenter(this);
         Bundle b = getIntent().getExtras();
-        int value = -1; // or other values
-        if(b != null)
-            value = b.getInt("number");
-        Log.e("DEBUGGER", String.valueOf(value));
-        scroll =(LinearLayout) findViewById(R.id.tableLayout);
-        //TODO
-        //presenter.createBoard();
+
+       if(b != null) {
+           segment_id = b.getInt("number");
+           //Log.e("Debugger", String.valueOf(segment_id));
+       }
+      scroll =(LinearLayout) findViewById(R.id.tableLayout);
+        try {
+            presenter.show();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        presenter.createBoard();
     }
 
     @Override
-    public void createLeaderBoard(double timesec,String name, int num) {
-
+    public void createLeaderBoard(double timesec,int name, int num) {
 
 
         TextView position = new TextView(this);
@@ -43,7 +48,7 @@ public class ShowBoardActivity extends Activity implements ShowBoardView {
 
 
         TextView user = new TextView(this);
-        user.setText(name);
+        user.setText(String.valueOf(name));
         user.setPadding(30, 30, 30, 30);
         user.setTextSize(30);
 
@@ -73,6 +78,10 @@ public class ShowBoardActivity extends Activity implements ShowBoardView {
 
     }
 
+    public int getSegmentId(){
+
+        return segment_id;
+    }
 
 
 
