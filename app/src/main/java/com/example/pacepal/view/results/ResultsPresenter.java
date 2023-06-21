@@ -28,7 +28,7 @@ public class ResultsPresenter {
             map.put("Total Distance", decimalFormat.format(r.getTotalDistance()) + " km");
             map.put("Total Hours ", String.valueOf((int) (Float.parseFloat(decimalFormat.format(r.getTotalTime())) / 3600)));
             map.put("Total Minutes", String.valueOf((int) (Float.parseFloat(decimalFormat.format(r.getTotalTime())) % 3600) / 60));
-            map.put("Total seconds", String.valueOf((int) (Float.parseFloat(decimalFormat.format(r.getTotalTime())) % 3600)));
+            map.put("Total seconds", String.valueOf((int) (Float.parseFloat(decimalFormat.format(r.getTotalTime())) % 60)));
             view.viewResults(map);
         }
     }
