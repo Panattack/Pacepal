@@ -780,11 +780,13 @@ public class Master {
         }
 
         private void create_user(int user) {
-            if (userList.get(user) == null) {
-                userList.put(user, new User(user));
+            synchronized (userList) {
+                if (userList.get(user) == null) {
+                    userList.put(user, new User(user));
 
-                // Update globalSize in statistics
-                statistics.addGlobalSize();
+                    // Update globalSize in statistics
+                    statistics.addGlobalSize();
+                }
             }
         }
 
@@ -840,7 +842,7 @@ public class Master {
                 
                 // Update statistics
                 statistics.updateValues(results.getTotalTime(), results.getTotalDistance(), results.getTotalElevation());
-
+                System.out.println(statistics);
                 HashMap<String, Double> result = new HashMap<>();
 
                 result.put("gpxID", (double) results.getGpx_id());
@@ -897,7 +899,18 @@ public class Master {
 
                 stat.defUS(presentageDistance, presentageElevation, presentageTime);
 
-                this.out.writeObject(stat);
+                HashMap<String, Double> stats = new HashMap<>();
+                stats.put("globalAvgTime", stat.getGlobalAvgTime());
+                stats.put("globalAvgDistance", stat.getGlobalAvgDistance());
+                stats.put("globalAvgElevation", stat.getGlobalAvgElevation());
+                stats.put("pcDistance", stat.getPcDistance());
+                stats.put("pcTime", stat.getPcTime());
+                stats.put("pcElevation", stat.getPcElevation());
+                stats.put("totalDistance", totalDistance);
+                stats.put("totalTime", totalTime);
+                stats.put("totalElevation", totalElevation);
+
+                this.out.writeObject(stats);
                 this.out.flush();
             } catch (IOException e) {
                 System.err.println("False in statistics from clientThread");

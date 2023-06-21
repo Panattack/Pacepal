@@ -109,6 +109,7 @@ public class Statistics implements Serializable {
         return "\n"  
         + "Global Distance : " + Float.valueOf(df.format(this.globalAvgDistance)) + " km" + "\n" 
         + "Global Elevation : " + Float.valueOf(df.format(this.globalAvgElevation)) + " m" + "\n" 
-        + "Global Hours: " + (int) (Float.valueOf(df.format(this.globalAvgTime)) /3600) + " Global Minutes: " + (int) (Float.valueOf(df.format(this.globalAvgTime)) % 3600) / 60 + " Global Seconds: " + (int) (Float.valueOf(df.format(this.globalAvgTime)) % 60) + "\n";
+        + "Global Hours : " + (int) (Float.valueOf(df.format(this.globalAvgTime)) /3600) + " Global Minutes : " + (int) (Float.valueOf(df.format(this.globalAvgTime)) % 3600) / 60 + " Global Seconds : " + (int) (Float.valueOf(df.format(this.globalAvgTime)) % 60) + "\n"
+        + "Total runners :" + globalSize + "\n";
     }
 }
