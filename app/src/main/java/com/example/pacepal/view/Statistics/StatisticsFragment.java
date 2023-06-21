@@ -66,7 +66,7 @@ public class StatisticsFragment extends Fragment implements StatisticsView {
         entriesTime.add(new BarEntry(1f, Float.parseFloat(String.valueOf(map.get("totalTime"))), "Personal Total Time")); // Second bar
         String[] labelsTime = new String[]{"Global Avg Time", "Personal Total Time"};
 
-        BarDataSet dataTime = new BarDataSet(entriesTime, "Time");
+        BarDataSet dataTime = new BarDataSet(entriesTime, "Global Avg Time & Personal Total Time");
         dataTime.setStackLabels(labelsTime);
         dataTime.setColors(Color.rgb(98, 175, 144), Color.rgb(255, 102, 150));
         dataTime.setValueTextColor(Color.BLACK);
@@ -84,7 +84,7 @@ public class StatisticsFragment extends Fragment implements StatisticsView {
         entriesDistance.add(new BarEntry(1f, Float.parseFloat(String.valueOf(map.get("totalDistance"))), "Personal Total Distance")); // Second bar
         // String[] labelsTime = new String[]{"Global Avg Time", "Personal Total Time"};
 
-        BarDataSet dataDistance = new BarDataSet(entriesDistance, "Distance");
+        BarDataSet dataDistance = new BarDataSet(entriesDistance, "Global Avg Distance & Personal Total Distance");
         // dataTime.setStackLabels(labelsTime);
         dataDistance.setColors(Color.rgb(199, 199, 8), Color.rgb(102, 102, 255));
         dataDistance.setValueTextColor(Color.BLACK);
@@ -102,7 +102,7 @@ public class StatisticsFragment extends Fragment implements StatisticsView {
         entriesElevation.add(new BarEntry(1f, Float.parseFloat(String.valueOf(map.get("totalElevation"))), "Personal Total Elevation")); // Second bar
         // String[] labelsTime = new String[]{"Global Avg Elevation", "Personal Total Elevation"};
 
-        BarDataSet dataElevation = new BarDataSet(entriesElevation, "Elevation");
+        BarDataSet dataElevation = new BarDataSet(entriesElevation, "Global Avg Elevation & Personal Total Elevation");
         // dataTime.setStackLabels(labelsTime);
         dataElevation.setColors(Color.rgb(153, 0, 153), Color.rgb(255, 153, 51));
         dataElevation.setValueTextColor(Color.BLACK);
