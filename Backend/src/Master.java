@@ -773,6 +773,7 @@ public class Master {
             // Listen from the client it's id and the file id 
             try {
                 this.userId = this.in.readInt();
+                System.out.println(userId);
                 this.fileId = this.in.readInt();
             } catch (IOException e) {
                 System.err.println("Error in reading the ids from the user in file reading");
@@ -842,7 +843,6 @@ public class Master {
                 
                 // Update statistics
                 statistics.updateValues(results.getTotalTime(), results.getTotalDistance(), results.getTotalElevation());
-                System.out.println(statistics);
                 HashMap<String, Double> result = new HashMap<>();
 
                 result.put("gpxID", (double) results.getGpx_id());
@@ -983,8 +983,6 @@ public class Master {
                 this.out.writeObject(position);
                 this.out.flush();
 
-                
-
             } catch (IOException e) {
                 System.err.println("Something went wrong while sending the leaderboard");
             }
@@ -1006,12 +1004,10 @@ public class Master {
                         if (workersOK) {
                             this.out.writeInt(1);
                             out.flush();
-                            System.out.println("1");
                         }
                         else {
                             this.out.writeInt(0);
                             out.flush();
-                            System.out.println("0");
                         }
                         break;
                     case 1:

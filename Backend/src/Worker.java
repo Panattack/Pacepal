@@ -40,7 +40,6 @@ public class Worker extends Thread {
         }
     }
 
-
     public static void initDefault() {
 
         Properties prop = new Properties();
