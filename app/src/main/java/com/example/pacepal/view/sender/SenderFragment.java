@@ -32,14 +32,21 @@ public class SenderFragment extends Fragment implements SenderFragmentView {
     private TableLayout tableLayout;
     private Button submitButton;
     SenderPresenter senderPresenter;
+    int serverPort;
+    String host;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // TODO:Check the sender layout to make the boxes better in size
         View view = inflater.inflate(R.layout.fragment_sender, container, false);
         tableLayout = view.findViewById(R.id.tableLayout);
+        Bundle arguments = getArguments();
+        if (arguments != null) {
+            host = arguments.getString("host");
+            serverPort = arguments.getInt("serverPort");
+        }
         this.submitButton = view.findViewById(R.id.submitBtn);
-        this.senderPresenter = new SenderPresenter(this);
+        this.senderPresenter = new SenderPresenter(this, serverPort, host);
         return view;
     }
 

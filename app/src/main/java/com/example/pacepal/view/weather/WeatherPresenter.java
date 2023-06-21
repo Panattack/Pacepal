@@ -11,13 +11,15 @@ import java.util.HashMap;
 
 public class WeatherPresenter {
     WeatherView view;
-    String host = "192.168.1.3";
+    String host;
     static int fileId;
     private int userId; // 0 by default
     HashMap<String, String> weather;
-    int serverPort = 4321;
+    int serverPort;
 
-    public WeatherPresenter(WeatherView view) {
+    public WeatherPresenter(WeatherView view, int serverPort, String host) {
+        this.host = host;
+        this.serverPort = serverPort;
         weather = new HashMap<>();
         this.view = view;
     }

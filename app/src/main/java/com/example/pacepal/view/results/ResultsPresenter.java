@@ -22,7 +22,6 @@ public class ResultsPresenter {
         for (Results r : res) {
             HashMap<String, String> map = new HashMap<>();
             map.put("GPX id", String.valueOf(r.getGpx_id()));
-            map.put("User id", String.valueOf(r.getUser_id()));
             map.put("Average Speed", decimalFormat.format(r.getAvgSpeed()) + " m/s");
             map.put("Total Elevation", decimalFormat.format(r.getTotalElevation()));
             map.put("Total Distance", decimalFormat.format(r.getTotalDistance()) + " km");

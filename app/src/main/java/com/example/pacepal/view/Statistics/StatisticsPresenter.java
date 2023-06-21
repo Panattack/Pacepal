@@ -8,12 +8,14 @@ import java.net.UnknownHostException;
 import java.util.HashMap;
 
 public class StatisticsPresenter {
-    String host = "192.168.1.2";
-    private int userId; // 0 by default
-    int serverPort = 4321;
+    String host;
+    private int userId = 0; // 0 by default
+    int serverPort;
     private HashMap<String, Double> stats;
     StatisticsView view;
-    public StatisticsPresenter(StatisticsView view) {
+    public StatisticsPresenter(StatisticsView view, int serverPort, String host) {
+        this.host = host;
+        this.serverPort = serverPort;
         this.view = view;
     }
     public void receiveStatistics() throws InterruptedException {
@@ -22,7 +24,7 @@ public class StatisticsPresenter {
         try {
             t.join();
             if (stats == null)
-                view.alertBox("Warning", "You haven't registered in our app. Please do so by choosing \"Send files\" !");
+                view.alertBox("Warning", "You haven't registered in our app. Please do so by choosing \"Submit\" !");
             else {
                 view.createTimeBar(stats);
                 view.createDistanceBar(stats);

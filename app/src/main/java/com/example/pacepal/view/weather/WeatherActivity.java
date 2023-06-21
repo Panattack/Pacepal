@@ -15,19 +15,27 @@ import android.widget.TextView;
 
 import com.example.pacepal.R;
 
-public class WeatherActivity extends AppCompatActivity implements WeatherView{
+public class WeatherActivity extends AppCompatActivity implements WeatherView {
     EditText searchText;
     Button searchButton;
     ImageView weatherImage;
     WeatherPresenter presenter;
+    int serverPort;
+    String host;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_weather);
+        Bundle bundle = getIntent().getExtras();
+        if (bundle != null) {
+            host = bundle.getString("host");
+            serverPort = bundle.getInt("serverPort");
+        }
         searchText = (EditText) findViewById(R.id.searchBar);
         searchButton = (Button) findViewById(R.id.searchButton);
         weatherImage = (ImageView) findViewById(R.id.myImageView);
-        presenter = new WeatherPresenter(this);
+        presenter = new WeatherPresenter(this, serverPort, host);
         searchButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 presenter.sendCity();

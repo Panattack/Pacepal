@@ -29,16 +29,18 @@ import java.util.List;
 import java.util.Properties;
 
 public class SenderPresenter {
-    String host = "192.168.1.2";
+    String host;
     static int fileId;
-    private int userId; // 0 by default
+    private int userId = 0; // 0 by default
     private final Initializer init;
-    int serverPort = 4321;
+    int serverPort;
     SenderFragmentView view;
     private List<File> inputList;
     protected boolean checking;
 
-    public SenderPresenter(SenderFragmentView view) {
+    public SenderPresenter(SenderFragmentView view, int serverPort, String host) {
+        this.host = host;
+        this.serverPort = serverPort;
         this.view = view;
         this.inputList = new ArrayList<>();
         this.init = new MemoryInitializer();
