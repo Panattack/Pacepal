@@ -1,14 +1,58 @@
-<?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".view.Statistics.StatisticsFragment">
+    android:layout_height="match_parent">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="STATISTICS FRAGMENT" />
 
-</FrameLayout>
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/rounded_container">
+
+            <!-- Bar Chart 1 -->
+            <com.github.mikephil.charting.charts.BarChart
+                android:id="@+id/timeBar"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+        </FrameLayout>
+
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/rounded_container">
+
+            <!-- Bar Chart 2 -->
+            <com.github.mikephil.charting.charts.BarChart
+                android:id="@+id/elevationBar"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+        </FrameLayout>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/rounded_container">
+
+            <!-- Bar Chart 3 -->
+            <com.github.mikephil.charting.charts.BarChart
+                android:id="@+id/distanceBar"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+        </FrameLayout>
+
+    </LinearLayout>
+
+</ScrollView>
+

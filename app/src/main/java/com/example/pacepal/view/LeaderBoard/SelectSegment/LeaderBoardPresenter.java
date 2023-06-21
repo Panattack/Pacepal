@@ -13,7 +13,7 @@ import java.util.HashMap;
 
 public class LeaderBoardPresenter {
 
-    String host = "192.168.2.14";
+    String host = "192.168.1.2";
     int serverPort = 4321;
     private final Initializer init;
     LeaderBoardView view;

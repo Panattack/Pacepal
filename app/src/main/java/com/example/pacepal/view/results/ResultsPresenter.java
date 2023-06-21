@@ -17,16 +17,18 @@ public class ResultsPresenter {
     }
 
     public void initViewOfResults() {
-        DecimalFormat decimalFormat = new DecimalFormat("#.###");
+        DecimalFormat decimalFormat = new DecimalFormat("##.##");
         List<Results> res = results.findAll();
         for (Results r : res) {
             HashMap<String, String> map = new HashMap<>();
             map.put("GPX id", String.valueOf(r.getGpx_id()));
             map.put("User id", String.valueOf(r.getUser_id()));
-            map.put("Average Speed", String.valueOf(decimalFormat.format(r.getAvgSpeed())));
-            map.put("Total Elevation", String.valueOf(decimalFormat.format(r.getTotalElevation())));
-            map.put("Total Distance", String.valueOf(decimalFormat.format(r.getTotalDistance())));
-            map.put("Total Time", String.valueOf(decimalFormat.format(r.getTotalTime())));
+            map.put("Average Speed", decimalFormat.format(r.getAvgSpeed()) + " m/s");
+            map.put("Total Elevation", decimalFormat.format(r.getTotalElevation()));
+            map.put("Total Distance", decimalFormat.format(r.getTotalDistance()) + " km");
+            map.put("Total Hours ", String.valueOf((int) (Float.parseFloat(decimalFormat.format(r.getTotalTime())) / 3600)));
+            map.put("Total Minutes", String.valueOf((int) (Float.parseFloat(decimalFormat.format(r.getTotalTime())) % 3600) / 60));
+            map.put("Total seconds", String.valueOf((int) (Float.parseFloat(decimalFormat.format(r.getTotalTime())) % 3600)));
             view.viewResults(map);
         }
     }

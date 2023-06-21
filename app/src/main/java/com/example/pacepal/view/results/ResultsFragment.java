@@ -64,7 +64,6 @@ public class ResultsFragment extends Fragment implements ResultsView {
         gradientDrawable.setColor(Color.WHITE);
         parentLayout.setBackground(gradientDrawable);
 
-
         // Create the ImageView
         ImageView imageView = new ImageView(getActivity());
         imageView.setImageResource(R.mipmap.blue_runner_mine_foreground);
@@ -80,8 +79,7 @@ public class ResultsFragment extends Fragment implements ResultsView {
         childLayout.setOrientation(LinearLayout.VERTICAL);
         childLayout.setLayoutParams(childLayoutParams);
 
-
-        //getting the appropriate values
+        // Getting the appropriate values
         for (Map.Entry<String, String> entry : results.entrySet()) {
             String key = entry.getKey();
             String value = entry.getValue();

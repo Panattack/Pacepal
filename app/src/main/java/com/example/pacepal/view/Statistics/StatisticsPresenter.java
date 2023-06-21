@@ -21,6 +21,13 @@ public class StatisticsPresenter {
         t.start();
         try {
             t.join();
+            if (stats == null)
+                view.alertBox("Warning", "You haven't registered in our app. Please do so by choosing \"Send files\" !");
+            else {
+                view.createTimeBar(stats);
+                view.createDistanceBar(stats);
+                view.createElevationBar(stats);
+            }
         } catch (InterruptedException e) {
             throw new InterruptedException("Fault with receiving statistics");
         }
@@ -50,7 +57,6 @@ public class StatisticsPresenter {
             if (msg == 0)
             {
                 // There is no user in the database
-                view.alertBox("Warning", "You haven't registered in our app. Please do so by choosing \"Send files\" !");
                 requestSocket.close();
                 return;
             }

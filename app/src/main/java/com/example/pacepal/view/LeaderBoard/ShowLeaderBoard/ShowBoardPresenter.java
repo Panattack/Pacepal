@@ -9,7 +9,7 @@ import java.net.Socket;
 import java.util.HashMap;
 
 public class ShowBoardPresenter {
-    String host = "192.168.2.14";
+    String host = "192.168.1.2";
     int serverPort = 4321;
     ShowBoardView view;
     HashMap<Integer,Double> listValues;
