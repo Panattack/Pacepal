@@ -17,7 +17,6 @@ public class ShowBoardPresenter {
 
 
     public ShowBoardPresenter(ShowBoardView view){
-
         this.view=view;
         listValues = new HashMap<>();
         listPosition = new HashMap<>();
@@ -25,7 +24,6 @@ public class ShowBoardPresenter {
 
     public void createBoard(){
         for (int i =0; i<listValues.size();i++){
-
 
             int user_id = listPosition.get(i+1);
             double time = listValues.get(user_id);
