@@ -29,7 +29,7 @@ public class ShowBoardPresenter {
 
             int user_id = listPosition.get(i+1);
             double time = listValues.get(user_id);
-            view.createLeaderBoard(time,user_id,i);
+            view.createLeaderBoard(time,user_id,i+1);
         }
 
 
