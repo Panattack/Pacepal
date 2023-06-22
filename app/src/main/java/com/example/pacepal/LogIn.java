@@ -4,16 +4,17 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
 import android.widget.ImageView;
-
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import android.os.Handler;
+import com.example.pacepal.view.RectangleProgressBar;
 
 public class LogIn extends Activity {
 
     ImageView pic;
+    private RectangleProgressBar progressBar;
+    private static final long PROGRESS_BAR_DURATION = 5000; // Duration in milliseconds
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,18 +27,30 @@ public class LogIn extends Activity {
                         Manifest.permission.MANAGE_EXTERNAL_STORAGE
                 }, 1
         );
+
+        progressBar = findViewById(R.id.progressBar);
+        startProgressBarAnimation();
+
+
     }
 
-    @Override
-    protected void onStart(){
-        super.onStart();
-        pic.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
+
+    private void startProgressBarAnimation() {
+        progressBar.startProgressAnimation();
+
+        // Stop the progress bar animation after 5 seconds
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                progressBar.setProgress(100);  // Set progress to maximum
+
+                //go to next page
                 Intent myIntent = new Intent(LogIn.this,Menu.class);
                 startActivityForResult(myIntent, 0);
+              //  finish();  // Optional: Finish the current activity if needed
             }
-        });
-
+        }, PROGRESS_BAR_DURATION); // 5 seconds delay (adjust as needed)
     }
 }
 
