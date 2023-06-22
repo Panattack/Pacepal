@@ -77,7 +77,9 @@ public class LeaderBoardFragment extends Fragment implements LeaderBoardView {
 //            }
             Intent intent = new Intent(getContext(), ShowBoardActivity.class);
             Bundle b = new Bundle();
-            b.putInt("number", number); //Your id
+            b.putInt("number", number);
+            b.putString("host",host);//Your id
+            b.putInt("serverPort",serverPort);
             intent.putExtras(b); //Put your id to your next Intent
             startActivity(intent);
         }
