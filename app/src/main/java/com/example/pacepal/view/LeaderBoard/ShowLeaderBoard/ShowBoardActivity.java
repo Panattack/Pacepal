@@ -13,6 +13,8 @@ public class ShowBoardActivity extends Activity implements ShowBoardView {
     LinearLayout scroll;
     ShowBoardPresenter presenter;
     int segment_id = -1; // or other values
+    String host;
+    int serverPort;
     @Override
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,13 +22,19 @@ public class ShowBoardActivity extends Activity implements ShowBoardView {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.choose_segment_fragment);
 
-        presenter = new ShowBoardPresenter(this);
+
         Bundle b = getIntent().getExtras();
 
-       if(b != null) {
-           segment_id = b.getInt("number");
-           //Log.e("Debugger", String.valueOf(segment_id));
-       }
+        if(b != null) {
+            segment_id = b.getInt("number");
+            host = b.getString("host");
+            serverPort = b.getInt("serverPort");
+
+            //Log.e("Debugger", String.valueOf(segment_id));
+        }
+
+        presenter = new ShowBoardPresenter(this,host,serverPort);
+
       scroll =(LinearLayout) findViewById(R.id.tableLayout);
         try {
             presenter.show();
