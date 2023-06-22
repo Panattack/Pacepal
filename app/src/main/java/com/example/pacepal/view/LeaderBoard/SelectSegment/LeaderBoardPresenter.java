@@ -13,16 +13,18 @@ import java.util.HashMap;
 
 public class LeaderBoardPresenter {
 
-    String host = "192.168.1.2";
-    int serverPort = 4321;
+    String host;
+    int serverPort;
     private final Initializer init;
     LeaderBoardView view;
 
     protected int numberSegment;
 
-    public LeaderBoardPresenter(LeaderBoardView view){
+    public LeaderBoardPresenter(LeaderBoardView view,String host, int server){
         this.view= view;
         this.init= new MemoryInitializer();
+        this.host = host;
+        this.serverPort= server;
 
     }
 

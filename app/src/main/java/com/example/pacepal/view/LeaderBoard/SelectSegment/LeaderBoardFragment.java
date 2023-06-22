@@ -20,16 +20,24 @@ public class LeaderBoardFragment extends Fragment implements LeaderBoardView {
     LeaderBoardPresenter presenter;
     Button select;
     EditText seg_number;
+    String host;
+    int serverPort;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_leader_board, container, false);
-        presenter= new LeaderBoardPresenter(this);
+
         select = (Button) view.findViewById(R.id.selectButton);
         seg_number = (EditText) view.findViewById(R.id.segmentNumber);
 
+        Bundle arguments = getArguments();
+        if (arguments != null) {
+            host = arguments.getString("host");
+            serverPort = arguments.getInt("serverPort");
+        }
+        presenter= new LeaderBoardPresenter(this,host,serverPort);
         return view;
 
     }
