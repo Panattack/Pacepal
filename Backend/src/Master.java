@@ -965,7 +965,6 @@ public class Master {
              
                 //We take from the user the segmennt id 
                 int segmentId = this.in.readInt();
-                System.out.println(segmentId+" Segment Id");
                 ArrayList<Chunk> leaderboard = new ArrayList<>(Master.segmentDAO.orderByTime(segmentId));
                 
                 //<Position , userId>
