@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class LeaderBoardPresenter {
@@ -17,6 +18,7 @@ public class LeaderBoardPresenter {
     int serverPort;
     private final Initializer init;
     LeaderBoardView view;
+
 
     protected int numberSegment;
 
@@ -36,11 +38,17 @@ public class LeaderBoardPresenter {
         } catch (InterruptedException e) {
             throw new InterruptedException("Error in getting number of segments");
         }
-        setHint();
+        setList();
+
     }
 
-    private void setHint(){
-        view.segmentHint(numberSegment);
+    private void setList(){
+        ArrayList<Integer> choices = new ArrayList<>();
+        for(int i =1 ; i<= numberSegment;i++){
+            choices.add(i);
+        }
+
+        view.createSegmentList(choices);
     }
 
     private void SegmentNumber(){
@@ -67,60 +75,11 @@ public class LeaderBoardPresenter {
         }
     }
 
-//    protected void answer() throws InterruptedException {
-//        Thread k = new Thread(this::getSegmentLists);
-//        k.start();
-//        try {
-//            k.join();
-//        } catch (InterruptedException e) {
-//            throw new InterruptedException("Error in checking worker buffer");
-//        }
-//
-//    }
-//        private void getSegmentLists(){
-//        Socket requestSocket = null;
-//
-//        try {
-//            /* Create socket for contacting the server on port 4321 */
-//
-//            requestSocket = new Socket(host, serverPort);
-//            /* Create the streams to send and receive data from server */
-//            ObjectOutputStream out = new ObjectOutputStream(requestSocket.getOutputStream());
-//            ObjectInputStream in = new ObjectInputStream(requestSocket.getInputStream());
-//
-//            // Send segment id
-//            out.writeInt(view.getChoice());
-//            out.flush();
-//
-//            // We take the number of the segments
-//
-//            // <UserId , Value>
-//            HashMap<Integer,Double> listValues =(HashMap<Integer,Double>) in.readObject();
-//            // <Position , UserId>
-//            HashMap<Integer,Integer> listPosition =  (HashMap<Integer,Integer>) in.readObject();
-//
-//        } catch (IOException e) {
-//            throw new RuntimeException(e);
-//        } catch (ClassNotFoundException e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
-
-
-
     protected void sendNumber(){
-        view.sentOption();
+        int choice = view.getSelectedSegment();
+        view.sentOption(choice);
     }
 
-    protected boolean checker(int answer){
-        if(answer>0 & answer<= numberSegment){
-            return true;
-        }
-        return false;
 
-    }
 
-    public int getNum(){
-        return numberSegment;
-    }
 }

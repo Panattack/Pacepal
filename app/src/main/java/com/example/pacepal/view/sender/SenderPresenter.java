@@ -1,19 +1,10 @@
 package com.example.pacepal.view.sender;
 
-import android.annotation.SuppressLint;
-import android.content.res.AssetManager;
-import android.os.AsyncTask;
 import android.os.Environment;
-import android.util.Log;
-import android.widget.Toast;
 
-import com.example.pacepal.SenderThread;
 import com.example.pacepal.dao.Initializer;
 import com.example.pacepal.memorydao.MemoryInitializer;
 import com.example.pacepal.model.Results;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -26,7 +17,6 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Properties;
 
 public class SenderPresenter {
     String host;

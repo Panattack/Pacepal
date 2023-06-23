@@ -1,8 +1,9 @@
 package com.example.pacepal.view.LeaderBoard.SelectSegment;
 
-public interface LeaderBoardView {
-    void segmentHint(int number);
-    void sentOption();
+import java.util.ArrayList;
 
-    int getChoice();
+public interface LeaderBoardView {
+    void createSegmentList(ArrayList<Integer> num);
+    int getSelectedSegment();
+    void sentOption(int id);
 }

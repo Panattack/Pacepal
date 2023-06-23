@@ -9,19 +9,29 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.example.pacepal.R;
 import com.example.pacepal.view.LeaderBoard.ShowLeaderBoard.ShowBoardActivity;
+
+import java.util.ArrayList;
 
 
 public class LeaderBoardFragment extends Fragment implements LeaderBoardView {
     LeaderBoardPresenter presenter;
     Button select;
-    EditText seg_number;
     String host;
     int serverPort;
+
+    TextView id ;
+
+    int user_id ;
+
+    Spinner segmentSpinner;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -30,14 +40,16 @@ public class LeaderBoardFragment extends Fragment implements LeaderBoardView {
         View view = inflater.inflate(R.layout.fragment_leader_board, container, false);
 
         select = (Button) view.findViewById(R.id.selectButton);
-        seg_number = (EditText) view.findViewById(R.id.segmentNumber);
+        segmentSpinner = (Spinner) view.findViewById(R.id.spinner);
+        id = (TextView) view.findViewById(R.id.textUser) ;
 
         Bundle arguments = getArguments();
         if (arguments != null) {
             host = arguments.getString("host");
             serverPort = arguments.getInt("serverPort");
+            user_id = arguments.getInt("user_id");
         }
-        presenter= new LeaderBoardPresenter(this,host,serverPort);
+        presenter = new LeaderBoardPresenter(this, host, serverPort);
         return view;
 
     }
@@ -45,7 +57,7 @@ public class LeaderBoardFragment extends Fragment implements LeaderBoardView {
     @Override
     public void onStart() {
         super.onStart();
-
+        id.setText("YOUR USER ID IS: "+user_id);
         try {
             presenter.getNumber();
         } catch (InterruptedException e) {
@@ -60,44 +72,33 @@ public class LeaderBoardFragment extends Fragment implements LeaderBoardView {
             }
         });
     }
-   @Override
-   public void segmentHint(int number){
-       seg_number.setHint("You have " + number+ " segments");
+
+
+    @Override
+    public void createSegmentList(ArrayList<Integer> num) {
+
+        ArrayAdapter<Integer> adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_dropdown_item, num);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        segmentSpinner.setAdapter(adapter);
     }
-   @Override
-   public void sentOption()  {
-        int number = Integer.parseInt(String.valueOf(seg_number.getText()));
-        boolean ok = presenter.checker(number);
-        if (ok){
-//            try {
-//                presenter.answer();
-//            }
-//            catch(InterruptedException e ){
-//                throw new RuntimeException(e);
-//            }
+
+    @Override
+    public int getSelectedSegment(){
+        return Integer.parseInt(segmentSpinner.getSelectedItem().toString());
+    }
+
+    @Override
+    public void sentOption(int id)  {
             Intent intent = new Intent(getContext(), ShowBoardActivity.class);
             Bundle b = new Bundle();
-            b.putInt("number", number);
+            b.putInt("number", id);
             b.putString("host",host);//Your id
             b.putInt("serverPort",serverPort);
             intent.putExtras(b); //Put your id to your next Intent
             startActivity(intent);
         }
-        else {
-            new AlertDialog.Builder(requireContext())
-                    .setCancelable(true)
-                    .setTitle("Wrong Input")
-                    .setMessage("Number is out of bounds . You can select segments until the number "+ presenter.getNum()+" except for 0 ")
-                    .setPositiveButton(R.string.ok, null).create().show();
-
-        }
 
 
-   }
-
-   public int getChoice(){
-        return Integer.parseInt(String.valueOf(seg_number.getText()));
-   }
 
 
-}
+    }

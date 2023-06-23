@@ -28,6 +28,8 @@ public class Menu extends AppCompatActivity {
     FloatingActionButton weather;
     String host;
     int serverPort;
+
+    int user_id;
     BottomNavigationView bottomNavigationView;
 
     @Override
@@ -46,6 +48,7 @@ public class Menu extends AppCompatActivity {
 
         host = prop.getProperty("host");
         serverPort = Integer.parseInt(prop.getProperty("serverPort"));
+        user_id = Integer.parseInt(prop.getProperty("user_id"));
 
         // Set the initial fragment to be displayed
         replaceFragment(new SenderFragment());
@@ -90,6 +93,7 @@ public class Menu extends AppCompatActivity {
         Bundle bundle = new Bundle();
         bundle.putString("host", host);
         bundle.putInt("serverPort", serverPort);
+        bundle.putInt("user_id", user_id);
         fragment.setArguments(bundle);
         FragmentManager manager = getSupportFragmentManager();
         FragmentTransaction transaction = manager.beginTransaction();
