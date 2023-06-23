@@ -1,4 +1,4 @@
-package com.example.pacepal;
+package com.example.pacepal.view;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.example.pacepal.R;
 import com.example.pacepal.view.LeaderBoard.SelectSegment.LeaderBoardFragment;
 import com.example.pacepal.view.Statistics.StatisticsFragment;
 import com.example.pacepal.view.results.ResultsFragment;

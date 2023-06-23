@@ -34,6 +34,7 @@ public class SenderFragment extends Fragment implements SenderFragmentView {
     SenderPresenter senderPresenter;
     int serverPort;
     String host;
+    int userId;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -42,11 +43,12 @@ public class SenderFragment extends Fragment implements SenderFragmentView {
         tableLayout = view.findViewById(R.id.tableLayout);
         Bundle arguments = getArguments();
         if (arguments != null) {
+            userId = arguments.getInt("user_id");
             host = arguments.getString("host");
             serverPort = arguments.getInt("serverPort");
         }
         this.submitButton = view.findViewById(R.id.submitBtn);
-        this.senderPresenter = new SenderPresenter(this, serverPort, host);
+        this.senderPresenter = new SenderPresenter(this, serverPort, host, userId);
         return view;
     }
 

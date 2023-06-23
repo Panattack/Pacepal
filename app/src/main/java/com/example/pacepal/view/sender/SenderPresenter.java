@@ -21,14 +21,15 @@ import java.util.List;
 public class SenderPresenter {
     String host;
     static int fileId;
-    private int userId = 0; // 0 by default
+    private int userId; // 0 by default
     private final Initializer init;
     int serverPort;
     SenderFragmentView view;
     private List<File> inputList;
     protected boolean checking;
 
-    public SenderPresenter(SenderFragmentView view, int serverPort, String host) {
+    public SenderPresenter(SenderFragmentView view, int serverPort, String host, int id) {
+        this.userId = id;
         this.host = host;
         this.serverPort = serverPort;
         this.view = view;

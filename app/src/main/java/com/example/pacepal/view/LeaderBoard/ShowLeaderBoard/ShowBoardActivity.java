@@ -16,9 +16,9 @@ public class ShowBoardActivity extends Activity implements ShowBoardView {
     int segment_id = -1; // or other values
     String host;
     int serverPort;
+    int userId;
 
     @Override
-
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
@@ -31,8 +31,7 @@ public class ShowBoardActivity extends Activity implements ShowBoardView {
             segment_id = b.getInt("number");
             host = b.getString("host");
             serverPort = b.getInt("serverPort");
-
-            //Log.e("Debugger", String.valueOf(segment_id));
+            userId = b.getInt("user_id");
         }
 
         presenter = new ShowBoardPresenter(this, host, serverPort);

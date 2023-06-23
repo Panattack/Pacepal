@@ -26,11 +26,8 @@ public class LeaderBoardFragment extends Fragment implements LeaderBoardView {
     Button select;
     String host;
     int serverPort;
-
-    TextView id ;
-
-    int user_id ;
-
+    TextView id;
+    int user_id;
     Spinner segmentSpinner;
 
     @Override
@@ -41,7 +38,7 @@ public class LeaderBoardFragment extends Fragment implements LeaderBoardView {
 
         select = (Button) view.findViewById(R.id.selectButton);
         segmentSpinner = (Spinner) view.findViewById(R.id.spinner);
-        id = (TextView) view.findViewById(R.id.textUser) ;
+        id = (TextView) view.findViewById(R.id.textUser);
 
         Bundle arguments = getArguments();
         if (arguments != null) {
@@ -51,19 +48,17 @@ public class LeaderBoardFragment extends Fragment implements LeaderBoardView {
         }
         presenter = new LeaderBoardPresenter(this, host, serverPort);
         return view;
-
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        id.setText("YOUR USER ID IS: "+user_id);
+        id.setText("YOUR USER ID IS: " + user_id);
         try {
             presenter.getNumber();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-
 
         select.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -73,32 +68,29 @@ public class LeaderBoardFragment extends Fragment implements LeaderBoardView {
         });
     }
 
-
     @Override
     public void createSegmentList(ArrayList<Integer> num) {
-
         ArrayAdapter<Integer> adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_dropdown_item, num);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         segmentSpinner.setAdapter(adapter);
     }
 
     @Override
-    public int getSelectedSegment(){
+    public int getSelectedSegment() {
         return Integer.parseInt(segmentSpinner.getSelectedItem().toString());
     }
 
     @Override
-    public void sentOption(int id)  {
-            Intent intent = new Intent(getContext(), ShowBoardActivity.class);
-            Bundle b = new Bundle();
-            b.putInt("number", id);
-            b.putString("host",host);//Your id
-            b.putInt("serverPort",serverPort);
-            intent.putExtras(b); //Put your id to your next Intent
-            startActivity(intent);
-        }
-
-
-
-
+    public void sentOption(int id) {
+        Intent intent = new Intent(getContext(), ShowBoardActivity.class);
+        Bundle b = new Bundle();
+        b.putInt("number", id);
+        b.putString("host", host);//Your id
+        b.putInt("serverPort", serverPort);
+        b.putInt("user_id", user_id);
+        intent.putExtras(b); //Put your id to your next Intent
+        startActivity(intent);
     }
+
+
+}

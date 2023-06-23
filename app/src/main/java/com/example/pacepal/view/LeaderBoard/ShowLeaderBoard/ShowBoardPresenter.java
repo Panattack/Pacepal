@@ -9,34 +9,32 @@ import java.net.Socket;
 import java.util.HashMap;
 
 public class ShowBoardPresenter {
-    String host ;
+    String host;
     int serverPort;
     ShowBoardView view;
-    HashMap<Integer,Double> listValues;
-    HashMap<Integer,Integer> listPosition;
+    HashMap<Integer, Double> listValues;
+    HashMap<Integer, Integer> listPosition;
 
 
-    public ShowBoardPresenter(ShowBoardView view,String host , int server){
-        this.view=view;
+    public ShowBoardPresenter(ShowBoardView view, String host, int server) {
+        this.view = view;
         listValues = new HashMap<>();
         listPosition = new HashMap<>();
-        this.host=host;
-        this.serverPort= server;
+        this.host = host;
+        this.serverPort = server;
     }
 
-    public void createBoard(){
-        for (int i =0; i<listValues.size();i++){
+    public void createBoard() {
+        for (int i = 0; i < listValues.size(); i++) {
 
-            int user_id = listPosition.get(i+1);
+            int user_id = listPosition.get(i + 1);
             double time = listValues.get(user_id);
-            view.createLeaderBoard(time,user_id,i+1);
+            view.createLeaderBoard(time, user_id, i + 1);
         }
-
-
     }
 
-    public void show() throws InterruptedException{
-        Thread k = new Thread (this::getList);
+    public void show() throws InterruptedException {
+        Thread k = new Thread(this::getList);
         k.start();
         try {
             k.join();
@@ -44,7 +42,8 @@ public class ShowBoardPresenter {
             throw new InterruptedException("Error in checking worker buffer");
         }
     }
-    private void getList(){
+
+    private void getList() {
 
         Socket requestSocket = null;
 
@@ -61,19 +60,15 @@ public class ShowBoardPresenter {
             out.flush();
 
             // we send the segmentId
-            out.writeInt(view.getSegmentId()-1);// the first segmentId is 0
+            out.writeInt(view.getSegmentId() - 1);// the first segmentId is 0
             out.flush();
             // We take the number of the segments
 
             // <UserId , Value>
-             listValues =(HashMap<Integer,Double>) in.readObject();
-             Log.e("DEBUGG", String.valueOf(listValues.size()));
+            listValues = (HashMap<Integer, Double>) in.readObject();
 
-             // <Position , UserId>
-             listPosition =  (HashMap<Integer,Integer>) in.readObject();
-              Log.e("DEBUGG", String.valueOf(listPosition.size()));
-
-
+            // <Position , UserId>
+            listPosition = (HashMap<Integer, Integer>) in.readObject();
 
         } catch (IOException e) {
             throw new RuntimeException(e);

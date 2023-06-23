@@ -9,11 +9,12 @@ import java.util.HashMap;
 
 public class StatisticsPresenter {
     String host;
-    private int userId = 0; // 0 by default
+    private int userId; // 0 by default
     int serverPort;
     private HashMap<String, Double> stats;
     StatisticsView view;
-    public StatisticsPresenter(StatisticsView view, int serverPort, String host) {
+    public StatisticsPresenter(StatisticsView view, int serverPort, String host, int id) {
+        this.userId = id;
         this.host = host;
         this.serverPort = serverPort;
         this.view = view;

@@ -1,13 +1,16 @@
-package com.example.pacepal;
+package com.example.pacepal.view;
 
 import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ImageView;
+
 import androidx.core.app.ActivityCompat;
+
 import android.os.Handler;
-import com.example.pacepal.view.RectangleProgressBar;
+
+import com.example.pacepal.R;
 
 public class LogIn extends Activity {
 
@@ -30,10 +33,7 @@ public class LogIn extends Activity {
 
         progressBar = findViewById(R.id.progressBar);
         startProgressBarAnimation();
-
-
     }
-
 
     private void startProgressBarAnimation() {
         progressBar.startProgressAnimation();
@@ -46,9 +46,9 @@ public class LogIn extends Activity {
                 progressBar.setProgress(100);  // Set progress to maximum
 
                 //go to next page
-                Intent myIntent = new Intent(LogIn.this,Menu.class);
+                Intent myIntent = new Intent(LogIn.this, Menu.class);
                 startActivityForResult(myIntent, 0);
-              //  finish();  // Optional: Finish the current activity if needed
+                //  finish();  // Optional: Finish the current activity if needed
             }
         }, PROGRESS_BAR_DURATION); // 5 seconds delay (adjust as needed)
     }

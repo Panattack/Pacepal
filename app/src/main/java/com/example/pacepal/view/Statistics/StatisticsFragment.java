@@ -33,7 +33,7 @@ public class StatisticsFragment extends Fragment implements StatisticsView {
     BarChart distanceChart;
     int serverPort;
     String host;
-
+    int userId;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_statistics, container, false);
@@ -42,10 +42,11 @@ public class StatisticsFragment extends Fragment implements StatisticsView {
         distanceChart = view.findViewById(R.id.distanceBar);
         Bundle arguments = getArguments();
         if (arguments != null) {
+            userId = arguments.getInt("user_id");
             host = arguments.getString("host");
             serverPort = arguments.getInt("serverPort");
         }
-        presenter = new StatisticsPresenter(this, serverPort, host);
+        presenter = new StatisticsPresenter(this, serverPort, host, userId);
 
         return view;
     }
