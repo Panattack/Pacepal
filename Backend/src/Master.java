@@ -82,7 +82,7 @@ public class Master {
         public SegmentDAO() {
             this.segmentUserList = new SynchronizedHashMap<>();
         }
-
+    
         public synchronized void addRecord(int segmentId, Chunk chunk) {
             if (!this.segmentUserList.containsKey(segmentId)) {
                 this.segmentUserList.put(segmentId, new ArrayList<Chunk>());
@@ -730,7 +730,7 @@ public class Master {
                             segmentIdx = 0;
                             // System.out.println(segmentId);
                             ObjectOutputStream outstream = workerHandlers.get();
-                            // Sync in order to send a chunk in the worker 
+                            // Sync in order to send a chunk in the worker
                             // but if two or more client threads have the same outstream, lock it
                             synchronized (outstream) {
                                 segmChunk.setSegmentId(segmentId);                                
