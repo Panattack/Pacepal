@@ -26,6 +26,11 @@ public class WeatherActivity extends AppCompatActivity implements WeatherView {
     int serverPort;
     String host;
 
+    /**
+     * @param savedInstanceState If the activity is being re-initialized after
+     *                           previously being shut down then this Bundle contains the data it most
+     *                           recently supplied in {@link #onSaveInstanceState}.  <b><i>Note: Otherwise it is null.</i></b>
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,17 +59,36 @@ public class WeatherActivity extends AppCompatActivity implements WeatherView {
 
     }
 
+    /**
+     * Sets the image based on the weather id
+     *
+     * @param id indicates the weather as an integer
+     */
     @Override
     public void setImage(int id) {
         // TODO Based on the id, will be shown different icons
         weatherImage.setImageResource(id);
     }
 
+    /**
+     * Gets the city
+     *
+     * @return the written city as a string
+     */
     @Override
     public String getText() {
         return searchText.getText().toString().trim();
     }
 
+    /**
+     * Creates the box with the weather info
+     *
+     * @param temp        the temperature as a string
+     * @param pressure    the pressure as a string
+     * @param humidity    the humidity as a string
+     * @param main        the main weather as a string
+     * @param description the description of the overall weather as a string
+     */
     @Override
     public void setStatus(String temp, String pressure, String humidity, String main, String description) {
         // Assuming you have a reference to the TableLayout

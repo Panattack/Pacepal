@@ -36,6 +36,16 @@ public class SenderFragment extends Fragment implements SenderFragmentView {
     String host;
     int userId;
 
+    /**
+     * @param inflater           The LayoutInflater object that can be used to inflate
+     *                           any views in the fragment,
+     * @param container          If non-null, this is the parent view that the fragment's
+     *                           UI should be attached to.  The fragment should not add the view itself,
+     *                           but this can be used to generate the LayoutParams of the view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     *                           from a previous saved state as given here.
+     * @return
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // TODO:Check the sender layout to make the boxes better in size
@@ -52,6 +62,11 @@ public class SenderFragment extends Fragment implements SenderFragmentView {
         return view;
     }
 
+    /**
+     * The presenter does two jobs:
+     * 1. Loads the files from the download folder
+     * 2. When the user clicks the submits button, the presenter sends the files to the Master server
+     */
     @Override
     public void onStart() {
         super.onStart();
@@ -65,6 +80,11 @@ public class SenderFragment extends Fragment implements SenderFragmentView {
         });
     }
 
+    /**
+     * Shows files with checkboxes to select
+     *
+     * @param files an arraylist that contains the titles of each file gpx
+     */
     @Override
     public void showFiles(ArrayList<String> files) {
         tableLayout.setVisibility(View.VISIBLE); // shows the table
@@ -116,11 +136,22 @@ public class SenderFragment extends Fragment implements SenderFragmentView {
 
     }
 
+    /**
+     * Pops a message when an event occurs
+     *
+     * @param message the message as a string
+     */
     @Override
     public void popMsg(String message) {
         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
     }
 
+    /**
+     * Shows an alert box when an event occurs
+     *
+     * @param title
+     * @param message
+     */
     @Override
     public void alertBox(String title, String message) {
         new AlertDialog.Builder(requireContext())
@@ -131,6 +162,11 @@ public class SenderFragment extends Fragment implements SenderFragmentView {
 
     }
 
+    /**
+     * After "submit" is clicked, it returns the names of the files that were selected
+     *
+     * @return the names of the files that were selected as strings
+     */
     public ArrayList<String> submitClicked() {
         ArrayList<String> fileNames = new ArrayList<>();
         int rowCount = tableLayout.getChildCount();

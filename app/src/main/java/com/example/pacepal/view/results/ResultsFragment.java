@@ -28,6 +28,16 @@ public class ResultsFragment extends Fragment implements ResultsView {
     LinearLayout container_of_image_and_second_linear;
     View myView;
 
+    /**
+     * @param inflater           The LayoutInflater object that can be used to inflate
+     *                           any views in the fragment,
+     * @param container          If non-null, this is the parent view that the fragment's
+     *                           UI should be attached to.  The fragment should not add the view itself,
+     *                           but this can be used to generate the LayoutParams of the view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     *                           from a previous saved state as given here.
+     * @return
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -41,11 +51,20 @@ public class ResultsFragment extends Fragment implements ResultsView {
         return myView;
     }
 
+    /**
+     * Calls the presenter and gets the results
+     */
     @Override
     public void onStart() {
         super.onStart();
         presenter.initViewOfResults();
     }
+
+    /**
+     * Shows the results in a formatted way
+     *
+     * @param results a hashmap with key the id of the attribute and value the attribute
+     */
     @Override
     public void viewResults(HashMap<String, String> results) {
         // Create the parent LinearLayout (IMAGE AND RESULTS CONTAINER)

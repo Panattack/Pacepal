@@ -13,12 +13,27 @@ public class StatisticsPresenter {
     int serverPort;
     private HashMap<String, Double> stats;
     StatisticsView view;
+
+    /**
+     * Constructor that initializes the attributes
+     *
+     * @param view       the view that will be used to call the methods in the activity
+     * @param serverPort the port of the Master server as an integer
+     * @param host       the ip address of the Master server as a string
+     * @param id         the id of the user as an integer
+     */
     public StatisticsPresenter(StatisticsView view, int serverPort, String host, int id) {
         this.userId = id;
         this.host = host;
         this.serverPort = serverPort;
         this.view = view;
     }
+
+    /**
+     * Creates the charts
+     *
+     * @throws InterruptedException in case something goes wrong with the connection
+     */
     public void receiveStatistics() throws InterruptedException {
         Thread t = new Thread(this::StatisticsProcess);
         t.start();
@@ -36,6 +51,9 @@ public class StatisticsPresenter {
         }
     }
 
+    /**
+     * Creates a connection between the Master server and the app in order to receive the statistics of the user and the global statistics
+     */
     private void StatisticsProcess() {
         ObjectOutputStream out;
         ObjectInputStream in;
@@ -47,7 +65,7 @@ public class StatisticsPresenter {
             out = new ObjectOutputStream(requestSocket.getOutputStream());
             in = new ObjectInputStream(requestSocket.getInputStream());
 
-            // Send id request --> Statistics
+            // Send id request
             out.writeInt(2);
             out.flush();
 
@@ -57,8 +75,7 @@ public class StatisticsPresenter {
 
             int msg = in.readInt();
 
-            if (msg == 0)
-            {
+            if (msg == 0) {
                 // There is no user in the database
                 requestSocket.close();
                 return;

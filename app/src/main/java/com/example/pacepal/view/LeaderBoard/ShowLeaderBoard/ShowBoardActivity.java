@@ -18,6 +18,11 @@ public class ShowBoardActivity extends Activity implements ShowBoardView {
     int serverPort;
     int userId;
 
+    /**
+     * @param savedInstanceState If the activity is being re-initialized after
+     *                           previously being shut down then this Bundle contains the data it most
+     *                           recently supplied in {@link #onSaveInstanceState}.  <b><i>Note: Otherwise it is null.</i></b>
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -45,6 +50,13 @@ public class ShowBoardActivity extends Activity implements ShowBoardView {
         presenter.createBoard();
     }
 
+    /**
+     * Create the leaderboard and set the medals
+     *
+     * @param timesec the time in seconds of the user
+     * @param name    the name/id of the user
+     * @param num     the position of the user
+     */
     @Override
     public void createLeaderBoard(double timesec, int name, int num) {
 
@@ -143,10 +155,14 @@ public class ShowBoardActivity extends Activity implements ShowBoardView {
 
     }
 
+    /**
+     * Get the segment id from the previous fragment
+     *
+     * @return the segment id as an integer
+     */
     public int getSegmentId() {
 
         return segment_id;
     }
-
 
 }

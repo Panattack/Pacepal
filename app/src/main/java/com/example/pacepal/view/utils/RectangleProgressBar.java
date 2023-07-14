@@ -1,4 +1,4 @@
-package com.example.pacepal.view;
+package com.example.pacepal.view.utils;
 
 import android.animation.ValueAnimator;
 import android.content.Context;
@@ -81,7 +81,9 @@ public class RectangleProgressBar extends View {
         animator.start();
     }
 
-    // Helper method to interpolate color based on a fraction value
+    /**
+     * Helper method to interpolate color based on a fraction value
+     */
     private int interpolateColor(int startColor, int endColor, float fraction) {
         int startA = Color.alpha(startColor);
         int startR = Color.red(startColor);

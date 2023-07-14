@@ -17,6 +17,13 @@ public class WeatherPresenter {
     HashMap<String, String> weather;
     int serverPort;
 
+    /**
+     * Constructor that initializes all attributes
+     *
+     * @param view       the view that will be used to call the methods in the activity
+     * @param serverPort the port of the Master server as an integer
+     * @param host       the ip address of the Master server as a string
+     */
     public WeatherPresenter(WeatherView view, int serverPort, String host) {
         this.host = host;
         this.serverPort = serverPort;
@@ -24,6 +31,9 @@ public class WeatherPresenter {
         this.view = view;
     }
 
+    /**
+     * Start a connection with the Master server, asking the weather about the declared city
+     */
     public void sendCity() {
         String city = view.getText();
         Thread t = new Thread(() -> WeatherProcess(city));
@@ -36,6 +46,11 @@ public class WeatherPresenter {
         setIcon();
     }
 
+    /**
+     * Establish a connection with the Master server and receive the weather info
+     *
+     * @param city
+     */
     public void WeatherProcess(String city) {
         ObjectOutputStream out;
         ObjectInputStream in;
@@ -64,6 +79,9 @@ public class WeatherPresenter {
         }
     }
 
+    /**
+     * Pass all necessary weather info to the activity
+     */
     private void setIcon() {
         String id = weather.get("id");
         assert id != null;
@@ -78,8 +96,7 @@ public class WeatherPresenter {
                 view.setImage(R.drawable._3_snow);
             else
                 view.setImage(R.drawable._9_shower_rain);
-        }
-        else if (id.startsWith("6"))
+        } else if (id.startsWith("6"))
             view.setImage(R.drawable._3_snow);
         else if (id.startsWith("7"))
             view.setImage(R.drawable._0_mist);

@@ -15,7 +15,13 @@ public class ShowBoardPresenter {
     HashMap<Integer, Double> listValues;
     HashMap<Integer, Integer> listPosition;
 
-
+    /**
+     * Constructor that intializes the variables
+     *
+     * @param view   the view that will be used to call the methods in the activity
+     * @param host   the ip of the host as a string
+     * @param server the port of the host as an integer
+     */
     public ShowBoardPresenter(ShowBoardView view, String host, int server) {
         this.view = view;
         listValues = new HashMap<>();
@@ -24,6 +30,9 @@ public class ShowBoardPresenter {
         this.serverPort = server;
     }
 
+    /**
+     * Creates the leaderboard
+     */
     public void createBoard() {
         for (int i = 0; i < listValues.size(); i++) {
 
@@ -33,6 +42,11 @@ public class ShowBoardPresenter {
         }
     }
 
+    /**
+     * Gets the leaderboard from Master server
+     *
+     * @throws InterruptedException when a connection is lost
+     */
     public void show() throws InterruptedException {
         Thread k = new Thread(this::getList);
         k.start();
@@ -43,6 +57,9 @@ public class ShowBoardPresenter {
         }
     }
 
+    /**
+     * Connection between the app and Master server in order th get the leaderboard
+     */
     private void getList() {
 
         Socket requestSocket = null;

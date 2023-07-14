@@ -18,19 +18,29 @@ public class LeaderBoardPresenter {
     int serverPort;
     private final Initializer init;
     LeaderBoardView view;
-
-
     protected int numberSegment;
 
-    public LeaderBoardPresenter(LeaderBoardView view,String host, int server){
-        this.view= view;
-        this.init= new MemoryInitializer();
+    /**
+     * Constructor that initializes the variables
+     *
+     * @param view   the view that will be used to call the methods in the activity
+     * @param host   the ip of the host as a string
+     * @param server the port of the host as an integer
+     */
+    public LeaderBoardPresenter(LeaderBoardView view, String host, int server) {
+        this.view = view;
+        this.init = new MemoryInitializer();
         this.host = host;
-        this.serverPort= server;
-
+        this.serverPort = server;
     }
 
-    public void getNumber()throws InterruptedException{
+    /**
+     * Trying to get the maximum id of the segments and establishing a connection with the Master server.
+     * In case of failure, a message pops up
+     *
+     * @throws InterruptedException
+     */
+    public void getNumber() throws InterruptedException {
         Thread k = new Thread(this::SegmentNumber);
         k.start();
         try {
@@ -39,19 +49,23 @@ public class LeaderBoardPresenter {
             throw new InterruptedException("Error in getting number of segments");
         }
         setList();
-
     }
 
-    private void setList(){
+    /**
+     * Set the list in order to pass it in the spinner
+     */
+    private void setList() {
         ArrayList<Integer> choices = new ArrayList<>();
-        for(int i =1 ; i<= numberSegment;i++){
+        for (int i = 1; i <= numberSegment; i++) {
             choices.add(i);
         }
-
         view.createSegmentList(choices);
     }
 
-    private void SegmentNumber(){
+    /**
+     * Get the maximum id of the segments
+     */
+    private void SegmentNumber() {
 
         Socket requestSocket = null;
 
@@ -75,11 +89,11 @@ public class LeaderBoardPresenter {
         }
     }
 
-    protected void sendNumber(){
+    /**
+     * Get and send the selected id segment to the next activity
+     */
+    protected void sendNumber() {
         int choice = view.getSelectedSegment();
         view.sentOption(choice);
     }
-
-
-
 }

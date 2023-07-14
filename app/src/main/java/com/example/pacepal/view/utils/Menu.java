@@ -1,4 +1,4 @@
-package com.example.pacepal.view;
+package com.example.pacepal.view.utils;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -37,6 +37,11 @@ public class Menu extends AppCompatActivity {
     int user_id;
     BottomNavigationView bottomNavigationView;
 
+    /**
+     * @param savedInstanceState If the activity is being re-initialized after
+     *                           previously being shut down then this Bundle contains the data it most
+     *                           recently supplied in {@link #onSaveInstanceState}.  <b><i>Note: Otherwise it is null.</i></b>
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -100,6 +105,11 @@ public class Menu extends AppCompatActivity {
         });
     }
 
+    /**
+     * After pressing one of the four icons in the navigation bar, it activates a new fragment
+     *
+     * @param fragment the fragment of the selected icon
+     */
     private void replaceFragment(Fragment fragment) {
         Bundle bundle = new Bundle();
         bundle.putString("host", host);
@@ -112,6 +122,9 @@ public class Menu extends AppCompatActivity {
         transaction.commit();
     }
 
+    /**
+     * When the submit button is clicked, it starts the Weather activity
+     */
     public void weatherButtonClicked() {
         Bundle bundle = new Bundle();
         bundle.putString("host", host);

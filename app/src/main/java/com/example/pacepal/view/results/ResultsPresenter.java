@@ -11,11 +11,20 @@ public class ResultsPresenter {
     private ResultDAO results;
     private ResultsView view;
 
+    /**
+     * Constructor that initializes the variables
+     *
+     * @param view the view that will be used to call the methods in the activity
+     * @param r    the dao that contains results
+     */
     public ResultsPresenter(ResultsView view, ResultDAO r) {
         this.results = r;
         this.view = view;
     }
 
+    /**
+     * Initializes the result boxes with the help of the dao
+     */
     public void initViewOfResults() {
         DecimalFormat decimalFormat = new DecimalFormat("##.##");
         List<Results> res = results.findAll();

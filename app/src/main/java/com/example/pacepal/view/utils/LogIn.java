@@ -1,4 +1,4 @@
-package com.example.pacepal.view;
+package com.example.pacepal.view.utils;
 
 import android.Manifest;
 import android.app.Activity;
@@ -13,12 +13,15 @@ import android.os.Handler;
 import com.example.pacepal.R;
 
 public class LogIn extends Activity {
-
     ImageView pic;
     private RectangleProgressBar progressBar;
     private static final long PROGRESS_BAR_DURATION = 5000; // Duration in milliseconds
 
-
+    /**
+     * @param savedInstanceState If the activity is being re-initialized after
+     *                           previously being shut down then this Bundle contains the data it most
+     *                           recently supplied in {@link #onSaveInstanceState}.  <b><i>Note: Otherwise it is null.</i></b>
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,6 +38,9 @@ public class LogIn extends Activity {
         startProgressBarAnimation();
     }
 
+    /**
+     * Creates and starts the animation of the progress bar
+     */
     private void startProgressBarAnimation() {
         progressBar.startProgressAnimation();
 

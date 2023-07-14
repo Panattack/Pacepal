@@ -22,10 +22,10 @@
             android:name=".view.weather.WeatherActivity"
             android:exported="false" />
         <activity
-            android:name=".view.Menu"
+            android:name=".view.utils.Menu"
             android:exported="false" />
         <activity
-            android:name=".view.LogIn"
+            android:name=".view.utils.LogIn"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.Pacepal.NoActionBar">

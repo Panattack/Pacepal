@@ -20,7 +20,6 @@ import com.example.pacepal.view.LeaderBoard.ShowLeaderBoard.ShowBoardActivity;
 
 import java.util.ArrayList;
 
-
 public class LeaderBoardFragment extends Fragment implements LeaderBoardView {
     LeaderBoardPresenter presenter;
     Button select;
@@ -30,6 +29,16 @@ public class LeaderBoardFragment extends Fragment implements LeaderBoardView {
     int user_id;
     Spinner segmentSpinner;
 
+    /**
+     * @param inflater           The LayoutInflater object that can be used to inflate
+     *                           any views in the fragment,
+     * @param container          If non-null, this is the parent view that the fragment's
+     *                           UI should be attached to.  The fragment should not add the view itself,
+     *                           but this can be used to generate the LayoutParams of the view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     *                           from a previous saved state as given here.
+     * @return
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -50,6 +59,10 @@ public class LeaderBoardFragment extends Fragment implements LeaderBoardView {
         return view;
     }
 
+    /**
+     * 1. Choosing the id of the segment
+     * 2. Calling the controller when the set button is pushed
+     */
     @Override
     public void onStart() {
         super.onStart();
@@ -68,6 +81,11 @@ public class LeaderBoardFragment extends Fragment implements LeaderBoardView {
         });
     }
 
+    /**
+     * Create the segment list, according to the id that the Master server sent
+     *
+     * @param num a list of id as integers
+     */
     @Override
     public void createSegmentList(ArrayList<Integer> num) {
         ArrayAdapter<Integer> adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_dropdown_item, num);
@@ -75,11 +93,21 @@ public class LeaderBoardFragment extends Fragment implements LeaderBoardView {
         segmentSpinner.setAdapter(adapter);
     }
 
+    /**
+     * Get the selected segment from the spinner
+     *
+     * @return selected id as an integer
+     */
     @Override
     public int getSelectedSegment() {
         return Integer.parseInt(segmentSpinner.getSelectedItem().toString());
     }
 
+    /**
+     * Moving from the LeaderBoard fragment to ShowBoard Activity
+     *
+     * @param id the id of the segment
+     */
     @Override
     public void sentOption(int id) {
         Intent intent = new Intent(getContext(), ShowBoardActivity.class);
@@ -88,9 +116,8 @@ public class LeaderBoardFragment extends Fragment implements LeaderBoardView {
         b.putString("host", host);//Your id
         b.putInt("serverPort", serverPort);
         b.putInt("user_id", user_id);
-        intent.putExtras(b); //Put your id to your next Intent
+        intent.putExtras(b);
         startActivity(intent);
     }
-
 
 }

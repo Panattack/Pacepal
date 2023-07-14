@@ -34,6 +34,17 @@ public class StatisticsFragment extends Fragment implements StatisticsView {
     int serverPort;
     String host;
     int userId;
+
+    /**
+     * @param inflater           The LayoutInflater object that can be used to inflate
+     *                           any views in the fragment,
+     * @param container          If non-null, this is the parent view that the fragment's
+     *                           UI should be attached to.  The fragment should not add the view itself,
+     *                           but this can be used to generate the LayoutParams of the view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     *                           from a previous saved state as given here.
+     * @return
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_statistics, container, false);
@@ -51,6 +62,9 @@ public class StatisticsFragment extends Fragment implements StatisticsView {
         return view;
     }
 
+    /**
+     * Calls the presenter to ask & receive the statistics from Master
+     */
     @Override
     public void onStart() {
         super.onStart();
@@ -61,6 +75,12 @@ public class StatisticsFragment extends Fragment implements StatisticsView {
         }
     }
 
+    /**
+     * Shows an alert box
+     *
+     * @param title   the title of the info as a string
+     * @param message the message of the info as a string
+     */
     @Override
     public void alertBox(String title, String message) {
         new AlertDialog.Builder(requireContext())
@@ -70,6 +90,11 @@ public class StatisticsFragment extends Fragment implements StatisticsView {
                 .setPositiveButton(R.string.ok, null).create().show();
     }
 
+    /**
+     * Creates the time bar chart
+     *
+     * @param map a hashmap that contains the global avg time, personal total time and the difference in percentage
+     */
     @Override
     public void createTimeBar(HashMap<String, Double> map) {
         List<BarEntry> entriesTime = new ArrayList<>();
@@ -106,6 +131,11 @@ public class StatisticsFragment extends Fragment implements StatisticsView {
         timeChart.invalidate();
     }
 
+    /**
+     * Creates the distance bar chart
+     *
+     * @param map a hashmap that contains global avg distance, total distance and the difference in percentage
+     */
     @Override
     public void createDistanceBar(HashMap<String, Double> map) {
         List<BarEntry> entriesDistance = new ArrayList<>();
@@ -142,6 +172,11 @@ public class StatisticsFragment extends Fragment implements StatisticsView {
         distanceChart.invalidate();
     }
 
+    /**
+     * Creates the elevation bar chart
+     *
+     * @param map a hashmap that contains the global avg elevation, personal total elevation and the difference in percentage
+     */
     @Override
     public void createElevationBar(HashMap<String, Double> map) {
         List<BarEntry> entriesElevation = new ArrayList<>();

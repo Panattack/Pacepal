@@ -28,6 +28,14 @@ public class SenderPresenter {
     private List<File> inputList;
     protected boolean checking;
 
+    /**
+     * Constructor that initializes the variables and the collections
+     *
+     * @param view       the view that will be used to call the methods in the activity
+     * @param serverPort the port of the server as an integer
+     * @param host       the ip address of the server as a string
+     * @param id         the id of the user as an integer
+     */
     public SenderPresenter(SenderFragmentView view, int serverPort, String host, int id) {
         this.userId = id;
         this.host = host;
@@ -37,6 +45,9 @@ public class SenderPresenter {
         this.init = new MemoryInitializer();
     }
 
+    /**
+     * Loads the files from the Download folder
+     */
     public void loadFilesFromDownloadFolder() {
         String downloadFolderPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath();
         File downloadFolder = new File(downloadFolderPath);
@@ -61,6 +72,12 @@ public class SenderPresenter {
         view.showFiles(titles);
     }
 
+    /**
+     * Sends the file as byte stream
+     *
+     * @param file a file object of the gpx file
+     * @param out  the output stream object that is used to send the bytes to the Master server
+     */
     private void sendFile(File file, ObjectOutputStream out) {
         try {
             byte[] buffer = new byte[(int) file.length()];
@@ -78,6 +95,12 @@ public class SenderPresenter {
         }
     }
 
+    /**
+     * After "submit" button is clicked, it receives the selected files and checks if it can send them.
+     * If there are not enough workers, an alert box shows up
+     *
+     * @throws InterruptedException if something goes wrong with the connection
+     */
     public void submit() throws InterruptedException {
         Thread t = new Thread(this::checkWorkerLoad);
         t.start();
@@ -108,6 +131,9 @@ public class SenderPresenter {
         }
     }
 
+    /**
+     * Checks if there are enough workers available.
+     */
     private void checkWorkerLoad() {
         Socket requestSocket = null;
 
@@ -129,6 +155,12 @@ public class SenderPresenter {
         }
     }
 
+    /**
+     * Establishes the connection between master - app, also receiving for each gpx file/thread the results and via synchronization, store them in the dao
+     *
+     * @param file the File object of a selected file
+     * @param id   the local id of the user
+     */
     private void fileProcess(File file, int id) {
         // Convert it to byte stream
         // Create a new thread and send it
@@ -158,6 +190,7 @@ public class SenderPresenter {
 
             // Route statistics
             HashMap<String, Double> results = (HashMap<String, Double>) in.readObject();
+
             synchronized (this.init.getResultDAO()) {
                 Results res = new Results((new Double(results.get("gpxID"))).intValue(), (new Double(results.get("userID"))).intValue(), results.get("totalDistance"), results.get("avgSpeed"), results.get("totalElevation"), results.get("totalTime"));
                 init.getResultDAO().save(res);
