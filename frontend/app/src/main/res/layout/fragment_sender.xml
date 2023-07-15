@@ -1,0 +1,51 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/add_file"
+        android:textAppearance="?android:textAppearanceMedium"
+        android:textColor="@android:color/black"
+        android:textStyle="bold"
+        android:padding="8dp" />
+
+    <!-- Gap -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="16dp" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="582dp">
+        <!-- Checkbox Table -->
+        <TableLayout
+            android:id="@+id/tableLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/white"
+            android:divider="@drawable/table_divider"
+            android:padding="16dp"
+            android:showDividers="middle"
+            android:stretchColumns="*"
+            android:visibility="gone">
+
+        </TableLayout>
+    </ScrollView>
+    <Button
+        android:id="@+id/submitBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="SUBMIT"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_margin="16dp"
+        android:onClick="submitClicked" />
+
+</LinearLayout>
+
+
+

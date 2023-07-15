@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/SenderFragment"
+        android:title="@string/submit"
+        android:icon="@drawable/gpx_send"/>
+
+    <item
+        android:id="@+id/ResultsFragment"
+        android:title="@string/results"
+        android:icon="@drawable/results_icon"/>
+
+    <item
+        android:id="@+id/StatisticsFragment"
+        android:title ="@string/statistics"
+        android:icon="@drawable/staticts_icon"/>
+
+    <item
+        android:id="@+id/LeaderBoardFragment"
+        android:title ="@string/leaderboard"
+        android:icon="@drawable/leaderboard"/>
+
+</menu>

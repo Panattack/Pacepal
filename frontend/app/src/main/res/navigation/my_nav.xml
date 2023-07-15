@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/my_nav"
+    app:startDestination="@id/SenderFragment" >
+
+
+    <fragment
+        android:id="@+id/SenderFragment"
+        android:name="com.example.pacepal.view.sender.SenderFragment"
+        android:label="fragment_search"
+        tools:layout="@layout/fragment_sender" />
+    <fragment
+        android:id="@+id/ResultsFragment"
+        android:name="com.example.pacepal.view.results.ResultsFragment"
+        android:label="fragment_submission"
+        tools:layout="@layout/fragment_results" />
+    <fragment
+        android:id="@+id/StatisticsFragment"
+        android:name="com.example.pacepal.view.Statistics.StatisticsFragment"
+        android:label="fragment_statistics"
+        tools:layout="@layout/fragment_statistics" />
+    <fragment
+        android:id="@+id/LeaderBoardFragment"
+        android:name="com.example.pacepal.view.LeaderBoard.SelectSegment.LeaderBoardFragment"
+        android:label="fragment_leader_board"
+        tools:layout="@layout/fragment_leader_board" />
+
+</navigation>
