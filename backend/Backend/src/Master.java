@@ -114,10 +114,10 @@ public class Master {
 
     class OpenWeatherAPI {
 
-        String openWeatherApiKey = "f211a2250af488644b66a17fc05ae350";
+        String openWeatherApiKey = "";
         String openWeatherApiUrl = "http://api.openweathermap.org/data/2.5/weather?q=";
         String mapBaseUrl = "https://www.mapquestapi.com/staticmap/v5/map";
-        String mapKey = "N39iOmpm6KwTBEN7r5uHmbgEmNG4rhtg";
+        String mapKey = "";
 
         public JSONObject getPlace(String city) throws JSONException {
 
