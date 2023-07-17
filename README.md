@@ -141,6 +141,6 @@ Useful Links:
 5. GPX Generator https://www.gpxgenerator.com/
 
 ## Contributors
-- Lydia - Christina Wallace 
-- Georgia Petsa
-- Panagiotis Triantafillidis
+- [Lydia - Christina Wallace](https://github.com/Lydiacwall) 
+- [Georgia Petsa](https://github.com/gwgwpet)
+- [Panagiotis Triantafillidis](https://github.com/Panattack)
