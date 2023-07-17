@@ -2,7 +2,7 @@
 
 
 ## Introduction
-This project is part of the subject *"Distributed Systems"* in Athens University of Economics & Business. It is organized into two sub projects, the [backend](backend\README.md) and [frontend] code.
+This project is part of the subject *"Distributed Systems"* in Athens University of Economics & Business. It is organized into two sub projects, the `backend` and `frontend` code.
 
 ## Description
 <p> Recent years have seen a big increase in exercise recording apps
