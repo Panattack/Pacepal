@@ -142,5 +142,5 @@ Useful Links:
 
 ## Contributors
 - [Lydia - Christina Wallace](https://github.com/Lydiacwall) 
-- [Georgia Petsa](https://github.com/gwgwpet)
+- [Georgia Petsa](https://github.com/GwgwP)
 - [Panagiotis Triantafillidis](https://github.com/Panattack)
