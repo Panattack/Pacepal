@@ -36,7 +36,7 @@ an activity/route.
 GPS of the device. therefore the file size grows in proportion to the total
 distance covered during exercise. Editing the file can
 be done in parallel by many machines in the form of MapReduce to speed up the
-processing large files;
+processing large files.
 
 <p> The MapReduce framework is a programming model that enables
 parallel processing of large amounts of data.
