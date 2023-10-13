@@ -1,10 +1,9 @@
-# Pacepal
+# <center>University Assignment</center>
 
-
-## Introduction
+## ✍🏻 Introduction
 This project is part of the subject *"Distributed Systems"* in Athens University of Economics & Business. It is organized into two sub projects, the `backend` and `frontend` code.
 
-## Description
+## 📌 Description
 <p> Recent years have seen a big increase in exercise recording apps
 (activity), activity tracker. These systems usually consist of a
 Mobile frontend application for recording activity and a backend system
@@ -38,26 +37,26 @@ distance covered during exercise. Editing the file can
 be done in parallel by many machines in the form of MapReduce to speed up the
 processing large files;
 
-<p> The MapReduce framework is a programming model that enables
-parallel processing of large amounts of data.
+<details>
+<summary><b>Map-Reduce model</b></summary>
 
-MapReduce is based in two functions:
-- map(key,value) -> [(key2, value2)]
-    - "Map" function: processes a key/value pair and produces an intermediate
+<p>The MapReduce framework is a programming model that enables parallel processing of large amounts of data.</p>
+- <p><b>map(key,value) -> [(key2, value2)]</b><br>
+    <i>"Map" function:</i> processes a key/value pair and produces an intermediate
     key/value pair. The input to the map function can be lines of a
     file, etc., and have the format (key, value). The map function converts every
     such pair in another pair (key2, value2). The map function can be
     runs in parallel, on different inputs and on different
     Nodes. The degree of parallelism depends on the application and can
-    set by the user.
-
-- reduce(key2,[value2]) -> [final_value]
-    - "Reduce" function: merges all intermediate values related to the same
+    set by the user.</p>
+- <p><b>reduce(key2,[value2]) -> [final_value]</b><br>
+    <i>"Reduce" function:<i> merges all intermediate values related to the same
     key and produces the final results. For each separate key is created
     A list of the values that correspond to this key. This function
     Calculates a final value for the key by processing the list of values that
     correspond to this key. The reduce function is processed after
-    All map functions have finished processing.
+    All map functions have finished processing.</p>
+</details>
 
 <p> The mobile application initially sends GPX to a Master Node. Then the Master
 Node creates chunks from n waypoints and sends them to Worker Nodes in order
@@ -74,7 +73,7 @@ mobile application for the user to see.
 maintains the Average Exercise Time, Average Distance and Average Ascent for both
 each user individually, as well as for all users.
 
-## Backend implementation requirements:
+## ⚙️ Backend implementation requirements:
 - The Master must be implemented in Java and implement TCP Server. Not
 allow the use of out-of-the-box libraries beyond the default Java ServerSocket, or
 HTTP protocol using ready-made server such as Java or Apache.
@@ -98,7 +97,7 @@ java.util.concurrent or other out-of-the-box tools.
 Users. All data structures can be stored in memory
 of the Master. The use of a database is prohibited
 
-## Frontend implementation requirements:
+## 🖥️ Frontend implementation requirements:
 You will develop an application that will run on Android devices and will
 is an interface for the system. Through it, the user:
 - He will be able to select a GPX file, saved on his device and make it
@@ -119,7 +118,7 @@ open until they are taken. This process should be implemented by
 the use of Threads, so that the application remains interactive until
 obtained the results.
 
-### Bonus (+20%)
+### 💭 Bonus (+20%)
 In many apps, such as Strava, users can set a sequence of
 Waypoints as a Segment, e.g. a small piece of the Classic path
 Athens Marathon. Then each time the system detects a sub-sequence
@@ -140,7 +139,7 @@ Useful Links:
 4. Android Studio http://developer.android.com/sdk/index.html
 5. GPX Generator https://www.gpxgenerator.com/
 
-## Contributors
+## 👨‍💻👩‍💻 Contributors
 - [Lydia - Christina Wallace](https://github.com/Lydiacwall) 
 - [Georgia Petsa](https://github.com/gwgwpet)
 - [Panagiotis Triantafillidis](https://github.com/Panattack)
