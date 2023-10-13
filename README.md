@@ -40,7 +40,7 @@ processing large files.
 <details>
 <summary><b>Map-Reduce model</b></summary>
 
-<p>The MapReduce framework is a programming model that enables parallel processing of large amounts of data.</p>
+- <p><b>Intro</b><br>The MapReduce framework is a programming model that enables parallel processing of large amounts of data.</p>
 - <p><b>map(key,value) -> [(key2, value2)]</b><br>
     <i>"Map" function:</i> processes a key/value pair and produces an intermediate
     key/value pair. The input to the map function can be lines of a
