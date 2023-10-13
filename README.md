@@ -35,7 +35,7 @@ an activity/route.
 GPS of the device. therefore the file size grows in proportion to the total
 distance covered during exercise. Editing the file can
 be done in parallel by many machines in the form of MapReduce to speed up the
-processing large files;
+processing large files.
 
 <details>
 <summary><b>Map-Reduce model</b></summary>
@@ -141,5 +141,5 @@ Useful Links:
 
 ## 👨‍💻👩‍💻 Contributors
 - [Lydia - Christina Wallace](https://github.com/Lydiacwall) 
-- [Georgia Petsa](https://github.com/gwgwpet)
+- [Georgia Petsa](https://github.com/GwgwP)
 - [Panagiotis Triantafillidis](https://github.com/Panattack)
