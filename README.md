@@ -132,7 +132,7 @@ leaderboard for the selected segment.
 **Note**: Two devices in the same place may read slightly different
 Coordinates. e.g. show a difference of 5m. This is called GPS Drift.
 
-Useful Links:
+🔗 Useful Links:
 1. https://docs.oracle.com/javase/8/docs/api/java/util/stream/package-summary.html
 2. Android. URL : http://code.google.com/android/
 3. Android SDK: http://developer.android.com/sdk/index.html
