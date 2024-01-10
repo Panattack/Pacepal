@@ -75,7 +75,7 @@ each user individually, as well as for all users.
 
 ## ⚙️ Backend implementation requirements:
 - The Master must be implemented in Java and implement TCP Server. Not
-allow the use of out-of-the-box libraries beyond the default Java ServerSocket, or
+allowed the use of out-of-the-box libraries beyond the default Java ServerSocket, or
 HTTP protocol using ready-made server such as Java or Apache.
 - The Master must be multithreaded and be able to serve many
 users at the same time and communicate simultaneously with employees.
